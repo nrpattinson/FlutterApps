@@ -1,0 +1,186 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1_f army_france_1st
+counter counter_1_2_f army_france_2nd
+counter counter_1_3_f army_france_3rd
+counter counter_1_4_f army_france_4th
+counter counter_1_5_f army_france_5th
+counter counter_1_6_f over_the_top_france
+counter counter_1_7_f cruiser
+
+counter counter_2_1_f surrender_france
+counter counter_2_2_f forts
+counter counter_2_4_f tank
+counter counter_2_5_f air_superiority
+counter counter_2_6_f french_mutiny
+
+counter counter_3_1_f army_russia_1st
+counter counter_3_2_f army_russia_2nd
+counter counter_3_3_f army_russia_4th
+counter counter_3_4_f army_russia_6th
+counter counter_3_5_f army_russia_10th
+counter counter_3_6_f over_the_top_russia
+counter counter_3_7_f army_russia_caucasus
+counter counter_3_8_f army_russia_turkestan
+
+counter counter_4_1_f army_russia_3rd
+counter counter_4_2_f army_russia_5th
+counter counter_4_3_f army_russia_7th
+counter counter_4_4_f army_russia_8th
+counter counter_4_5_f army_russia_9th
+counter counter_4_7_f army_russia_cossack
+counter counter_4_8_f army_russia_kars
+
+counter counter_5_1_f lira_0
+counter counter_5_4_f lira_1
+counter counter_5_7_f lira_2
+
+counter counter_6_4_f lira_3
+counter counter_6_7_f lira_4
+
+counter counter_7_1_f army_italy_1st
+counter counter_7_2_f army_italy_2nd
+counter counter_7_3_f army_italy_3rd
+counter counter_7_4_f surrender_italy
+counter counter_7_5_f army_belgium
+counter counter_7_6_f neutral_bulgaria
+counter counter_7_7_f civil_rule_of_law
+counter counter_7_8_f special_event
+
+counter counter_8_1_f army_italy_4th
+counter counter_8_2_f army_italy_carnia
+counter counter_8_3_f over_the_top_italy
+counter counter_8_4_f neutral_italy
+counter counter_8_5_f railway
+counter counter_8_6_f surrender_ottoman
+counter counter_8_7_f civil_constitution
+counter counter_8_8_f civil_free_press
+
+counter counter_9_1_f army_serbia_1st
+counter counter_9_2_f army_serbia_2nd
+counter counter_9_3_f army_serbia_3rd
+counter counter_9_4_f neutral_roumania
+counter counter_9_5_f surrender_roumania
+counter counter_9_6_f army_roumania_north
+counter counter_9_7_f army_india_a
+counter counter_9_8_f army_india_b
+
+counter counter_10_1_f army_serbia_uzice
+counter counter_10_2_f army_serbia_montenegro
+counter counter_10_3_f over_the_top_serbia
+counter counter_10_4_f roumania_hypothesis
+counter counter_10_5_f army_roumania_1st
+counter counter_10_6_f army_roumania_2nd
+counter counter_10_7_f army_india_c
+counter counter_10_8_f army_india_d
+
+counter counter_11_1_f army_arab
+counter counter_11_2_f army_usa_vi
+counter counter_11_3_f army_usa_i
+counter counter_11_4_f army_usa_iv
+counter counter_11_5_f army_usa_v
+counter counter_11_6_f bombers_british
+counter counter_11_7_f bombers_german
+counter counter_11_8_f zeppelin
+
+counter counter_1_9_f turn_01
+counter counter_1_10_f turn_02
+counter counter_1_11_f turn_03
+counter counter_1_12_f turn_04
+counter counter_1_13_f turn_05
+counter counter_1_14_f turn_06
+counter counter_1_15_f turn_07
+counter counter_1_16_f turn_08
+
+counter counter_2_9_f turn_09
+counter counter_2_10_f turn_10
+counter counter_2_11_f turn_11
+counter counter_2_12_f turn_12
+counter counter_2_13_f turn_13
+counter counter_2_14_f turn_14
+counter counter_2_15_f turn_15
+counter counter_2_16_f turn_16
+
+counter counter_3_9_f turn_17
+counter counter_3_10_f turn_18
+counter counter_3_11_f turn_19
+counter counter_3_12_f turn_20
+counter counter_3_13_f turn_21
+counter counter_3_14_f turn_22
+counter counter_3_15_f turn_23
+counter counter_3_16_f turn_24
+
+counter counter_4_9_f turn_25
+counter counter_4_10_f turn_26
+counter counter_4_11_f turn_27
+counter counter_4_12_f turn_28
+counter counter_4_13_f runner_netherlands
+counter counter_4_14_f runner_norway
+counter counter_4_15_f runner_denmark
+counter counter_4_16_f runner_sweden
+
+counter counter_5_9_f army_britain_1st
+counter counter_5_10_f army_britain_2nd
+counter counter_5_11_f army_britain_3rd
+counter counter_5_12_f army_britain_xx
+counter counter_5_13_f army_britain_bef
+counter counter_5_14_f lira
+counter counter_5_15_f kemal
+counter counter_5_16_f army_britain_mef
+
+counter counter_6_9_f high_seas_fleet
+counter counter_6_10_f army_britain_4th
+counter counter_6_11_f over_the_top_britain
+counter counter_6_12_f army_britain_lawrence
+counter counter_6_13_f lira_5
+counter counter_6_15_f neutral_ottoman
+counter counter_6_16_f army_south_africa
+
+counter counter_7_9_f army_aao_orient
+counter counter_7_10_f army_aao_ndac
+counter counter_7_11_f army_aao_salonika
+counter counter_7_12_f army_armenia_1
+counter counter_7_13_f army_armenia_2
+counter counter_7_14_f kaisertreu
+counter counter_7_15_f askari
+
+counter counter_8_9_f over_the_top_aao
+counter counter_8_10_f army_aao_1st
+counter counter_8_11_f army_aao_2nd
+counter counter_8_12_f army_britain_dunster
+counter counter_8_13_f army_assyria
+counter counter_8_14_f armenians
+counter counter_8_15_f siegfried_line
+counter counter_8_16_f red_baron
+
+counter counter_9_9_f uboats
+counter counter_9_10_f city_vienna
+counter counter_9_11_f city_budapest
+counter counter_9_12_f city_berlin
+counter counter_9_13_f city_munich
+counter counter_9_14_f city_leipzig
+counter counter_9_15_f city_dresden
+counter counter_9_16_f reichsmark
+
+counter counter_10_10_f city_breslau
+counter counter_10_11_f city_prague
+counter counter_10_12_f city_hamburg
+counter counter_10_13_f city_cologne
+counter counter_10_14_f city_frankfurt
+counter counter_10_15_f krupp
+counter counter_10_16_f hinden_luden
+
+counter counter_11_9_f pink_russia
+counter counter_11_11_f pink_france
+counter counter_11_12_f pink_italy
+counter counter_11_13_f pink_serbia
+counter counter_11_14_f siege_kut
+counter counter_11_15_f trenches

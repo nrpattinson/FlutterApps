@@ -1,0 +1,196 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f war_american_7_4
+counter counter_1_2_f war_british_12_5
+counter counter_1_3_f war_british_10_5
+counter counter_1_4_f war_british_8_3
+counter counter_1_5_f war_dutch_5_3
+counter counter_1_6_f war_french_11_4
+counter counter_1_7_f war_french_9_4
+counter counter_1_8_f war_german_8_4
+counter counter_1_9_f war_japanese_15_5
+counter counter_1_10_f war_japanese_13_5
+
+counter counter_2_1_f war_japanese_11_5
+counter counter_2_2_f war_japanese_9_5
+counter counter_2_3_f war_portuguese_4_3
+counter counter_2_4_f war_russian_14_4
+counter counter_2_5_f war_russian_12_4
+counter counter_2_6_f war_russian_10_4
+counter counter_2_7_f war_spanish_6_3
+counter counter_2_8_f war_boxer_13_2
+counter counter_2_9_f war_communist_15_5
+counter counter_2_10_f war_gurkha_7_1
+
+counter counter_3_1_f war_gurkha_5_1
+counter counter_3_2_f leader_zheng_yi
+counter counter_3_3_f war_pirate_8_3
+counter counter_3_4_f war_pirate_6_3
+counter counter_3_5_f war_red_turban_12_1
+counter counter_3_6_f war_hui_11_1
+counter counter_3_7_f war_jinchuan_5_1
+counter counter_3_8_f leader_hsinbyushin
+counter counter_3_9_f war_mian_8_2
+counter counter_3_10_f war_miao_9_1
+
+counter counter_4_1_f war_miao_7_1
+counter counter_4_2_f leader_galdan
+counter counter_4_3_f war_mongol_14_4
+counter counter_4_4_f war_mongol_12_4
+counter counter_4_5_f war_mongol_10_4
+counter counter_4_6_f war_nian_11_2
+counter counter_4_7_f war_panthay_13_1
+counter counter_4_8_f war_sikh_4_1
+counter counter_4_9_f war_taiping_14_3
+counter counter_4_10_f war_taiwan_4_2
+
+counter counter_5_1_f war_thai_6_2
+counter counter_5_2_f war_tibetan_8_1
+counter counter_5_3_f war_tibetan_6_1
+counter counter_5_4_f leader_yaqub
+counter counter_5_5_f war_turkish_12_3
+counter counter_5_6_f war_turkish_11_3
+counter counter_5_7_f turn_qing
+counter counter_5_8_f pay1
+counter counter_5_9_f cashp1
+counter counter_5_10_f prestigep1
+
+counter counter_6_1_f war_turkish_10_3
+counter counter_6_2_f leader_nguyen
+counter counter_6_3_f war_viet_9_2
+counter counter_6_4_f war_white_lotus_9_1
+counter counter_6_5_f war_wokou_7_3
+counter counter_6_6_f war_wokou_5_3
+counter counter_6_7_f unrest
+counter counter_6_8_f pay10
+counter counter_6_9_f cashp10
+counter counter_6_10_f prestigep10
+
+counter counter_7_1_f event
+counter counter_7_4_f guard
+counter counter_7_5_f fleet
+
+counter counter_9_1_f cavalry
+counter counter_9_3_f infantry
+
+counter counter_12_1_f militia
+
+counter counter_14_1_f rebel
+
+counter counter_1_11_f statesman_dorgon
+counter counter_1_12_f statesman_wu_sangui
+counter counter_1_13_f treaty_nerchinsk
+counter counter_1_14_f statesman_sharhuda
+counter counter_1_15_f statesman_oboi
+counter counter_1_16_f statesman_shi_lang
+counter counter_1_17_f statesman_koxinga
+counter counter_1_18_f statesman_songgotu
+counter counter_1_19_f statesman_shunzhi
+counter counter_1_20_f statesman_kangxi
+
+counter counter_2_11_f statesman_yongzheng
+counter counter_2_12_f statesman_gengyao
+counter counter_2_13_f statesman_yunsi
+counter counter_2_14_f statesman_ortai
+counter counter_2_15_f statesman_yinxiang
+counter counter_2_16_f statesman_zhongqi
+counter counter_2_17_f statesman_yunti
+counter counter_2_18_f statesman_qianlong
+counter counter_2_19_f treaty_kyakhta
+counter counter_2_20_f statesman_zhaohui
+
+counter counter_3_11_f statesman_agui
+counter counter_3_12_f statesman_fuheng
+counter counter_3_13_f statesman_sun_shiyi
+counter counter_3_14_f statesman_yongxuan
+counter counter_3_15_f statesman_wang_lun
+counter counter_3_16_f statesman_yongqi
+counter counter_3_17_f statesman_heshen
+counter counter_3_18_f statesman_fu_kangan
+counter counter_3_19_f statesman_yang_fang
+counter counter_3_20_f statesman_jiaqing
+
+counter counter_4_11_f statesman_daoguang
+counter counter_4_12_f treaty_nanjing
+counter counter_4_13_f treaty_beijing
+counter counter_4_14_f statesman_lin_zexu
+counter counter_4_15_f statesman_rinchen
+counter counter_4_16_f statesman_guofan
+counter counter_4_17_f statesman_zuo
+counter counter_4_18_f statesman_xiuquan
+counter counter_4_19_f statesman_mianyu
+counter counter_4_20_f statesman_hongzhang
+
+counter counter_5_11_f statesman_xianfeng
+counter counter_5_12_f statesman_yixin
+counter counter_5_13_f statesman_cixi
+counter counter_5_14_f statesman_liu_yongfu
+counter counter_5_15_f statesman_tongzhi
+counter counter_5_16_f treaty_maguan
+counter counter_5_17_f treaty_xinchou
+counter counter_5_18_f statesman_cao_futian
+counter counter_5_19_f statesman_yinchang
+counter counter_5_20_f statesman_shikai
+
+counter counter_6_11_f statesman_sun_yixian
+counter counter_6_12_f statesman_guangxu
+counter counter_6_13_f statesman_zuolin
+counter counter_6_14_f statesman_feng
+counter counter_6_15_f statesman_zhu_de
+counter counter_6_16_f statesman_jiang
+counter counter_6_17_f statesman_li_zongren
+counter counter_6_18_f statesman_mao
+counter counter_6_19_f statesman_shicai
+counter counter_6_20_f statesman_puyi
+
+counter counter_7_11_f vassal
+
+counter counter_13_11_f insurgent
+
+counter counter_1_1_b barbarian
+
+counter counter_5_7_b turn_gmd
+counter counter_5_9_b cashn1
+counter counter_5_10_b prestigen1
+
+counter counter_6_7_b unrestp25
+counter counter_6_9_b cashp250
+counter counter_6_10_b prestigen10
+
+counter counter_7_1_b event_doubled
+counter counter_7_4_b guard_veteran
+counter counter_7_5_b fleet_veteran
+
+counter counter_9_1_b cavalry_veteran
+counter counter_9_3_b infantry_veteran
+
+counter counter_12_1_b fort
+
+counter counter_1_13_b scenario_1644
+
+counter counter_2_19_b scenario_1735
+
+counter counter_4_13_b scenario_1820
+
+counter counter_5_16_b scenario_1889
+
+counter counter_9_11_b foreign_french
+counter counter_9_15_b foreign_german
+counter counter_9_16_b foreign_dutch
+counter counter_9_17_b foreign_portuguese
+counter counter_9_18_b foreign_american
+
+counter counter_10_18_b foreign_spanish
+
+counter counter_11_11_b foreign_russian
+counter counter_11_19_b foreign_british
+
+counter counter_13_11_b foreign_japanese

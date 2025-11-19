@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1_f terr_zanu
+
+counter counter_3_1_f terr_zapu
+counter counter_3_8_f politician_black_chitepo
+
+counter counter_4_1_f marker_sanctions
+counter counter_4_2_f politician_zambia_kaunda
+counter counter_4_3_f politician_tanzania_nyerere
+counter counter_4_4_f politician_us_reagan
+counter counter_4_5_f politician_black_mugabe
+counter counter_4_6_f politician_black_sithole
+counter counter_4_7_f politician_black_muzorewa
+counter counter_4_8_f politician_black_nkomo
+
+counter counter_5_1_f troopie_rhodesia_rar_1
+counter counter_5_2_f troopie_rhodesia_rar_2
+counter counter_5_3_f troopie_rhodesia_rar_3
+counter counter_5_4_f troopie_rhodesia_rli
+counter counter_5_5_f troopie_rhodesia_selous_scouts_1
+counter counter_5_6_f troopie_rhodesia_selous_scouts_2
+counter counter_5_7_f troopie_rhodesia_sas
+counter counter_5_8_f troopie_rhodesia_greys_scouts
+
+counter counter_6_1_f troopie_rhodesia_bsap
+counter counter_6_2_f troopie_rhodesia_guard_force
+counter counter_6_3_f troopie_rhodesia_pfumo_re_vanhu_1
+counter counter_6_4_f troopie_rhodesia_pfumo_re_vanhu_2
+counter counter_6_5_f troopie_south_africa_sap_1
+counter counter_6_6_f troopie_south_africa_sap_2
+counter counter_6_7_f troopie_portuguese_flechas
+counter counter_6_8_f troopie_portuguese_grupos_especials
+
+counter counter_7_1_f fortification
+counter counter_7_4_f air_force_rhodesia_2
+counter counter_7_5_f marker_port_beira
+counter counter_7_6_f marker_fico
+counter counter_7_7_f marker_treasury
+counter counter_7_8_f marker_terror
+
+counter counter_8_1_f marker_turn
+counter counter_8_2_f policy_provincial_councils
+counter counter_8_3_f policy_exercise_alcora
+counter counter_8_4_f policy_land_tenure_act
+counter counter_8_5_f policy_proclaim_republic
+counter counter_8_6_f policy_spirit_mediums
+counter counter_8_7_f policy_pearce_commission
+counter counter_8_8_f policy_law_and_order
+
+counter counter_9_1_f policy_detente
+counter counter_9_2_f policy_corsan
+counter counter_9_3_f policy_land_tenure_amendment
+counter counter_9_4_f policy_quenet_commission
+counter counter_9_5_f policy_integration
+counter counter_9_6_f policy_pfumo_re_vanhu
+counter counter_9_7_f policy_african_advancement
+counter counter_9_8_f marker_assembly
+
+counter counter_10_1_f foreign_usa_democrats_anti
+counter counter_10_2_f foreign_britain_tories_pro
+counter counter_10_3_f foreign_south_africa_verligte_anti
+counter counter_10_4_f foreign_portugal
+counter counter_10_6_f marker_rhodesian_front_popularity
+counter counter_10_7_f marker_population_up
+counter counter_10_8_f marker_rhodesian_election
+
+counter counter_11_1_f black_attitude_fist
+counter counter_11_6_f marker_botswana_british_rule
+counter counter_11_7_f marker_british_election
+counter counter_11_8_f marker_rhodesia_republic
+
+counter counter_1_1_b terr_used
+
+counter counter_3_8_b politician_black_chitepo_zanu
+
+counter counter_4_1_b politician_us_carter
+counter counter_4_2_b politician_zambia_coup
+counter counter_4_3_b politician_tanzania_coup
+counter counter_4_4_b politician_us_kissinger
+counter counter_4_5_b politician_black_mugabe_zanu
+counter counter_4_6_b politician_black_sitole_zanu
+counter counter_4_7_b politician_black_muzorewa_uanc
+counter counter_4_8_b politician_black_nkomo_zapu
+
+counter counter_5_1_b troopie_rhodesia_used
+
+counter counter_6_5_b troopie_south_africa_used
+counter counter_6_7_b troopie_portuguese_used
+
+counter counter_7_1_b fortification_under_construction
+counter counter_7_4_b air_force_rhodesia_1
+counter counter_7_5_b marker_tan_zam_railway
+
+counter counter_8_3_b policy_exercise_alcora_enacted
+counter counter_8_5_b policy_proclaim_republic_enacted
+counter counter_8_8_b policy_law_and_order_enacted
+
+counter counter_9_3_b policy_land_tenure_amendment_enacted
+counter counter_9_4_b policy_quenet_commission_enacted
+counter counter_9_5_b policy_integration_enacted
+counter counter_9_7_b policy_african_advancement_enacted
+
+counter counter_10_1_b foreign_usa_republican_pro
+counter counter_10_2_b foreign_britain_labour_anti
+counter counter_10_3_b foreign_south_africa_verkrampte_pro
+counter counter_10_4_b troopie_renamo_1
+counter counter_10_5_b troopie_renamo_2
+counter counter_10_7_b marker_population_down
+
+counter counter_11_1_b black_attitude_handshake
+counter counter_11_8_b marker_rhodesia_zimbabwe

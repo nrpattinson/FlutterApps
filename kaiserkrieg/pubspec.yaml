@@ -1,0 +1,255 @@
+name: kaiserkrieg
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/thumbnail.png
+   - assets/images/map.png
+   - assets/images/tray.png
+   - assets/images/air_superiority.png
+   - assets/images/armenians.png
+   - assets/images/army_aao_1st.png
+   - assets/images/army_aao_2nd.png
+   - assets/images/army_aao_ndac.png
+   - assets/images/army_aao_orient.png
+   - assets/images/army_aao_salonika.png
+   - assets/images/army_arab.png
+   - assets/images/army_arab_inactive.png
+   - assets/images/army_armenia_1.png
+   - assets/images/army_armenia_2.png
+   - assets/images/army_assyria.png
+   - assets/images/army_belgium.png
+   - assets/images/army_britain_1st.png
+   - assets/images/army_britain_2nd.png
+   - assets/images/army_britain_3rd.png
+   - assets/images/army_britain_4th.png
+   - assets/images/army_britain_bef.png
+   - assets/images/army_britain_dunster.png
+   - assets/images/army_britain_lawrence.png
+   - assets/images/army_britain_mef.png
+   - assets/images/army_britain_xx.png
+   - assets/images/army_france_1st.png
+   - assets/images/army_france_2nd.png
+   - assets/images/army_france_3rd.png
+   - assets/images/army_france_4th.png
+   - assets/images/army_france_5th.png
+   - assets/images/army_india_a.png
+   - assets/images/army_india_b.png
+   - assets/images/army_india_c.png
+   - assets/images/army_india_d.png
+   - assets/images/army_italy_1st.png
+   - assets/images/army_italy_2nd.png
+   - assets/images/army_italy_3rd.png
+   - assets/images/army_italy_4th.png
+   - assets/images/army_italy_carnia.png
+   - assets/images/army_roumania_1st.png
+   - assets/images/army_roumania_2nd.png
+   - assets/images/army_roumania_north.png
+   - assets/images/army_russia_1st.png
+   - assets/images/army_russia_2nd.png
+   - assets/images/army_russia_3rd.png
+   - assets/images/army_russia_4th.png
+   - assets/images/army_russia_5th.png
+   - assets/images/army_russia_6th.png
+   - assets/images/army_russia_7th.png
+   - assets/images/army_russia_8th.png
+   - assets/images/army_russia_9th.png
+   - assets/images/army_russia_10th.png
+   - assets/images/army_russia_caucasus.png
+   - assets/images/army_russia_cossack.png
+   - assets/images/army_russia_kars.png
+   - assets/images/army_russia_turkestan.png
+   - assets/images/army_serbia_1st.png
+   - assets/images/army_serbia_2nd.png
+   - assets/images/army_serbia_3rd.png
+   - assets/images/army_serbia_montenegro.png
+   - assets/images/army_serbia_uzice.png
+   - assets/images/army_south_africa.png
+   - assets/images/army_usa_i.png
+   - assets/images/army_usa_iv.png
+   - assets/images/army_usa_v.png
+   - assets/images/army_usa_vi.png
+   - assets/images/askari.png
+   - assets/images/bombers_british.png
+   - assets/images/bombers_german.png
+   - assets/images/city_berlin.png
+   - assets/images/city_breslau.png
+   - assets/images/city_budapest.png
+   - assets/images/city_cologne.png
+   - assets/images/city_dresden.png
+   - assets/images/city_frankfurt.png
+   - assets/images/city_hamburg.png
+   - assets/images/city_leipzig.png
+   - assets/images/city_munich.png
+   - assets/images/city_prague.png
+   - assets/images/city_vienna.png
+   - assets/images/civil_constitution.png
+   - assets/images/civil_free_press.png
+   - assets/images/civil_rule_of_law.png
+   - assets/images/cruiser.png
+   - assets/images/forts.png
+   - assets/images/french_mutiny.png
+   - assets/images/high_seas_fleet.png
+   - assets/images/hinden_luden.png
+   - assets/images/kaisertreu.png
+   - assets/images/kemal.png
+   - assets/images/krupp.png
+   - assets/images/lira.png
+   - assets/images/lira_0.png
+   - assets/images/lira_1.png
+   - assets/images/lira_2.png
+   - assets/images/lira_3.png
+   - assets/images/lira_4.png
+   - assets/images/lira_5.png
+   - assets/images/neutral_bulgaria.png
+   - assets/images/neutral_italy.png
+   - assets/images/neutral_ottoman.png
+   - assets/images/neutral_roumania.png
+   - assets/images/over_the_top_aao.png
+   - assets/images/over_the_top_britain.png
+   - assets/images/over_the_top_france.png
+   - assets/images/over_the_top_italy.png
+   - assets/images/over_the_top_russia.png
+   - assets/images/over_the_top_serbia.png
+   - assets/images/pink_france.png
+   - assets/images/pink_italy.png
+   - assets/images/pink_russia.png
+   - assets/images/pink_serbia.png
+   - assets/images/railway.png
+   - assets/images/red_baron.png
+   - assets/images/reichsmark.png
+   - assets/images/roumania_hypothesis.png
+   - assets/images/runner_denmark.png
+   - assets/images/runner_netherlands.png
+   - assets/images/runner_norway.png
+   - assets/images/runner_sweden.png
+   - assets/images/siege_kut.png
+   - assets/images/siegfried_line.png
+   - assets/images/special_event.png
+   - assets/images/surrender_france.png
+   - assets/images/surrender_italy.png
+   - assets/images/surrender_ottoman.png
+   - assets/images/surrender_roumania.png
+   - assets/images/tank.png
+   - assets/images/trenches.png
+   - assets/images/turn_01.png
+   - assets/images/turn_02.png
+   - assets/images/turn_03.png
+   - assets/images/turn_04.png
+   - assets/images/turn_05.png
+   - assets/images/turn_06.png
+   - assets/images/turn_07.png
+   - assets/images/turn_08.png
+   - assets/images/turn_09.png
+   - assets/images/turn_10.png
+   - assets/images/turn_11.png
+   - assets/images/turn_12.png
+   - assets/images/turn_13.png
+   - assets/images/turn_14.png
+   - assets/images/turn_15.png
+   - assets/images/turn_16.png
+   - assets/images/turn_17.png
+   - assets/images/turn_18.png
+   - assets/images/turn_19.png
+   - assets/images/turn_20.png
+   - assets/images/turn_21.png
+   - assets/images/turn_22.png
+   - assets/images/turn_23.png
+   - assets/images/turn_24.png
+   - assets/images/turn_25.png
+   - assets/images/turn_26.png
+   - assets/images/turn_27.png
+   - assets/images/turn_28.png
+   - assets/images/uboats.png
+   - assets/images/zeppelin.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

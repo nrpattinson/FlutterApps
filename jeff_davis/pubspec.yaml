@@ -1,0 +1,318 @@
+name: jeff_davis
+description: "Jeff Davis: The Confedaracy at War"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.png
+   - assets/images/display.png
+   - assets/images/tray.png
+   - assets/images/thumbnail.png
+   - assets/images/anaconda_plan_landing.png
+   - assets/images/artillery.png
+   - assets/images/blockade_runner_advance.png
+   - assets/images/blockade_runner_re_lee.png
+   - assets/images/blockade_runner_sumter.png
+   - assets/images/blockade_runner_syren.png
+   - assets/images/bushwhacker_2.png
+   - assets/images/bushwhacker_3.png
+   - assets/images/bushwhacker_4.png
+   - assets/images/campaign_failure.png
+   - assets/images/campaign_success.png
+   - assets/images/cavalry_forrest_1.png
+   - assets/images/cavalry_hampton_1.png
+   - assets/images/cavalry_stuart_2.png
+   - assets/images/cavalry_wheeler_2.png
+   - assets/images/chit_back_1.png
+   - assets/images/chit_back_10.png
+   - assets/images/chit_back_11.png
+   - assets/images/chit_back_12.png
+   - assets/images/chit_back_13.png
+   - assets/images/chit_back_14.png
+   - assets/images/chit_back_15.png
+   - assets/images/chit_back_16.png
+   - assets/images/chit_back_17.png
+   - assets/images/chit_back_18.png
+   - assets/images/chit_back_19.png
+   - assets/images/chit_back_2.png
+   - assets/images/chit_back_20.png
+   - assets/images/chit_back_21.png
+   - assets/images/chit_back_22.png
+   - assets/images/chit_back_23.png
+   - assets/images/chit_back_24.png
+   - assets/images/chit_back_25.png
+   - assets/images/chit_back_26.png
+   - assets/images/chit_back_27.png
+   - assets/images/chit_back_28.png
+   - assets/images/chit_back_29.png
+   - assets/images/chit_back_3.png
+   - assets/images/chit_back_30.png
+   - assets/images/chit_back_31.png
+   - assets/images/chit_back_32.png
+   - assets/images/chit_back_33.png
+   - assets/images/chit_back_34.png
+   - assets/images/chit_back_35.png
+   - assets/images/chit_back_36.png
+   - assets/images/chit_back_37.png
+   - assets/images/chit_back_38.png
+   - assets/images/chit_back_39.png
+   - assets/images/chit_back_4.png
+   - assets/images/chit_back_40.png
+   - assets/images/chit_back_41.png
+   - assets/images/chit_back_42.png
+   - assets/images/chit_back_43.png
+   - assets/images/chit_back_44.png
+   - assets/images/chit_back_5.png
+   - assets/images/chit_back_6.png
+   - assets/images/chit_back_7.png
+   - assets/images/chit_back_8.png
+   - assets/images/chit_back_9.png
+   - assets/images/chit_info_1.png
+   - assets/images/chit_info_10.png
+   - assets/images/chit_info_11.png
+   - assets/images/chit_info_12.png
+   - assets/images/chit_info_13.png
+   - assets/images/chit_info_14.png
+   - assets/images/chit_info_15.png
+   - assets/images/chit_info_16.png
+   - assets/images/chit_info_17.png
+   - assets/images/chit_info_18.png
+   - assets/images/chit_info_19.png
+   - assets/images/chit_info_2.png
+   - assets/images/chit_info_20.png
+   - assets/images/chit_info_21.png
+   - assets/images/chit_info_22.png
+   - assets/images/chit_info_23.png
+   - assets/images/chit_info_24.png
+   - assets/images/chit_info_25.png
+   - assets/images/chit_info_26.png
+   - assets/images/chit_info_27.png
+   - assets/images/chit_info_28.png
+   - assets/images/chit_info_29.png
+   - assets/images/chit_info_3.png
+   - assets/images/chit_info_30.png
+   - assets/images/chit_info_31.png
+   - assets/images/chit_info_32.png
+   - assets/images/chit_info_33.png
+   - assets/images/chit_info_34.png
+   - assets/images/chit_info_35.png
+   - assets/images/chit_info_36.png
+   - assets/images/chit_info_37.png
+   - assets/images/chit_info_38.png
+   - assets/images/chit_info_39.png
+   - assets/images/chit_info_4.png
+   - assets/images/chit_info_40.png
+   - assets/images/chit_info_41.png
+   - assets/images/chit_info_42.png
+   - assets/images/chit_info_43.png
+   - assets/images/chit_info_44.png
+   - assets/images/chit_info_5.png
+   - assets/images/chit_info_6.png
+   - assets/images/chit_info_7.png
+   - assets/images/chit_info_8.png
+   - assets/images/chit_info_9.png
+   - assets/images/crisis.png
+   - assets/images/css_hunley.png
+   - assets/images/defensive_works.png
+   - assets/images/factory.png
+   - assets/images/freedmen_1.png
+   - assets/images/freedmen_2.png
+   - assets/images/frigate_brooklyn.png
+   - assets/images/frigate_iroquois.png
+   - assets/images/frigate_james_adger.png
+   - assets/images/frigate_kansas.png
+   - assets/images/general_ap_hill_1.png
+   - assets/images/general_ap_hill_2.png
+   - assets/images/general_as_johnston_1.png
+   - assets/images/general_as_johnston_2.png
+   - assets/images/general_bazaine_1.png
+   - assets/images/general_bazaine_2.png
+   - assets/images/general_beauregard_1.png
+   - assets/images/general_beauregard_2.png
+   - assets/images/general_bragg_1.png
+   - assets/images/general_bragg_2.png
+   - assets/images/general_early_1.png
+   - assets/images/general_early_2.png
+   - assets/images/general_ewell_1.png
+   - assets/images/general_ewell_2.png
+   - assets/images/general_hardee_1.png
+   - assets/images/general_hardee_2.png
+   - assets/images/general_hood_1.png
+   - assets/images/general_hood_2.png
+   - assets/images/general_j_johnston_1.png
+   - assets/images/general_j_johnston_2.png
+   - assets/images/general_jackson_1.png
+   - assets/images/general_jackson_2.png
+   - assets/images/general_lee_1.png
+   - assets/images/general_lee_2.png
+   - assets/images/general_longstreet_1.png
+   - assets/images/general_longstreet_2.png
+   - assets/images/general_napier_1.png
+   - assets/images/general_napier_2.png
+   - assets/images/general_pemberton_1.png
+   - assets/images/general_pemberton_2.png
+   - assets/images/general_stuart_1.png
+   - assets/images/general_stuart_2.png
+   - assets/images/general_van_dorn_1.png
+   - assets/images/general_van_dorn_2.png
+   - assets/images/grant_promoted_east.png
+   - assets/images/indian_choctaw.png
+   - assets/images/indian_watie.png
+   - assets/images/ironclad.png
+   - assets/images/kentucky_neutral.png
+   - assets/images/kentucky_rebel.png
+   - assets/images/kentucky_union.png
+   - assets/images/level_agriculture.png
+   - assets/images/level_infrastructure.png
+   - assets/images/level_manufacture.png
+   - assets/images/lines_cut_n1.png
+   - assets/images/lines_cut_p1.png
+   - assets/images/lost_cause.png
+   - assets/images/missouri_rebel_1.png
+   - assets/images/missouri_rebel_2.png
+   - assets/images/mormon_rebels.png
+   - assets/images/next_campaign.png
+   - assets/images/objective.png
+   - assets/images/path_closed.png
+   - assets/images/plantation.png
+   - assets/images/plantation_depleted.png
+   - assets/images/politician_benjamin.png
+   - assets/images/politician_benjamin_x.png
+   - assets/images/politician_davis.png
+   - assets/images/politician_davis_x.png
+   - assets/images/politician_hunter.png
+   - assets/images/politician_hunter_x.png
+   - assets/images/politician_mallory.png
+   - assets/images/politician_mallory_x.png
+   - assets/images/politician_memminger.png
+   - assets/images/politician_memminger_x.png
+   - assets/images/politician_randolph.png
+   - assets/images/politician_randolph_x.png
+   - assets/images/politician_reagan.png
+   - assets/images/politician_reagan_x.png
+   - assets/images/politician_seddon.png
+   - assets/images/politician_seddon_x.png
+   - assets/images/politician_stephens.png
+   - assets/images/politician_stephens_x.png
+   - assets/images/politician_toombs.png
+   - assets/images/politician_toombs_x.png
+   - assets/images/politician_trenholm.png
+   - assets/images/politician_trenholm_x.png
+   - assets/images/politician_watts.png
+   - assets/images/politician_watts_x.png
+   - assets/images/rr_company.png
+   - assets/images/shelby.png
+   - assets/images/slaves_1.png
+   - assets/images/slaves_2.png
+   - assets/images/special_campaign_budget.png
+   - assets/images/states_rights.png
+   - assets/images/surprise_offensive.png
+   - assets/images/sustained_offensive.png
+   - assets/images/trains.png
+   - assets/images/treasury.png
+   - assets/images/trenches.png
+   - assets/images/union_army_cumberland.png
+   - assets/images/union_army_gulf.png
+   - assets/images/union_army_james.png
+   - assets/images/union_army_potomac.png
+   - assets/images/union_banks.png
+   - assets/images/union_butler.png
+   - assets/images/union_grant_4.png
+   - assets/images/union_grant_5.png
+   - assets/images/union_lincoln.png
+   - assets/images/union_mcclellan.png
+   - assets/images/union_middle_department.png
+   - assets/images/union_sheridan.png
+   - assets/images/union_sherman.png
+   - assets/images/us_base.png
+   - assets/images/washington_panic.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

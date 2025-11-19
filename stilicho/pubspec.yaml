@@ -1,0 +1,238 @@
+name: stilicho
+description: "Stilicho: Last of the Romans"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.png
+   - assets/images/display.png
+   - assets/images/thumbnail.png
+   - assets/images/attacks_vandals_begins_constantine.png
+   - assets/images/attacks_vandals_ends_constantine.png
+   - assets/images/cannot_attack_constantine.png
+   - assets/images/comitatenses.png
+   - assets/images/death_of_alaric_goths.png
+   - assets/images/enemy_constantine_5_demoralized.png
+   - assets/images/enemy_constantine_6_bold.png
+   - assets/images/enemy_goths_4_demoralized.png
+   - assets/images/enemy_goths_5_bold.png
+   - assets/images/enemy_goths_5_demoralized.png
+   - assets/images/enemy_goths_6_bold.png
+   - assets/images/enemy_vandals_3_demoralized.png
+   - assets/images/enemy_vandals_4_bold.png
+   - assets/images/enemy_vandals_4_demoralized.png
+   - assets/images/enemy_vandals_5_bold.png
+   - assets/images/garrison.png
+   - assets/images/imperial_wedding.png
+   - assets/images/leader_constantius.png
+   - assets/images/leader_sarus.png
+   - assets/images/leader_stilicho.png
+   - assets/images/leader_symmachus.png
+   - assets/images/marker_round.png
+   - assets/images/marker_turn.png
+   - assets/images/mutiny_constantine.png
+   - assets/images/mutiny_goths.png
+   - assets/images/mutiny_vandals.png
+   - assets/images/olympius_1.png
+   - assets/images/olympius_2.png
+   - assets/images/purple_cloak_constantine.png
+   - assets/images/revolt.png
+   - assets/images/truce_begins_constantine.png
+   - assets/images/truce_begins_goths.png
+   - assets/images/truce_begins_vandals.png
+   - assets/images/truce_ends_constantine.png
+   - assets/images/truce_ends_goths.png
+   - assets/images/truce_ends_vandals.png
+   - assets/images/unrest.png
+   - assets/images/card_enemy_1.png
+   - assets/images/card_enemy_10.png
+   - assets/images/card_enemy_11.png
+   - assets/images/card_enemy_12.png
+   - assets/images/card_enemy_13.png
+   - assets/images/card_enemy_14.png
+   - assets/images/card_enemy_15.png
+   - assets/images/card_enemy_16.png
+   - assets/images/card_enemy_17.png
+   - assets/images/card_enemy_18.png
+   - assets/images/card_enemy_19.png
+   - assets/images/card_enemy_2.png
+   - assets/images/card_enemy_20.png
+   - assets/images/card_enemy_21.png
+   - assets/images/card_enemy_22.png
+   - assets/images/card_enemy_23.png
+   - assets/images/card_enemy_24.png
+   - assets/images/card_enemy_25.png
+   - assets/images/card_enemy_26.png
+   - assets/images/card_enemy_27.png
+   - assets/images/card_enemy_28.png
+   - assets/images/card_enemy_29.png
+   - assets/images/card_enemy_3.png
+   - assets/images/card_enemy_30.png
+   - assets/images/card_enemy_31.png
+   - assets/images/card_enemy_32.png
+   - assets/images/card_enemy_33.png
+   - assets/images/card_enemy_34.png
+   - assets/images/card_enemy_35.png
+   - assets/images/card_enemy_36.png
+   - assets/images/card_enemy_37.png
+   - assets/images/card_enemy_38.png
+   - assets/images/card_enemy_39.png
+   - assets/images/card_enemy_4.png
+   - assets/images/card_enemy_40.png
+   - assets/images/card_enemy_41.png
+   - assets/images/card_enemy_42.png
+   - assets/images/card_enemy_43.png
+   - assets/images/card_enemy_44.png
+   - assets/images/card_enemy_45.png
+   - assets/images/card_enemy_46.png
+   - assets/images/card_enemy_47.png
+   - assets/images/card_enemy_48.png
+   - assets/images/card_enemy_49.png
+   - assets/images/card_enemy_5.png
+   - assets/images/card_enemy_50.png
+   - assets/images/card_enemy_6.png
+   - assets/images/card_enemy_7.png
+   - assets/images/card_enemy_8.png
+   - assets/images/card_enemy_9.png
+   - assets/images/card_enemy_back.png
+   - assets/images/card_roman_1.png
+   - assets/images/card_roman_10.png
+   - assets/images/card_roman_11.png
+   - assets/images/card_roman_12.png
+   - assets/images/card_roman_13.png
+   - assets/images/card_roman_14.png
+   - assets/images/card_roman_15.png
+   - assets/images/card_roman_16.png
+   - assets/images/card_roman_17.png
+   - assets/images/card_roman_18.png
+   - assets/images/card_roman_19.png
+   - assets/images/card_roman_2.png
+   - assets/images/card_roman_20.png
+   - assets/images/card_roman_21.png
+   - assets/images/card_roman_22.png
+   - assets/images/card_roman_23.png
+   - assets/images/card_roman_24.png
+   - assets/images/card_roman_25.png
+   - assets/images/card_roman_26.png
+   - assets/images/card_roman_27.png
+   - assets/images/card_roman_28.png
+   - assets/images/card_roman_29.png
+   - assets/images/card_roman_3.png
+   - assets/images/card_roman_30.png
+   - assets/images/card_roman_31.png
+   - assets/images/card_roman_32.png
+   - assets/images/card_roman_33.png
+   - assets/images/card_roman_34.png
+   - assets/images/card_roman_35.png
+   - assets/images/card_roman_36.png
+   - assets/images/card_roman_37.png
+   - assets/images/card_roman_38.png
+   - assets/images/card_roman_39.png
+   - assets/images/card_roman_4.png
+   - assets/images/card_roman_40.png
+   - assets/images/card_roman_41.png
+   - assets/images/card_roman_42.png
+   - assets/images/card_roman_43.png
+   - assets/images/card_roman_44.png
+   - assets/images/card_roman_45.png
+   - assets/images/card_roman_46.png
+   - assets/images/card_roman_47.png
+   - assets/images/card_roman_48.png
+   - assets/images/card_roman_49.png
+   - assets/images/card_roman_5.png
+   - assets/images/card_roman_50.png
+   - assets/images/card_roman_6.png
+   - assets/images/card_roman_7.png
+   - assets/images/card_roman_8.png
+   - assets/images/card_roman_9.png
+   - assets/images/card_roman_back.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

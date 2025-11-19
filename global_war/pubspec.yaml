@@ -1,0 +1,354 @@
+name: global_war
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/thumbnail.png
+   - assets/images/map.png
+   - assets/images/tray.png
+   - assets/images/a_bomb_available.png
+   - assets/images/a_bomb_research.png
+   - assets/images/aid_china.png
+   - assets/images/air_base_british.png
+   - assets/images/air_base_tinian.png
+   - assets/images/air_base_usaaf.png
+   - assets/images/air_base_usstaf.png
+   - assets/images/army_afrika_korps.png
+   - assets/images/army_aoi.png
+   - assets/images/army_arnim.png
+   - assets/images/army_bataan.png
+   - assets/images/army_belgium.png
+   - assets/images/army_bf109.png
+   - assets/images/army_burmese.png
+   - assets/images/army_ccp.png
+   - assets/images/army_center.png
+   - assets/images/army_congo.png
+   - assets/images/army_denmark.png
+   - assets/images/army_do17.png
+   - assets/images/army_finnish.png
+   - assets/images/army_france_1.png
+   - assets/images/army_france_2.png
+   - assets/images/army_german_10.png
+   - assets/images/army_german_14.png
+   - assets/images/army_german_a.png
+   - assets/images/army_german_b.png
+   - assets/images/army_german_c.png
+   - assets/images/army_german_g.png
+   - assets/images/army_german_iraq.png
+   - assets/images/army_german_syria.png
+   - assets/images/army_greece.png
+   - assets/images/army_he111.png
+   - assets/images/army_hungarian.png
+   - assets/images/army_indian.png
+   - assets/images/army_iranian_shah.png
+   - assets/images/army_iranian_vatan.png
+   - assets/images/army_iraqi.png
+   - assets/images/army_italian_10.png
+   - assets/images/army_italian_5.png
+   - assets/images/army_italian_bers.png
+   - assets/images/army_italian_col.png
+   - assets/images/army_italian_lig.png
+   - assets/images/army_japanese_14.png
+   - assets/images/army_japanese_15.png
+   - assets/images/army_japanese_18.png
+   - assets/images/army_japanese_28.png
+   - assets/images/army_japanese_31.png
+   - assets/images/army_japanese_32.png
+   - assets/images/army_japanese_cc_aa.png
+   - assets/images/army_japanese_madag.png
+   - assets/images/army_japanese_nc_aa.png
+   - assets/images/army_ju88.png
+   - assets/images/army_knil.png
+   - assets/images/army_netherlands.png
+   - assets/images/army_north.png
+   - assets/images/army_norway.png
+   - assets/images/army_poland_1.png
+   - assets/images/army_poland_2.png
+   - assets/images/army_romanian.png
+   - assets/images/army_singapore.png
+   - assets/images/army_sinkiang.png
+   - assets/images/army_south.png
+   - assets/images/army_tito.png
+   - assets/images/army_turkey.png
+   - assets/images/army_vichy_alger.png
+   - assets/images/army_vichy_malg.png
+   - assets/images/army_vichy_syria.png
+   - assets/images/army_wang.png
+   - assets/images/army_warsaw.png
+   - assets/images/army_yugoslavia.png
+   - assets/images/asw.png
+   - assets/images/asw_enigma.png
+   - assets/images/blitz.png
+   - assets/images/burma_road_closed.png
+   - assets/images/burma_road_hump.png
+   - assets/images/burma_road_open.png
+   - assets/images/cannon_meat.png
+   - assets/images/capital_berlin.png
+   - assets/images/capital_ccnn.png
+   - assets/images/capital_goring.png
+   - assets/images/capital_hitler.png
+   - assets/images/capital_manchukuo.png
+   - assets/images/capital_mussolini.png
+   - assets/images/capital_thailand.png
+   - assets/images/capital_tokyo.png
+   - assets/images/capital_westwall.png
+   - assets/images/carrier_bunker_hill.png
+   - assets/images/carrier_enterprise.png
+   - assets/images/carrier_essex.png
+   - assets/images/carrier_fdr.png
+   - assets/images/carrier_hornet.png
+   - assets/images/carrier_intrepid.png
+   - assets/images/carrier_langley.png
+   - assets/images/carrier_lexington.png
+   - assets/images/carrier_midway.png
+   - assets/images/carrier_princeton.png
+   - assets/images/carrier_ranger.png
+   - assets/images/carrier_saratoga.png
+   - assets/images/carrier_ticonderoga.png
+   - assets/images/carrier_wasp.png
+   - assets/images/carrier_yorktown.png
+   - assets/images/city_algiers.png
+   - assets/images/city_baku.png
+   - assets/images/city_chicago.png
+   - assets/images/city_chungking.png
+   - assets/images/city_delhi.png
+   - assets/images/city_glasgow.png
+   - assets/images/city_gorky.png
+   - assets/images/city_leningrad.png
+   - assets/images/city_london.png
+   - assets/images/city_montreal.png
+   - assets/images/city_moscow.png
+   - assets/images/city_new_york.png
+   - assets/images/city_san_francisco.png
+   - assets/images/city_singapore.png
+   - assets/images/city_sydney.png
+   - assets/images/city_tashkent.png
+   - assets/images/city_tbilisi.png
+   - assets/images/commando_skorzeny.png
+   - assets/images/commando_teishin_shudan.png
+   - assets/images/congo_un.png
+   - assets/images/convoy_american.png
+   - assets/images/convoy_british.png
+   - assets/images/convoy_escorted.png
+   - assets/images/convoy_french.png
+   - assets/images/convoy_norwegian.png
+   - assets/images/dollars.png
+   - assets/images/dollars_escort.png
+   - assets/images/dutch_east_indies.png
+   - assets/images/economy_german.png
+   - assets/images/economy_japanese.png
+   - assets/images/escort_sao_paulo.png
+   - assets/images/finland_un.png
+   - assets/images/fleet_vichy_peace.png
+   - assets/images/fleet_vichy_war.png
+   - assets/images/greek_surrender.png
+   - assets/images/india_gandhi.png
+   - assets/images/india_revolt.png
+   - assets/images/leader_chamberlain.png
+   - assets/images/leader_churchill.png
+   - assets/images/leader_roosevelt.png
+   - assets/images/leader_stalin.png
+   - assets/images/leader_stalin_used.png
+   - assets/images/leader_willkie.png
+   - assets/images/lend_lease_aid_russia.png
+   - assets/images/lend_lease_destroyer_deal.png
+   - assets/images/lend_lease_jeeps_trucks.png
+   - assets/images/lend_lease_liberty_ships.png
+   - assets/images/malta.png
+   - assets/images/malta_besieged.png
+   - assets/images/military_event.png
+   - assets/images/mushroom.png
+   - assets/images/naval_actions_1.png
+   - assets/images/naval_actions_2.png
+   - assets/images/no_axis_attack.png
+   - assets/images/occupied_american.png
+   - assets/images/occupied_british.png
+   - assets/images/occupied_soviet.png
+   - assets/images/operation_al.png
+   - assets/images/panzer_pza.png
+   - assets/images/panzer_tiger.png
+   - assets/images/partisans.png
+   - assets/images/partisans_communist.png
+   - assets/images/partisans_italian.png
+   - assets/images/partisans_soviet.png
+   - assets/images/policy_italy.png
+   - assets/images/policy_japan_e.png
+   - assets/images/policy_japan_f.png
+   - assets/images/policy_russia.png
+   - assets/images/policy_spain_axis.png
+   - assets/images/policy_spain_un.png
+   - assets/images/raider_bismarck.png
+   - assets/images/raider_graf_spee.png
+   - assets/images/raider_kormoran.png
+   - assets/images/raider_prinz_eugen.png
+   - assets/images/raider_rivadavia.png
+   - assets/images/raider_scharnhorst.png
+   - assets/images/ricks_place.png
+   - assets/images/ship_akagi.png
+   - assets/images/ship_akizuki.png
+   - assets/images/ship_aoba.png
+   - assets/images/ship_chitose.png
+   - assets/images/ship_chokai.png
+   - assets/images/ship_haruna.png
+   - assets/images/ship_hiryu.png
+   - assets/images/ship_hiyo.png
+   - assets/images/ship_iboats_red.png
+   - assets/images/ship_iboats_white.png
+   - assets/images/ship_ise.png
+   - assets/images/ship_kamikaze.png
+   - assets/images/ship_kongo.png
+   - assets/images/ship_nagato.png
+   - assets/images/ship_ryujo.png
+   - assets/images/ship_shinano.png
+   - assets/images/ship_taiho.png
+   - assets/images/ship_tanaka.png
+   - assets/images/ship_tone.png
+   - assets/images/ship_unryu.png
+   - assets/images/ship_yahagi.png
+   - assets/images/ship_yamamoto.png
+   - assets/images/ship_yamato.png
+   - assets/images/ship_zero_red.png
+   - assets/images/ship_zero_white.png
+   - assets/images/ship_zuiho.png
+   - assets/images/ship_zuikaku.png
+   - assets/images/siege_guadalcanal.png
+   - assets/images/siege_imphal.png
+   - assets/images/siege_normandy.png
+   - assets/images/siege_stalingrad.png
+   - assets/images/siege_tightens.png
+   - assets/images/siege_tunis.png
+   - assets/images/sinkiang_ussr.png
+   - assets/images/south_africa_neutral.png
+   - assets/images/south_africa_un.png
+   - assets/images/spruance_p1.png
+   - assets/images/spruance_p2.png
+   - assets/images/strategy_a.png
+   - assets/images/strategy_b.png
+   - assets/images/strategy_c.png
+   - assets/images/strategy_d.png
+   - assets/images/strategy_e.png
+   - assets/images/strategy_f.png
+   - assets/images/submarine_campaign.png
+   - assets/images/turn_01.png
+   - assets/images/turn_02.png
+   - assets/images/turn_03.png
+   - assets/images/turn_04.png
+   - assets/images/turn_05.png
+   - assets/images/turn_06.png
+   - assets/images/turn_07.png
+   - assets/images/turn_08.png
+   - assets/images/turn_09.png
+   - assets/images/turn_10.png
+   - assets/images/turn_11.png
+   - assets/images/turn_12.png
+   - assets/images/turn_13.png
+   - assets/images/turn_14.png
+   - assets/images/turn_15.png
+   - assets/images/turn_16.png
+   - assets/images/turn_17.png
+   - assets/images/turn_18.png
+   - assets/images/turn_19.png
+   - assets/images/turn_20.png
+   - assets/images/turn_21.png
+   - assets/images/turn_22.png
+   - assets/images/turn_23.png
+   - assets/images/turn_24.png
+   - assets/images/turn_25.png
+   - assets/images/turn_26.png
+   - assets/images/turn_27.png
+   - assets/images/turn_28.png
+   - assets/images/turn_barbarossa.png
+   - assets/images/turn_pearl_harbor.png
+   - assets/images/uboats.png
+   - assets/images/us_marines.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

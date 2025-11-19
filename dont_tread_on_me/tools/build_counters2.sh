@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1 unit_british_cam
+counter counter_1_2 unit_british_mar
+counter counter_1_3 unit_british_4ko
+counter counter_1_4 unit_british_bw
+counter counter_1_5 unit_british_fh
+counter counter_1_6 naval_british_howe
+counter counter_1_7 naval_british_parker
+counter counter_1_8 militia_british
+
+counter counter_2_1 unit_british_gds
+counter counter_2_2 unit_british_gnd
+counter counter_2_3 unit_british_qld
+counter counter_2_4 unit_british_17ld
+counter counter_2_5 unit_british_18ri
+counter counter_2_6 naval_british_arbuthnot
+counter counter_2_7 naval_british_graves
+counter counter_2_8 battle
+
+counter counter_3_1 unit_british_rwf
+counter counter_3_2 unit_british_22
+counter counter_3_3 unit_british_43
+counter counter_3_4 unit_loyalist_rnc
+counter counter_3_5 unit_hessians_hh
+counter counter_3_6 unit_hessians_wal
+counter counter_3_7 unit_hessians_hcm
+counter counter_3_8 unit_hessians_ab
+
+counter counter_4_1 unit_british_7rf
+counter counter_4_2 unit_british_33
+counter counter_4_3 unit_loyalist_qar
+counter counter_4_4 unit_loyalist_pwl
+counter counter_4_5 vermont
+counter counter_4_6 unit_hessians_azf
+counter counter_4_7 unit_hessians_hcj
+counter counter_4_8 unit_hessians_brw
+
+counter counter_5_1 unit_loyalist_bgp
+counter counter_5_2 unit_loyalist_al
+counter counter_5_3 unit_loyalist_njv
+counter counter_5_4 unit_loyalist_rhe
+counter counter_5_5 unit_loyalist_tbl
+counter counter_5_6 unit_indian_mohawk
+counter counter_5_7 unit_cos
+counter counter_5_8 militia_rebel
+
+counter counter_6_1 loyalty_new_england
+counter counter_6_2 loyalty_new_york
+counter counter_6_3 loyalty_pennsylvania
+counter counter_6_4 loyalty_virginia
+counter counter_6_5 loyalty_carolina
+counter counter_6_6 unit_indian_cherokee
+
+counter counter_7_6 unit_cos_fm
+counter counter_7_7 naval_privateers
+
+counter counter_8_1 naval_smugglers
+
+counter counter_9_1 unit_continental_arnold
+counter counter_9_2 unit_continental_greene
+counter counter_9_3 unit_continental_morgan
+counter counter_9_4 unit_continental_howard
+counter counter_9_5 unit_continental_kosc
+counter counter_9_6 unit_continental_lafay
+counter counter_9_7 unit_continental_glover
+counter counter_9_8 unit_continental_lincoln
+
+counter counter_10_1 unit_continental_moult
+counter counter_10_2 unit_continental_h_lee
+counter counter_10_3 unit_continental_stark
+counter counter_10_4 unit_continental_stirling
+counter counter_10_5 unit_continental_huger
+counter counter_10_6 unit_continental_muhl
+counter counter_10_7 unit_continental_knox
+counter counter_10_8 unit_continental_wayne
+
+counter counter_11_1 pounds
+counter counter_11_2 french_fleet
+counter counter_11_3 unit_french_roch
+counter counter_11_4 game_turn
+counter counter_11_5 liberty
+counter counter_11_6 washington
+counter counter_11_7 jefferson
+counter counter_11_8 congress

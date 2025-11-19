@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f aurelian_1
+counter counter_1_2_f marker_army_strength
+counter counter_1_3_f legion_2
+counter counter_1_7_f marker_treasury
+counter counter_1_8_f marker_victory
+
+counter counter_2_1_f officer
+counter counter_2_7_f marker_income
+
+counter counter_3_1_f enemy_resistance_aquitania_2
+counter counter_3_2_f enemy_resistance_aquitania_3
+counter counter_3_3_f enemy_resistance_belgica_4
+counter counter_3_5_f enemy_resistance_belgica_5
+counter counter_3_6_f enemy_resistance_gallia_3
+counter counter_3_7_f enemy_resistance_germania_2
+counter counter_3_7_f enemy_resistance_germania_3
+
+counter counter_4_1_f enemy_resistance_gallia_4
+counter counter_4_2_f enemy_resistance_brittania_4
+counter counter_4_4_f enemy_resistance_brittania_5
+counter counter_4_5_f usurper_blue_postumus
+counter counter_4_6_f usurper_blue
+counter counter_4_7_f enemy_resistance_noricum_2
+counter counter_4_7_f enemy_resistance_noricum_3
+
+counter counter_5_1_f enemy_resistance_byzantium_4
+counter counter_5_3_f enemy_resistance_byzantium_5
+counter counter_5_4_f enemy_resistance_dalmatia_3
+counter counter_5_5_f enemy_resistance_dalmatia_4
+counter counter_5_6_f enemy_resistance_roma_2
+counter counter_5_8_f enemy_resistance_roma_3
+
+counter counter_6_1_f enemy_resistance_moesia_3
+counter counter_6_2_f enemy_resistance_moesia_4
+counter counter_6_3_f enemy_resistance_pannonia_3
+counter counter_6_4_f enemy_resistance_pannonia_4
+counter counter_6_5_f usurper_green
+counter counter_6_6_f usurper_red
+counter counter_6_7_f enemy_resistance_ravenna_2
+counter counter_6_8_f enemy_resistance_ravenna_3
+
+counter counter_7_1_f enemy_resistance_nicomedia_3
+counter counter_7_2_f enemy_resistance_nicomedia_4
+counter counter_7_3_f enemy_resistance_tyana_3
+counter counter_7_4_f enemy_resistance_tyana_4
+counter counter_7_5_f enemy_resistance_antiochia_4
+counter counter_7_6_f enemy_resistance_antiochia_5
+counter counter_7_7_f enemy_resistance_aegyptus_3
+counter counter_7_8_f enemy_resistance_aegyptus_4
+
+counter counter_8_1_f enemy_resistance_palmyra_5
+counter counter_8_3_f enemy_resistance_palmyra_6
+counter counter_8_4_f enemy_resistance_judaea_5
+counter counter_8_6_f enemy_resistance_judaea_6
+counter counter_8_7_f usurper_yellow
+counter counter_8_8_f usurper_yellow_zenobia
+
+counter counter_9_1_f barbarian_4
+counter counter_9_4_f barbarian_5
+counter counter_9_6_f sassanid
+counter counter_9_7_f marker_game_turn
+counter counter_9_8_f turn_end
+
+counter counter_10_1_f barbarian_6
+counter counter_10_3_f barbarian_7
+counter counter_10_5_f barbarian_confederation
+
+counter counter_11_1_f marker_aurelian_walls
+counter counter_11_2_f walls_1
+counter counter_11_5_f temple_start
+
+counter counter_1_1_b aurelian_2
+counter counter_1_3_b legion_3
+
+counter counter_3_1_b enemy_combat_blue_1
+counter counter_3_2_b enemy_combat_blue_2
+counter counter_3_5_b enemy_combat_blue_3
+counter counter_3_7_b enemy_combat_red_1
+counter counter_3_8_b enemy_combat_red_2
+
+counter counter_5_1_b enemy_combat_green_2
+counter counter_5_3_b enemy_combat_green_3
+counter counter_5_4_b enemy_combat_green_1
+
+counter counter_7_1_b enemy_combat_yellow_1
+counter counter_7_2_b enemy_combat_yellow_2
+
+counter counter_8_3_b enemy_combat_yellow_3
+
+counter counter_11_2_b walls_3
+counter counter_11_5_b temple_finished
+

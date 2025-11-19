@@ -1,0 +1,257 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1_f geography_africa
+counter counter_1_2_f geography_italy
+counter counter_1_3_f faction_blue_team
+counter counter_1_4_f faction_green_team
+counter counter_1_5_f faction_roman_senate
+counter counter_1_6_f faction_eunuchs
+counter counter_1_7_f faction_patricians
+counter counter_1_8_f faction_hagia_sophia
+
+counter counter_2_1_f army_mongol
+counter counter_2_3_f stolos_english
+counter counter_2_4_f faction_armenian
+counter counter_2_5_f faction_theodosian_walls
+counter counter_2_6_f faction_salonika
+counter counter_2_7_f faction_postal_service
+counter counter_2_8_f faction_somateia_guilds
+
+counter counter_3_1_f pope_nice
+counter counter_3_2_f nike
+counter counter_3_3_f infrastructure_hospital
+counter counter_3_4_f infrastructure_akritai
+counter counter_3_5_f infrastructure_monastery
+counter counter_3_6_f army_magyar
+counter counter_3_7_f caliph
+counter counter_3_8_f ruler_khan
+
+counter counter_4_1_f military_event
+counter counter_4_2_f schism
+counter counter_4_6_f army_skanderbeg
+counter counter_4_7_f colonists
+
+counter counter_5_1_f outpost_holy_land
+counter counter_5_2_f outpost_lazica
+counter counter_5_3_f outpost_rome
+counter counter_5_4_f patriarch_nestorius
+counter counter_5_5_f patriarch_sergius
+counter counter_5_6_f patriarch_john
+counter counter_5_7_f patriarch_antony
+counter counter_5_8_f patriarch_paul
+
+counter counter_6_1_f outpost_sicily
+counter counter_6_2_f outpost_spain
+counter counter_6_3_f outpost_egypt
+counter counter_6_4_f patriarch_anthimus
+counter counter_6_5_f patriarch_peter
+counter counter_6_6_f patriarch_constantine
+counter counter_6_7_f patriarch_nicholas
+counter counter_6_8_f patriarch_michael
+
+counter counter_7_1_f army_iberia_persia
+counter counter_7_2_f army_iberia_armenia
+counter counter_7_3_f army_syria_il_khan
+counter counter_7_4_f army_syria_persia
+counter counter_7_5_f army_syria_nomads
+counter counter_7_6_f army_persia_il_khan
+counter counter_7_7_f army_persia_persia
+counter counter_7_8_f army_persia_saracen
+
+counter counter_8_1_f army_iberia_saracen
+counter counter_8_2_f army_iberia_seljuk
+counter counter_8_3_f army_iberia_ottoman
+counter counter_8_4_f army_syria_seljuk
+counter counter_8_5_f army_syria_saracen
+counter counter_8_6_f army_persia_ottoman
+counter counter_8_7_f army_persia_buyid
+counter counter_8_8_f army_persia_seljuk
+
+counter counter_9_1_f crusade
+counter counter_9_2_f army_north_infantry_2
+counter counter_9_4_f army_north_infantry_3
+counter counter_9_5_f bulgarian_theme
+counter counter_9_6_f tribe_north_bulgar
+counter counter_9_7_f tribe_north_ottoman
+counter counter_9_8_f empires_in_rubble
+
+counter counter_10_1_f army_north_infantry_1
+counter counter_10_3_f tribe_north_hun
+counter counter_10_4_f tribe_north_slav
+counter counter_10_5_f tribe_north_bulgarians
+counter counter_10_6_f tribe_north_ostrogoths
+counter counter_10_7_f bulgarian_church_orthodox
+counter counter_10_8_f basileus_theodosius
+
+counter counter_11_1_f siege_greek
+counter counter_11_7_f army_syria_egypt
+counter counter_11_8_f army_syria_ottoman
+
+counter counter_1_9_f turn_chit_01
+counter counter_1_10_f turn_chit_02
+counter counter_1_11_f turn_chit_03
+counter counter_1_12_f turn_chit_04
+counter counter_1_13_f turn_chit_05
+counter counter_1_14_f turn_chit_06
+counter counter_1_15_f turn_chit_07
+counter counter_1_16_f turn_chit_08
+
+counter counter_2_9_f turn_chit_09
+counter counter_2_10_f turn_chit_10
+counter counter_2_11_f turn_chit_11
+counter counter_2_12_f turn_chit_12
+counter counter_2_13_f turn_chit_13
+counter counter_2_14_f turn_chit_14
+counter counter_2_15_f turn_chit_15
+counter counter_2_16_f turn_chit_16
+
+counter counter_3_9_f turn_chit_17
+counter counter_3_10_f turn_chit_18
+counter counter_3_11_f turn_chit_19
+counter counter_3_12_f turn_chit_20
+counter counter_3_13_f turn_chit_21
+counter counter_3_14_f turn_chit_22
+counter counter_3_15_f turn_chit_23
+counter counter_3_16_f turn_chit_24
+
+counter counter_4_9_f turn_chit_25
+counter counter_4_10_f turn_chit_26
+counter counter_4_11_f turn_chit_27
+counter counter_4_12_f turn_chit_28
+counter counter_4_13_f latins
+
+counter counter_5_9_f dynasty_purple_theodosian
+counter counter_5_10_f dynasty_purple_leonid
+counter counter_5_11_f dynasty_purple_justinian
+counter counter_5_12_f dynasty_purple_heraclian
+counter counter_5_13_f dynasty_purple_isaurian
+counter counter_5_14_f dynasty_purple_anarchy
+counter counter_5_15_f dynasty_purple_angelid
+
+counter counter_6_9_f dynasty_purple_amorian
+counter counter_6_10_f dynasty_purple_macedonian
+counter counter_6_11_f dynasty_purple_komnenid
+counter counter_6_12_f dynasty_purple_laskarid
+counter counter_6_13_f dynasty_purple_palaiologian
+counter counter_6_15_f dynasty_purple_doukid
+
+counter counter_7_9_f tribe_south_vandal
+counter counter_7_10_f tribe_south_venice
+counter counter_7_11_f tribe_south_moors
+counter counter_7_12_f army_south_infantry_3
+counter counter_7_13_f army_south_infantry_2
+counter counter_7_14_f basileus_john
+counter counter_7_15_f basileus_basil
+counter counter_7_16_f basileus_alexios
+
+counter counter_8_9_f tribe_south_saracen
+counter counter_8_11_f tribe_south_egypt
+counter counter_8_12_f army_south_infantry_1
+counter counter_8_14_f basileus_zoe
+counter counter_8_15_f basileus_constantine_1
+counter counter_8_16_f basileus_nikephoros
+
+counter counter_9_9_f tribe_west_goth
+counter counter_9_10_f tribe_west_ottoman
+counter counter_9_11_f tribe_west_norman
+counter counter_9_12_f army_west_infantry_3
+counter counter_9_13_f army_west_infantry_2
+counter counter_9_15_f ravenna
+counter counter_9_16_f kiev_orthodox
+
+counter counter_10_9_f basileus
+counter counter_10_10_f tribe_west_serbs
+counter counter_10_11_f tribe_west_lombards
+counter counter_10_12_f army_west_infantry_1
+counter counter_10_14_f magister_militum
+counter counter_10_15_f tribute
+counter counter_10_16_f kastron
+
+counter counter_11_9_f solidus
+counter counter_11_10_f reforms
+counter counter_11_11_f social_christians
+
+counter counter_1_1_b geography_crete
+counter counter_1_2_b geography_balkans
+counter counter_1_3_b dollar_4
+counter counter_1_8_b dollar_5
+
+counter counter_2_3_b stolos_greek
+
+counter counter_3_1_b pope_mean
+counter counter_3_3_b infrastructure_used
+counter counter_3_5_b infrastructure_monastery_isolated
+counter counter_3_7_b fitna
+counter counter_3_8_b ruler_rex
+
+counter counter_4_7_b pagan
+
+counter counter_5_4_b university
+
+counter counter_6_3_b egypt_fallen
+
+counter counter_7_1_b path_iberia
+counter counter_7_3_b path_syria
+counter counter_7_6_b path_persia
+
+counter counter_9_2_b army_north_cavalry_3
+counter counter_9_4_b army_north_cavalry_4
+counter counter_9_5_b path_north
+
+counter counter_10_1_b army_north_cavalry_1
+counter counter_10_2_b army_north_cavalry_2
+counter counter_10_7_b bulgarian_church_catholic
+counter counter_10_8_b basileus_justinian
+
+counter counter_11_1_b siege_english
+counter counter_11_7_b egypt_muslim
+
+counter counter_4_13_b riots
+
+counter counter_5_9_b dynasty_black_dyonisid
+counter counter_5_10_b dynasty_black_skylosophid
+counter counter_5_11_b dynasty_black_lazarid
+counter counter_5_12_b dynasty_black_stemniote
+counter counter_5_13_b dynasty_black_sphikid
+counter counter_5_14_b dynasty_black_anarchy
+counter counter_5_15_b dynasty_black_dimidid
+
+counter counter_6_9_b dynasty_black_souliote
+counter counter_6_10_b dynasty_black_lantzid
+counter counter_6_11_b dynasty_black_maniote
+counter counter_6_12_b dynasty_black_kladiote
+counter counter_6_13_b dynasty_black_ypsilantid
+counter counter_6_15_b dynasty_black_vlachid
+
+counter counter_7_9_b path_south
+counter counter_7_12_b army_south_cavalry_4
+counter counter_7_13_b army_south_cavalry_3
+counter counter_7_14_b basileus_andronikos
+counter counter_7_15_b basileus_constantine_2
+counter counter_7_16_b basileus_leo
+
+counter counter_8_12_b army_south_cavalry_1
+counter counter_8_13_b army_south_cavalry_2
+counter counter_8_14_b basileus_theodora
+counter counter_8_15_b basileus_romanos
+counter counter_8_16_b basileus_michael
+
+counter counter_9_9_b path_west
+counter counter_9_12_b army_west_cavalry_4
+counter counter_9_13_b army_west_cavalry_3
+counter counter_9_15_b holy_roman_empire
+counter counter_9_16_b kiev_pagan
+
+counter counter_10_9_b plague
+counter counter_10_12_b army_west_cavalry_1
+counter counter_10_13_b army_west_cavalry_2
+
+counter counter_11_11_b social_magnates

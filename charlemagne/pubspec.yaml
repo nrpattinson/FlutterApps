@@ -1,0 +1,212 @@
+name: charlemagne
+description: "Charlemagne, Master of Europe"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^6.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.png
+   - assets/images/thumbnail.png
+   - assets/images/battle_unit_enemy_4_4.png
+   - assets/images/battle_unit_enemy_4_5.png
+   - assets/images/battle_unit_enemy_5_5.png
+   - assets/images/battle_unit_enemy_5_6.png
+   - assets/images/battle_unit_enemy_6_6.png
+   - assets/images/battle_unit_enemy_reduced_4_4.png
+   - assets/images/battle_unit_enemy_reduced_4_5.png
+   - assets/images/battle_unit_enemy_reduced_5_5.png
+   - assets/images/battle_unit_enemy_reduced_5_6.png
+   - assets/images/battle_unit_enemy_reduced_6_6.png
+   - assets/images/battle_unit_infantry_1.png
+   - assets/images/battle_unit_infantry_2.png
+   - assets/images/battle_unit_infantry_3.png
+   - assets/images/battle_unit_infantry_4.png
+   - assets/images/battle_unit_scara_2.png
+   - assets/images/battle_unit_scara_3.png
+   - assets/images/battle_unit_scara_4.png
+   - assets/images/byzantium.png
+   - assets/images/church_completed.png
+   - assets/images/church_started.png
+   - assets/images/intrigue.png
+   - assets/images/iron_crown.png
+   - assets/images/leader_avars_1.png
+   - assets/images/leader_avars_2.png
+   - assets/images/leader_bavaria_1.png
+   - assets/images/leader_bavaria_2.png
+   - assets/images/leader_bordeaux_1.png
+   - assets/images/leader_bordeaux_2.png
+   - assets/images/leader_breton_1.png
+   - assets/images/leader_breton_2.png
+   - assets/images/leader_burgundy_1.png
+   - assets/images/leader_burgundy_2.png
+   - assets/images/leader_carinthia_1.png
+   - assets/images/leader_friuli_1.png
+   - assets/images/leader_friuli_2.png
+   - assets/images/leader_gascony_1.png
+   - assets/images/leader_gascony_2.png
+   - assets/images/leader_lombardy_1.png
+   - assets/images/leader_lombardy_3.png
+   - assets/images/leader_moravia_1.png
+   - assets/images/leader_moravia_2.png
+   - assets/images/leader_poitiers_1.png
+   - assets/images/leader_poitiers_2.png
+   - assets/images/leader_saxons1_2.png
+   - assets/images/leader_saxons1_3.png
+   - assets/images/leader_saxons2_2.png
+   - assets/images/leader_saxons2_3.png
+   - assets/images/leader_veleti_1.png
+   - assets/images/leader_veleti_2.png
+   - assets/images/leaders_croats_1.png
+   - assets/images/map_unit_avars_5.png
+   - assets/images/map_unit_avars_6.png
+   - assets/images/map_unit_bavaria_4.png
+   - assets/images/map_unit_bavaria_5.png
+   - assets/images/map_unit_bavaria_6.png
+   - assets/images/map_unit_bordeaux_4.png
+   - assets/images/map_unit_bordeaux_5.png
+   - assets/images/map_unit_breton_4.png
+   - assets/images/map_unit_breton_5.png
+   - assets/images/map_unit_burgundy_3.png
+   - assets/images/map_unit_burgundy_4.png
+   - assets/images/map_unit_carinthia_3.png
+   - assets/images/map_unit_carinthia_4.png
+   - assets/images/map_unit_carinthia_5.png
+   - assets/images/map_unit_charlemagne_older.png
+   - assets/images/map_unit_charlemagne_younger.png
+   - assets/images/map_unit_croats_4.png
+   - assets/images/map_unit_croats_5.png
+   - assets/images/map_unit_friuli_4.png
+   - assets/images/map_unit_friuli_5.png
+   - assets/images/map_unit_fulda_3.png
+   - assets/images/map_unit_gascony_5.png
+   - assets/images/map_unit_lombardy_4.png
+   - assets/images/map_unit_lombardy_5.png
+   - assets/images/map_unit_lombardy_6.png
+   - assets/images/map_unit_marquis.png
+   - assets/images/map_unit_marquis_crown.png
+   - assets/images/map_unit_moor.png
+   - assets/images/map_unit_moravia_5.png
+   - assets/images/map_unit_moravia_6.png
+   - assets/images/map_unit_paris_4.png
+   - assets/images/map_unit_paris_5.png
+   - assets/images/map_unit_poitiers_3.png
+   - assets/images/map_unit_poitiers_4.png
+   - assets/images/map_unit_provence_3.png
+   - assets/images/map_unit_provence_4.png
+   - assets/images/map_unit_reims_3.png
+   - assets/images/map_unit_reims_4.png
+   - assets/images/map_unit_saxons1_6.png
+   - assets/images/map_unit_saxons1_7.png
+   - assets/images/map_unit_saxons2_6.png
+   - assets/images/map_unit_saxons2_7.png
+   - assets/images/map_unit_swabia_3.png
+   - assets/images/map_unit_swabia_4.png
+   - assets/images/map_unit_veleti_5.png
+   - assets/images/map_unit_veleti_6.png
+   - assets/images/map_unit_viking.png
+   - assets/images/marker_al_andalus_peace.png
+   - assets/images/marker_al_andalus_tension.png
+   - assets/images/marker_byzantine_peace.png
+   - assets/images/marker_byzantine_tension.png
+   - assets/images/marker_drm_p1.png
+   - assets/images/marker_drm_p1_p2.png
+   - assets/images/marker_emergency_vp.png
+   - assets/images/marker_game_turn.png
+   - assets/images/marker_papal_approval_0.png
+   - assets/images/marker_papal_approval_n1.png
+   - assets/images/marker_papal_approval_p1.png
+   - assets/images/marker_papal_approval_p2.png
+   - assets/images/marker_taxes.png
+   - assets/images/marker_treasury.png
+   - assets/images/marker_vp_1.png
+   - assets/images/marker_vp_10.png
+   - assets/images/turn_end.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

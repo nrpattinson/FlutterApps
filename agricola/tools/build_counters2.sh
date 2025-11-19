@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f map_tribe_silures_4
+counter counter_1_3_f map_tribe_silures_5
+counter counter_1_5_f map_tribe_deceangli_5
+counter counter_1_6_f map_tribe_deceangli_6
+counter counter_1_7_f map_tribe_dubbini_2
+
+counter counter_2_1_f map_tribe_ordovices_4
+counter counter_2_2_f map_tribe_ordovices_5
+counter counter_2_3_f map_tribe_ordovices_6
+counter counter_2_4_f map_tribe_demetae_3
+counter counter_2_5_f map_tribe_demetae_4
+counter counter_2_6_f map_leader_tan
+counter counter_2_7_f map_tribe_corieltavvi_2
+
+counter counter_3_1_f map_tribe_brigantes_5
+counter counter_3_3_f map_tribe_brigantes_6
+counter counter_3_5_f map_tribe_cornovvi_4
+counter counter_3_6_f map_tribe_cornovvi_5
+counter counter_3_7_f map_tribe_catuvellani_2
+
+counter counter_4_1_f map_tribe_votadini_4
+counter counter_4_2_f map_tribe_votadini_5
+counter counter_4_3_f map_tribe_votadini_6
+counter counter_4_4_f map_tribe_parisi_4
+counter counter_4_5_f map_tribe_parisi_5
+counter counter_4_6_f map_leader_green
+counter counter_4_7_f map_tribe_iceni_3
+
+counter counter_5_1_f map_tribe_damnonii_5
+counter counter_5_4_f map_tribe_venicones_6
+counter counter_5_7_f map_leader_red_calgacus
+counter counter_5_8_f marker_1
+
+counter counter_6_1_f map_tribe_taexali_6
+counter counter_6_4_f map_tribe_caledonii_7
+counter counter_6_8_f marker_10
+
+counter counter_7_1_f map_legion_augusta_ii
+counter counter_7_2_f map_legion_hispana_ix
+counter counter_7_3_f map_legion_valeria_victrix_xx
+counter counter_7_4_f map_leader_agricola
+counter counter_7_6_f map_garrison
+
+counter counter_8_4_f map_settlement_2
+counter counter_8_8_f marker_legion_actions
+
+counter counter_9_1_f battle_legionary_3_5_2
+counter counter_9_5_f battle_tribe_4_4
+counter counter_9_7_f battle_tribe_4_5
+
+counter counter_10_6_f battle_tribe_5_5
+
+counter counter_11_1_f marker_game_turn
+counter counter_11_2_f marker_income
+counter counter_11_3_f marker_treasury
+counter counter_11_4_f battle_tribe_6_6
+counter counter_11_5_f battle_tribe_5_6
+
+counter counter_1_1_b battle_auxiliary_tan_2_4
+counter counter_1_4_b battle_auxiliary_tan_3_4
+counter counter_1_7_b battle_auxiliary_blue_1_3
+
+counter counter_3_1_b battle_auxiliary_green_2_4
+counter counter_3_3_b battle_auxiliary_green_3_4
+
+counter counter_4_4_b battle_auxiliary_green_2_3
+counter counter_4_7_b battle_auxiliary_blue_2_3
+
+counter counter_7_5_b battle_legionary_2_4_1
+
+counter counter_8_4_b map_settlement_3
+
+counter counter_9_1_b battle_legionary_3_6_3
+counter counter_9_5_b battle_tribe_graupius_4_4
+counter counter_9_7_b battle_tribe_graupius_4_5
+
+counter counter_10_6_b battle_tribe_graupius_5_5
+
+counter counter_11_4_b battle_tribe_graupius_6_6
+counter counter_11_5_b battle_tribe_graupius_5_6

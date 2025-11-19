@@ -1,0 +1,165 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1 sepat_01
+counter counter_1_2 sepat_02
+counter counter_1_3 sepat_03
+counter counter_1_4 sepat_04
+counter counter_1_5 sepat_05
+counter counter_1_6 sepat_06
+counter counter_1_7 sepat_07
+counter counter_1_8 sepat_08
+
+counter counter_2_1 sepat_09
+counter counter_2_2 sepat_10
+counter counter_2_3 sepat_11
+counter counter_2_4 sepat_12
+counter counter_2_5 sepat_13
+counter counter_2_6 sepat_14
+counter counter_2_7 sepat_15
+counter counter_2_8 sepat_16
+
+counter counter_3_1 sepat_17
+counter counter_3_2 sepat_18
+counter counter_3_3 sepat_19
+counter counter_3_4 sepat_20
+counter counter_3_5 sepat_21
+counter counter_3_6 sepat_22
+counter counter_3_7 sepat_23
+counter counter_3_8 sepat_24
+
+counter counter_4_1 literacy
+counter counter_4_2 medjai_troops
+counter counter_4_7 heroes_chariots_p2
+counter counter_4_8 action_points
+
+counter counter_5_1 egyptian_rule
+counter counter_5_3 libyan_migrants
+counter counter_5_4 hebrew_people
+counter counter_5_5 heroes_mera_fleet
+counter counter_5_6 rd_rise
+counter counter_5_7 god_thoth
+counter counter_5_8 god_ra
+
+counter counter_6_1 pharaoh
+counter counter_6_2 medjai_police
+counter counter_6_3 high_priests
+counter counter_6_4 greeks
+counter counter_6_5 jews
+counter counter_6_6 alexandria
+counter counter_6_7 god_horus
+counter counter_6_8 god_osiris
+
+counter counter_7_1 khasti_canaan
+counter counter_7_2 khasti_hittites
+counter counter_7_3 khasti_assyria
+counter counter_7_4 khasti_persia
+counter counter_7_5 khasti_libu
+counter counter_7_6 khasti_shasu
+counter counter_7_7 era_old_kingdom
+counter counter_7_8 era_middle_kingdom
+
+counter counter_8_1 israel_p0
+counter counter_8_2 khasti_romans
+counter counter_8_3 khasti_meshwesh
+counter counter_8_4 khasti_kerma
+counter counter_8_5 khasti_kush
+counter counter_8_6 sepat_25
+counter counter_8_7 era_new_kingdom
+counter counter_8_8 era_late_period
+
+counter counter_9_1 maat
+counter counter_9_3 walls_of_the_ruler
+counter counter_9_5 megaproject_valley_of_the_kings
+counter counter_9_6 revival
+
+counter counter_10_1 marriage
+counter counter_10_2 gold
+counter counter_10_3 inbreeding
+counter counter_10_4 megaproject_great_pyramids
+counter counter_10_5 megaproject_temple_of_ipet_isut
+
+counter counter_11_1 dynasty_a
+counter counter_11_2 dynasty_b
+counter counter_11_3 dynasty_c
+counter counter_11_4 dynasty_d
+counter counter_11_5 dynasty_e
+counter counter_11_6 dynasty_f
+counter counter_11_7 dynasty_g
+counter counter_11_8 heroes_nubian_archers
+
+counter counter_1_9 sepat_01_templed
+counter counter_1_10 sepat_02_templed
+counter counter_1_11 sepat_03_templed
+counter counter_1_12 sepat_04_templed
+counter counter_1_13 sepat_05_templed
+counter counter_1_14 sepat_06_templed
+counter counter_1_15 sepat_07_templed
+counter counter_1_16 sepat_08_templed
+
+counter counter_2_9 sepat_09_templed
+counter counter_2_10 sepat_10_templed
+counter counter_2_11 sepat_11_templed
+counter counter_2_12 sepat_12_templed
+counter counter_2_13 sepat_13_templed
+counter counter_2_14 sepat_14_templed
+counter counter_2_15 sepat_15_templed
+counter counter_2_16 sepat_16_templed
+
+counter counter_3_9 sepat_17_templed
+counter counter_3_10 sepat_18_templed
+counter counter_3_11 sepat_19_templed
+counter counter_3_12 sepat_20_templed
+counter counter_3_13 sepat_21_templed
+counter counter_3_14 sepat_22_templed
+counter counter_3_15 sepat_23_templed
+counter counter_3_16 sepat_24_templed
+
+counter counter_4_10 rival_dynasty_3
+counter counter_4_11 rival_dynasty_4
+counter counter_4_14 rival_dynasty_2
+counter counter_4_15 heroes_chariots_p1
+
+counter counter_5_9 ok_to_loot
+counter counter_5_11 dynasty_h
+counter counter_5_13 heroes_mera_fleet_back
+counter counter_5_14 rd_decline
+counter counter_5_15 god_anubis
+counter counter_5_16 god_bastet
+
+counter counter_6_12 greeks_depleted
+counter counter_6_13 jews_depleted
+counter counter_6_15 god_ptah
+counter counter_6_16 god_isis
+
+counter counter_7_9 khasti_hyksos
+counter counter_7_10 khasti_mitanni
+counter counter_7_11 khasti_sea_peoples
+counter counter_7_12 khasti_babylon
+counter counter_7_14 khasti_nabatu
+counter counter_7_15 senet
+counter counter_7_16 roman_debt
+
+counter counter_8_9 israel_n1
+counter counter_8_10 khasti_seleucids
+counter counter_8_11 khasti_cyrene
+counter counter_8_13 khasti_meroe
+counter counter_8_14 sepat_25_templed
+
+counter counter_9_9 maat_used
+counter counter_9_13 megaproject_valley_of_the_kings_looted
+
+counter counter_10_11 action_points_limit
+counter counter_10_12 megaproject_great_pyramids_looted
+counter counter_10_13 megaproject_temple_of_ipet_isut_looted
+
+counter counter_11_9 dynasty_back
+counter counter_11_16 heroes_nubian_archers_back
+

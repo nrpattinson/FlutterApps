@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f leader_stilicho
+counter counter_1_2_f leader_symmachus
+counter counter_1_3_f leader_sarus
+counter counter_1_4_f leader_constantius
+counter counter_1_5_f comitatenses
+
+counter counter_4_4_f marker_turn
+counter counter_4_5_f marker_round
+counter counter_4_6_f imperial_wedding
+
+counter counter_5_1_f enemy_constantine_6_bold
+counter counter_5_2_f truce_begins_constantine
+counter counter_5_4_f mutiny_goths
+counter counter_5_5_f enemy_goths_6_bold
+counter counter_5_6_f enemy_goths_5_bold
+
+counter counter_6_1_f mutiny_constantine
+counter counter_6_2_f attacks_vandals_begins_constantine
+counter counter_6_5_f death_of_alaric_goths
+counter counter_6_6_f truce_begins_goths
+
+counter counter_7_1_f enemy_vandals_4_bold
+counter counter_7_2_f truce_begins_vandals
+counter counter_7_4_f unrest
+counter counter_7_6_f olympius_1
+
+counter counter_8_1_f enemy_vandals_5_bold
+counter counter_8_2_f mutiny_vandals
+
+counter counter_9_1_f cannot_attack_constantine
+counter counter_9_2_f purple_cloak_constantine
+
+counter counter_1_5_b garrison
+
+counter counter_5_1_b enemy_constantine_5_demoralized
+counter counter_5_2_b truce_ends_constantine
+counter counter_5_5_b enemy_goths_5_demoralized
+counter counter_5_6_b enemy_goths_4_demoralized
+
+counter counter_6_2_b attacks_vandals_ends_constantine
+counter counter_6_6_b truce_ends_goths
+
+counter counter_7_1_b enemy_vandals_3_demoralized
+counter counter_7_2_b truce_ends_vandals
+counter counter_7_4_b revolt
+counter counter_7_6_b olympius_2
+
+counter counter_8_1_b enemy_vandals_4_demoralized

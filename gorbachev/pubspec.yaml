@@ -1,0 +1,198 @@
+name: gorbachev
+description: "Gorbachev: The Fall of Communism"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.png
+   - assets/images/tray.png
+   - assets/images/thumbnail.png
+   - assets/images/army_1gtk.png
+   - assets/images/army_28.png
+   - assets/images/army_2gtk.png
+   - assets/images/army_40.png
+   - assets/images/asset_five_year_plan.png
+   - assets/images/asset_media_culture.png
+   - assets/images/asset_military_might.png
+   - assets/images/berlin_wall.png
+   - assets/images/country_bulgaria.png
+   - assets/images/country_czechoslovakia.png
+   - assets/images/country_ddr.png
+   - assets/images/country_hungary.png
+   - assets/images/country_poland.png
+   - assets/images/country_romania.png
+   - assets/images/demonstration_n1.png
+   - assets/images/demonstration_p1.png
+   - assets/images/disaster_admiral_nakhimov.png
+   - assets/images/disaster_armenian_earthquake.png
+   - assets/images/disaster_berlin_wall_fall.png
+   - assets/images/disaster_bigots_in_power.png
+   - assets/images/disaster_chernobyl.png
+   - assets/images/disaster_mathias_rust.png
+   - assets/images/disaster_miners_strike.png
+   - assets/images/disaster_random_revolution.png
+   - assets/images/doctrine_brezhnev.png
+   - assets/images/doctrine_sinatra.png
+   - assets/images/kgb_d.png
+   - assets/images/kgb_i.png
+   - assets/images/kgb_5.png
+   - assets/images/loyal_communists.png
+   - assets/images/marker_season.png
+   - assets/images/marker_year.png
+   - assets/images/massacre_almaata.png
+   - assets/images/massacre_baku.png
+   - assets/images/massacre_fergana.png
+   - assets/images/massacre_sukhumi.png
+   - assets/images/massacre_sumgait.png
+   - assets/images/massacre_tbilisi.png
+   - assets/images/massacre_vilnius.png
+   - assets/images/mvd_security.png
+   - assets/images/nuclear_icbm.png
+   - assets/images/nuclear_inf.png
+   - assets/images/people_baltics_strong.png
+   - assets/images/people_baltics_weak.png
+   - assets/images/people_caucasus_strong.png
+   - assets/images/people_caucasus_weak.png
+   - assets/images/people_central_asia_weak.png
+   - assets/images/people_cpsu_strong.png
+   - assets/images/people_cpsu_weak.png
+   - assets/images/people_russia_strong.png
+   - assets/images/people_russia_weak.png
+   - assets/images/people_uzbek_mafia.png
+   - assets/images/politician_aliyev.png
+   - assets/images/politician_gorbachev.png
+   - assets/images/politician_ligachev.png
+   - assets/images/politician_popova.png
+   - assets/images/politician_pugo.png
+   - assets/images/politician_ryzhkov.png
+   - assets/images/politician_shcherbytsky.png
+   - assets/images/politician_shevardnadze.png
+   - assets/images/politician_vorotnikov.png
+   - assets/images/politician_yakovlev.png
+   - assets/images/politician_yanayev.png
+   - assets/images/politician_yeltsin.png
+   - assets/images/popular_vote.png
+   - assets/images/pravda_2.png
+   - assets/images/pravda_3.png
+   - assets/images/pravda_4.png
+   - assets/images/president_bush.png
+   - assets/images/president_dukakis.png
+   - assets/images/president_reagan.png
+   - assets/images/vremya.png
+   - assets/images/card_1.png
+   - assets/images/card_2.png
+   - assets/images/card_3.png
+   - assets/images/card_4.png
+   - assets/images/card_5.png
+   - assets/images/card_6.png
+   - assets/images/card_7.png
+   - assets/images/card_8.png
+   - assets/images/card_9.png
+   - assets/images/card_10.png
+   - assets/images/card_11.png
+   - assets/images/card_12.png
+   - assets/images/card_13.png
+   - assets/images/card_14.png
+   - assets/images/card_15.png
+   - assets/images/card_16.png
+   - assets/images/card_17.png
+   - assets/images/card_18.png
+   - assets/images/card_19.png
+   - assets/images/card_20.png
+   - assets/images/card_21.png
+   - assets/images/card_22.png
+   - assets/images/card_23.png
+   - assets/images/card_24.png
+   - assets/images/card_25.png
+   - assets/images/card_26.png
+   - assets/images/card_27.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

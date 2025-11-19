@@ -1,0 +1,190 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f corps_france_bessieres
+counter counter_1_2_f corps_france_eugene
+counter counter_1_3_f corps_france_kellermann
+counter counter_1_4_f corps_france_macdonald
+counter counter_1_5_f corps_france_moreau
+counter counter_1_6_f corps_france_ney
+counter counter_1_7_f corps_france_soult
+counter counter_1_8_f corps_france_victor
+
+counter counter_2_1_f corps_france_berthier
+counter counter_2_2_f corps_france_dupont
+counter counter_2_3_f corps_france_junot
+counter counter_2_4_f corps_france_lannes
+counter counter_2_5_f corps_france_massena
+counter counter_2_6_f corps_france_murat
+counter counter_2_7_f corps_france_saintcyr
+counter counter_2_8_f corps_france_suchet
+
+counter counter_3_1_f corps_france_bernadotte
+counter counter_3_2_f corps_france_davoust
+counter counter_3_3_f corps_france_grouchy
+counter counter_3_4_f corps_france_kleber
+counter counter_3_5_f corps_france_marmont
+counter counter_3_6_f corps_france_mortier
+counter counter_3_7_f corps_france_oudinot
+counter counter_3_8_f corps_warsaw
+
+counter counter_4_1_f corps_naples
+counter counter_4_2_f corps_bavaria
+counter counter_4_3_f corps_spain_palafox
+counter counter_4_4_f corps_spain_blake
+counter counter_4_5_f corps_prussia_yorck
+counter counter_4_6_f corps_prussia_kleist
+counter counter_4_7_f corps_prussia_blucher
+counter counter_4_8_f corps_prussia_braunschweig
+
+counter counter_5_1_f light_infantry
+counter counter_5_2_f corps_britain_wellington
+counter counter_5_3_f corps_britain_beresford
+counter counter_5_4_f corps_britain_uxbridge
+counter counter_5_5_f corps_duchy_guards
+counter counter_5_6_f corps_russia_kutuzov
+counter counter_5_7_f corps_russia_bagration
+counter counter_5_8_f corps_russia_bennigsen
+
+counter counter_6_1_f corps_sweden
+counter counter_6_2_f fervor_france
+counter counter_6_3_f fervor_italy
+counter counter_6_4_f fervor_germany
+counter counter_6_5_f fervor_austria
+counter counter_6_6_f fervor_spain
+counter counter_6_7_f corps_russia_platov
+counter counter_6_8_f corps_russia_barclay
+
+counter counter_7_1_f corps_austria_karl
+counter counter_7_2_f corps_austria_bellegarde
+counter counter_7_3_f corps_duchy_reserve
+counter counter_7_4_f corps_duchy_grenzer
+counter counter_7_5_f corps_duchy_marines
+counter counter_7_7_f corps_duchy_landwehr
+counter counter_7_8_f corps_duchy_grenadiers
+
+counter counter_8_1_f corps_austria_schwarzenberg
+counter counter_8_2_f corps_austria_radetzky
+counter counter_8_3_f corps_duchy_musketeers
+counter counter_8_4_f corps_duchy_fusiliers
+counter counter_8_6_f corps_duchy_jager
+
+counter counter_9_1_f diplomat_french
+
+counter counter_10_1_f diplomat_french_talleyrand
+counter counter_10_2_f diplomat_french_reinhard
+counter counter_10_3_f diplomat_coalition_castlereagh
+counter counter_10_4_f diplomat_coalition_metternich
+counter counter_10_5_f diplomat_coalition_hardenberg
+counter counter_10_6_f diplomat_coalition_razumovsky
+counter counter_10_7_f ottoman_army
+counter counter_10_8_f but
+
+counter counter_11_1_f spanish_ulcer
+counter counter_11_2_f napoleon_abdicates
+counter counter_11_3_f continental_system
+counter counter_11_4_f fleet_coalition
+counter counter_11_5_f fleet_french
+counter counter_11_6_f fund_minor_war
+counter counter_11_7_f fund_admiralty
+counter counter_11_8_f fund_treasury
+
+counter counter_1_9_f jews_emancipation
+counter counter_1_10_f jews_ghetto
+counter counter_1_11_f nelson
+counter counter_1_12_f scroll_basel
+counter counter_1_13_f scroll_tilsit
+counter counter_1_15_f russian_war
+
+counter counter_2_9_f corps_france_imperial_guard
+counter counter_2_10_f fra_diavolo
+counter counter_2_11_f trafalgar
+counter counter_2_12_f pope
+counter counter_2_13_f scroll_russian_nobility
+counter counter_2_14_f pounds_4
+
+counter counter_3_9_f paris
+counter counter_3_10_f icon_beethoven
+counter counter_3_11_f icon_goethe
+counter counter_3_12_f icon_goya
+counter counter_3_13_f icon_volta
+counter counter_3_14_f game_turn
+counter counter_3_15_f religion_deist
+counter counter_3_16_f religion_atheist
+
+counter counter_4_9_f trade_1
+counter counter_4_14_f religion_usurper
+counter counter_4_15_f religion_catholic
+counter counter_4_16_f religion_secular
+
+counter counter_5_9_f surrender_austria
+counter counter_5_10_f surrender_russia
+counter counter_5_11_f surrender_prussia
+counter counter_5_12_f status_spain_coalition
+counter counter_5_13_f status_spain_french
+counter counter_5_14_f status_sweden_coalition
+counter counter_5_15_f status_sweden_neutral
+counter counter_5_16_f status_austria_neutral
+
+counter counter_6_9_f napoleon_b
+counter counter_6_10_f napoleon_n
+counter counter_6_11_f napoleon_v
+counter counter_6_12_f status_russia_coalition
+counter counter_6_13_f status_russia_neutral
+counter counter_6_14_f status_prussia_neutral
+counter counter_6_15_f status_prussia_coalition
+counter counter_6_16_f status_austria_coalition
+
+counter counter_7_9_f etat_0
+counter counter_7_10_f etat_1
+counter counter_7_11_f etat_2
+counter counter_7_12_f etat_3
+counter counter_7_13_f etat_4
+counter counter_7_14_f no_war_red
+
+counter counter_8_9_f etat_5
+counter counter_8_10_f etat_6
+counter counter_8_11_f etat_7
+counter counter_8_12_f etat_8
+counter counter_8_13_f etat_warsaw
+counter counter_8_15_f no_war_green
+
+counter counter_9_9_f war_haiti
+counter counter_9_10_f war_malta
+counter counter_9_11_f war_finland
+counter counter_9_12_f war_caucasus
+counter counter_9_13_f war_cape
+counter counter_9_14_f war_ireland
+counter counter_9_15_f war_denmark
+counter counter_9_16_f war_senegal
+
+counter counter_10_9_f war_switzerland
+counter counter_10_10_f war_serbia
+counter counter_10_11_f war_balkans
+counter counter_10_12_f war_egypt
+counter counter_10_13_f war_usa
+counter counter_10_14_f war_mysore
+counter counter_10_15_f war_corfu
+
+counter counter_11_9_f corps_emigre_conde
+counter counter_11_10_f corps_emigre_bourbon
+counter counter_11_11_f corps_royalist
+counter counter_11_12_f wife_josephine
+counter counter_11_13_f wife_marriage
+counter counter_11_14_f terror
+counter counter_11_15_f coronation
+counter counter_11_16_f treaty_san_ildefonso
+
+counter counter_1_15_b russian_war_lost
+counter counter_2_11_b war_lost
+counter counter_3_10_b icon_unknown
+counter counter_7_9_b etat_unknown
+counter counter_10_3_b diplomat_coalition_busy
+counter counter_11_4_b fleet_busy

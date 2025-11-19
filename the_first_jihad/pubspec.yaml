@@ -1,0 +1,389 @@
+name: the_first_jihad
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.png
+   - assets/images/thumbnail.png
+   - assets/images/arab_stop.png
+   - assets/images/army_armenian_shattered.png
+   - assets/images/army_armenian_shattered_cursed.png
+   - assets/images/army_armenian_strong.png
+   - assets/images/army_armenian_strong_cursed.png
+   - assets/images/army_armenian_weak.png
+   - assets/images/army_armenian_weak_cursed.png
+   - assets/images/army_axum_shattered.png
+   - assets/images/army_axum_shattered_cursed.png
+   - assets/images/army_axum_strong.png
+   - assets/images/army_axum_strong_cursed.png
+   - assets/images/army_axum_weak.png
+   - assets/images/army_axum_weak_cursed.png
+   - assets/images/army_berber_shattered.png
+   - assets/images/army_berber_shattered_cursed.png
+   - assets/images/army_berber_strong.png
+   - assets/images/army_berber_strong_cursed.png
+   - assets/images/army_berber_weak.png
+   - assets/images/army_berber_weak_cursed.png
+   - assets/images/army_byzantine_garrison_shattered_catholic.png
+   - assets/images/army_byzantine_garrison_shattered_cursed_catholic.png
+   - assets/images/army_byzantine_garrison_shattered_cursed_generic.png
+   - assets/images/army_byzantine_garrison_shattered_cursed_monophysite.png
+   - assets/images/army_byzantine_garrison_shattered_cursed_orthodox.png
+   - assets/images/army_byzantine_garrison_shattered_generic.png
+   - assets/images/army_byzantine_garrison_shattered_monophysite.png
+   - assets/images/army_byzantine_garrison_shattered_orthodox.png
+   - assets/images/army_byzantine_garrison_weak_catholic.png
+   - assets/images/army_byzantine_garrison_weak_cursed_catholic.png
+   - assets/images/army_byzantine_garrison_weak_cursed_generic.png
+   - assets/images/army_byzantine_garrison_weak_cursed_monophysite.png
+   - assets/images/army_byzantine_garrison_weak_cursed_orthodox.png
+   - assets/images/army_byzantine_garrison_weak_generic.png
+   - assets/images/army_byzantine_garrison_weak_monophysite.png
+   - assets/images/army_byzantine_garrison_weak_orthodox.png
+   - assets/images/army_byzantine_shattered_catholic.png
+   - assets/images/army_byzantine_shattered_cursed_catholic.png
+   - assets/images/army_byzantine_shattered_cursed_generic.png
+   - assets/images/army_byzantine_shattered_cursed_monophysite.png
+   - assets/images/army_byzantine_shattered_cursed_orthodox.png
+   - assets/images/army_byzantine_shattered_generic.png
+   - assets/images/army_byzantine_shattered_monophysite.png
+   - assets/images/army_byzantine_shattered_orthodox.png
+   - assets/images/army_byzantine_strong_catholic.png
+   - assets/images/army_byzantine_strong_cursed_catholic.png
+   - assets/images/army_byzantine_strong_cursed_generic.png
+   - assets/images/army_byzantine_strong_cursed_monophysite.png
+   - assets/images/army_byzantine_strong_cursed_orthodox.png
+   - assets/images/army_byzantine_strong_generic.png
+   - assets/images/army_byzantine_strong_monophysite.png
+   - assets/images/army_byzantine_strong_orthodox.png
+   - assets/images/army_byzantine_weak_catholic.png
+   - assets/images/army_byzantine_weak_cursed_catholic.png
+   - assets/images/army_byzantine_weak_cursed_generic.png
+   - assets/images/army_byzantine_weak_cursed_monophysite.png
+   - assets/images/army_byzantine_weak_cursed_orthodox.png
+   - assets/images/army_byzantine_weak_generic.png
+   - assets/images/army_byzantine_weak_monophysite.png
+   - assets/images/army_byzantine_weak_orthodox.png
+   - assets/images/army_chinese_shattered.png
+   - assets/images/army_chinese_shattered_cursed.png
+   - assets/images/army_chinese_strong.png
+   - assets/images/army_chinese_strong_cursed.png
+   - assets/images/army_chinese_weak.png
+   - assets/images/army_chinese_weak_cursed.png
+   - assets/images/army_exarchate_shattered.png
+   - assets/images/army_exarchate_shattered_cursed.png
+   - assets/images/army_exarchate_strong.png
+   - assets/images/army_exarchate_strong_cursed.png
+   - assets/images/army_exarchate_weak.png
+   - assets/images/army_exarchate_weak_cursed.png
+   - assets/images/army_frankish_shattered.png
+   - assets/images/army_frankish_shattered_cursed.png
+   - assets/images/army_frankish_strong.png
+   - assets/images/army_frankish_strong_cursed.png
+   - assets/images/army_frankish_weak.png
+   - assets/images/army_frankish_weak_cursed.png
+   - assets/images/army_khazar_shattered.png
+   - assets/images/army_khazar_shattered_cursed.png
+   - assets/images/army_khazar_strong.png
+   - assets/images/army_khazar_strong_cursed.png
+   - assets/images/army_khazar_weak.png
+   - assets/images/army_khazar_weak_cursed.png
+   - assets/images/army_nubian_shattered.png
+   - assets/images/army_nubian_shattered_cursed.png
+   - assets/images/army_nubian_strong.png
+   - assets/images/army_nubian_strong_cursed.png
+   - assets/images/army_nubian_weak.png
+   - assets/images/army_nubian_weak_cursed.png
+   - assets/images/army_persian_shattered.png
+   - assets/images/army_persian_shattered_cursed.png
+   - assets/images/army_persian_strong.png
+   - assets/images/army_persian_strong_cursed.png
+   - assets/images/army_persian_weak.png
+   - assets/images/army_persian_weak_cursed.png
+   - assets/images/army_pratihara_shattered.png
+   - assets/images/army_pratihara_shattered_cursed.png
+   - assets/images/army_pratihara_strong.png
+   - assets/images/army_pratihara_strong_cursed.png
+   - assets/images/army_pratihara_weak.png
+   - assets/images/army_pratihara_weak_cursed.png
+   - assets/images/army_sogdian_shattered.png
+   - assets/images/army_sogdian_shattered_cursed.png
+   - assets/images/army_sogdian_strong.png
+   - assets/images/army_sogdian_strong_cursed.png
+   - assets/images/army_sogdian_weak.png
+   - assets/images/army_sogdian_weak_cursed.png
+   - assets/images/army_turgesh_shattered.png
+   - assets/images/army_turgesh_shattered_cursed.png
+   - assets/images/army_turgesh_strong.png
+   - assets/images/army_turgesh_strong_cursed.png
+   - assets/images/army_turgesh_weak.png
+   - assets/images/army_turgesh_weak_cursed.png
+   - assets/images/army_visigoth_shattered.png
+   - assets/images/army_visigoth_shattered_cursed.png
+   - assets/images/army_visigoth_strong.png
+   - assets/images/army_visigoth_strong_cursed.png
+   - assets/images/army_visigoth_weak.png
+   - assets/images/army_visigoth_weak_cursed.png
+   - assets/images/baqt_strong.png
+   - assets/images/baqt_weak.png
+   - assets/images/blessing_fleet_strong_catholic.png
+   - assets/images/blessing_fleet_strong_generic.png
+   - assets/images/blessing_fleet_strong_monophysite.png
+   - assets/images/blessing_fleet_strong_orthodox.png
+   - assets/images/blessing_fleet_weak_catholic.png
+   - assets/images/blessing_fleet_weak_generic.png
+   - assets/images/blessing_fleet_weak_monophysite.png
+   - assets/images/blessing_fleet_weak_orthodox.png
+   - assets/images/blessing_icons_strong.png
+   - assets/images/blessing_immortals_strong.png
+   - assets/images/blessing_immortals_weak.png
+   - assets/images/blessing_themes_strong_catholic.png
+   - assets/images/blessing_themes_strong_generic.png
+   - assets/images/blessing_themes_strong_monophysite.png
+   - assets/images/blessing_themes_strong_orthodox.png
+   - assets/images/capital_byzantine_strong_catholic.png
+   - assets/images/capital_byzantine_strong_generic.png
+   - assets/images/capital_byzantine_strong_monophysite.png
+   - assets/images/capital_byzantine_strong_orthodox.png
+   - assets/images/capital_byzantine_weak_catholic.png
+   - assets/images/capital_byzantine_weak_generic.png
+   - assets/images/capital_byzantine_weak_monophysite.png
+   - assets/images/capital_byzantine_weak_orthodox.png
+   - assets/images/capital_islamic.png
+   - assets/images/capital_persian_strong.png
+   - assets/images/capital_persian_weak.png
+   - assets/images/castle_byzantine_strong_catholic.png
+   - assets/images/castle_byzantine_strong_generic.png
+   - assets/images/castle_byzantine_strong_monophysite.png
+   - assets/images/castle_byzantine_strong_orthodox.png
+   - assets/images/castle_byzantine_weak_catholic.png
+   - assets/images/castle_byzantine_weak_generic.png
+   - assets/images/castle_byzantine_weak_monophysite.png
+   - assets/images/castle_byzantine_weak_orthodox.png
+   - assets/images/castle_persian_weak.png
+   - assets/images/christian_damascus.png
+   - assets/images/excubitors_strong_catholic.png
+   - assets/images/excubitors_strong_generic.png
+   - assets/images/excubitors_strong_monophysite.png
+   - assets/images/excubitors_strong_orthodox.png
+   - assets/images/excubitors_weak_catholic.png
+   - assets/images/excubitors_weak_generic.png
+   - assets/images/excubitors_weak_monophysite.png
+   - assets/images/excubitors_weak_orthodox.png
+   - assets/images/islam_strong.png
+   - assets/images/islam_weak.png
+   - assets/images/jews_strong.png
+   - assets/images/jews_weak.png
+   - assets/images/jihad_alternating.png
+   - assets/images/jihad_one_front.png
+   - assets/images/marker_ap_africa.png
+   - assets/images/marker_ap_caucasus.png
+   - assets/images/marker_ap_east.png
+   - assets/images/marker_ap_east_divided.png
+   - assets/images/marker_ap_west.png
+   - assets/images/marker_ap_west_divided.png
+   - assets/images/marker_bonus_ap_blue.png
+   - assets/images/marker_bonus_ap_purple.png
+   - assets/images/marker_bonus_ap_red.png
+   - assets/images/marker_bulgars_docile.png
+   - assets/images/marker_bulgars_wild.png
+   - assets/images/marker_cursed.png
+   - assets/images/marker_cyprus_greek.png
+   - assets/images/marker_cyprus_med.png
+   - assets/images/marker_great_king_africa.png
+   - assets/images/marker_great_king_caucasus.png
+   - assets/images/marker_kaaba_3.png
+   - assets/images/marker_kaaba_4.png
+   - assets/images/marker_kaaba_5.png
+   - assets/images/marker_kaaba_6.png
+   - assets/images/marker_kaaba_7.png
+   - assets/images/marker_kaaba_8.png
+   - assets/images/marker_last_stand_byzantine_ap_catholic.png
+   - assets/images/marker_last_stand_byzantine_ap_generic.png
+   - assets/images/marker_last_stand_byzantine_ap_monophysite.png
+   - assets/images/marker_last_stand_byzantine_ap_orthodox.png
+   - assets/images/marker_last_stand_byzantine_skill_catholic.png
+   - assets/images/marker_last_stand_byzantine_skill_generic.png
+   - assets/images/marker_last_stand_byzantine_skill_monophysite.png
+   - assets/images/marker_last_stand_byzantine_skill_orthodox.png
+   - assets/images/marker_last_stand_persian_ap.png
+   - assets/images/marker_last_stand_persian_skill.png
+   - assets/images/marker_muslim_navy_active.png
+   - assets/images/marker_muslim_navy_no.png
+   - assets/images/marker_no_sharia_law.png
+   - assets/images/marker_religion_byzantine_catholic.png
+   - assets/images/marker_religion_byzantine_generic.png
+   - assets/images/marker_religion_byzantine_monophysite.png
+   - assets/images/marker_religion_byzantine_orthodox.png
+   - assets/images/marker_religion_byzantine_schism_catholic.png
+   - assets/images/marker_religion_byzantine_schism_generic.png
+   - assets/images/marker_religion_byzantine_schism_monophysite.png
+   - assets/images/marker_religion_byzantine_schism_orthodox.png
+   - assets/images/marker_ruler_byzantine_catholic.png
+   - assets/images/marker_ruler_byzantine_generic.png
+   - assets/images/marker_ruler_byzantine_monophysite.png
+   - assets/images/marker_ruler_byzantine_orthodox.png
+   - assets/images/marker_ruler_byzantine_truce_catholic.png
+   - assets/images/marker_ruler_byzantine_truce_generic.png
+   - assets/images/marker_ruler_byzantine_truce_monophysite.png
+   - assets/images/marker_ruler_byzantine_trucec_orthodox.png
+   - assets/images/marker_ruler_persian.png
+   - assets/images/marker_ruler_persian_truce.png
+   - assets/images/marker_shattered.png
+   - assets/images/marker_socotra_african.png
+   - assets/images/marker_socotra_indian.png
+   - assets/images/marker_syrians_inactive.png
+   - assets/images/marker_tibet_badass.png
+   - assets/images/marker_tibet_buddhist.png
+   - assets/images/marker_trade_closed.png
+   - assets/images/marker_zabulistan_defiant.png
+   - assets/images/marker_zabulistan_subdued.png
+   - assets/images/mecca_strong.png
+   - assets/images/mecca_weak.png
+   - assets/images/mujahideen_strong.png
+   - assets/images/mujahideen_weak.png
+   - assets/images/refugees_manichees.png
+   - assets/images/refugees_mardaites.png
+   - assets/images/refugees_parsees.png
+   - assets/images/card_1.png
+   - assets/images/card_10.png
+   - assets/images/card_11.png
+   - assets/images/card_12.png
+   - assets/images/card_13.png
+   - assets/images/card_14.png
+   - assets/images/card_15.png
+   - assets/images/card_16.png
+   - assets/images/card_17.png
+   - assets/images/card_18.png
+   - assets/images/card_19.png
+   - assets/images/card_2.png
+   - assets/images/card_20.png
+   - assets/images/card_21.png
+   - assets/images/card_22.png
+   - assets/images/card_23.png
+   - assets/images/card_24.png
+   - assets/images/card_25.png
+   - assets/images/card_26.png
+   - assets/images/card_27.png
+   - assets/images/card_28.png
+   - assets/images/card_29.png
+   - assets/images/card_3.png
+   - assets/images/card_30.png
+   - assets/images/card_31.png
+   - assets/images/card_32.png
+   - assets/images/card_33.png
+   - assets/images/card_34.png
+   - assets/images/card_35.png
+   - assets/images/card_36.png
+   - assets/images/card_37.png
+   - assets/images/card_38.png
+   - assets/images/card_39.png
+   - assets/images/card_4.png
+   - assets/images/card_40.png
+   - assets/images/card_41.png
+   - assets/images/card_42.png
+   - assets/images/card_43.png
+   - assets/images/card_44.png
+   - assets/images/card_45.png
+   - assets/images/card_46.png
+   - assets/images/card_47.png
+   - assets/images/card_48.png
+   - assets/images/card_49.png
+   - assets/images/card_5.png
+   - assets/images/card_50.png
+   - assets/images/card_6.png
+   - assets/images/card_7.png
+   - assets/images/card_8.png
+   - assets/images/card_9.png
+   - assets/images/card_back.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

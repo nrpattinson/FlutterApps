@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f air_arg_a4_elite
+counter counter_1_2_f air_arg_a4
+counter counter_1_6_f air_arg_dm
+counter counter_1_7_f air_arg_dg
+
+counter counter_2_1_f air_arg_am
+counter counter_2_2_f air_arg_cb
+counter counter_2_3_f air_arg_dm_elite
+counter counter_2_5_f air_arg_se
+counter counter_2_6_f air_arg_dg_elite
+counter counter_2_8_f air_arg_dg_donadille
+
+counter counter_3_1_f naval_arg_grupo_9
+counter counter_3_2_f naval_arg_grupo_10
+counter counter_3_3_f ground_arg_ft_merc
+counter counter_3_4_f ground_arg_ri_7
+counter counter_3_5_f ground_arg_ec_solari
+counter counter_3_6_f ground_arg_ri_4
+counter counter_3_7_f ground_arg_bim_5
+counter counter_3_8_f ground_arg_cdo_602
+
+counter counter_4_1_f naval_arg_grupo_1
+counter counter_4_2_f naval_arg_grupo_2
+counter counter_4_3_f naval_arg_grupo_3
+counter counter_4_4_f naval_arg_grupo_4
+counter counter_4_5_f naval_arg_grupo_5
+counter counter_4_6_f naval_arg_grupo_6
+counter counter_4_7_f naval_arg_grupo_7
+counter counter_4_8_f naval_arg_grupo_8
+
+counter counter_5_1_f naval_arg_belgrano
+counter counter_5_2_f naval_arg_25_de_mayo
+counter counter_5_3_f ground_arg_pu
+counter counter_5_5_f ground_arg_mine_field
+counter counter_5_6_f ground_arg_patrol
+
+counter counter_6_1_f naval_gbr_hermes
+counter counter_6_2_f naval_gbr_invincible
+counter counter_6_3_f marker_bbc_news
+counter counter_6_4_f marker_pope
+counter counter_6_5_f marker_exocet
+counter counter_6_6_f marker_diplomacy
+counter counter_6_7_f marker_weather
+counter counter_6_8_f marker_turn
+
+counter counter_7_1_f naval_gbr_iwo_jima
+counter counter_7_2_f naval_gbr_escorts
+counter counter_7_4_f naval_gbr_stuft
+counter counter_7_5_f ground_gbr_45_cdo
+counter counter_7_6_f ground_gbr_gurkhas
+counter counter_7_7_f ground_gbr_scots_gds
+counter counter_7_8_f ground_gbr_welsh_gds
+
+counter counter_8_1_f ground_gbr_2_para
+counter counter_8_2_f ground_gbr_3_para
+counter counter_8_3_f ground_gbr_40_cdo
+counter counter_8_4_f ground_gbr_42_cdo
+counter counter_8_5_f marker_chilean_radar
+counter counter_8_6_f ground_gbr_sas
+counter counter_8_7_f ground_gbr_br
+counter counter_8_8_f ground_gbr_ra
+
+counter counter_9_1_f ground_gbr_klf
+counter counter_9_2_f ground_gbr_heli
+counter counter_9_5_f marker_ground_support_gbr
+counter counter_9_6_f marker_ground_support_arg
+counter counter_9_7_f marker_target_air_sector
+counter counter_9_8_f air_gbr_hh
+
+counter counter_10_1_f air_gbr_hi_ward
+counter counter_10_2_f air_gbr_hh_morgan
+
+counter counter_11_1_f air_gbr_hi
+
+counter counter_3_5_b ground_arg_white_star
+
+counter counter_6_7_b marker_no_air
+
+counter counter_7_5_b ground_gbr_out_of_supply

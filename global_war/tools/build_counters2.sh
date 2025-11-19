@@ -1,0 +1,305 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1_f capital_berlin
+counter counter_1_2_f army_south
+counter counter_1_3_f army_romanian
+counter counter_1_4_f army_german_a
+counter counter_1_5_f army_german_b
+counter counter_1_6_f army_arnim
+counter counter_1_7_f uboats
+
+counter counter_2_1_f army_north
+counter counter_2_2_f army_center
+counter counter_2_3_f economy_german
+counter counter_2_4_f army_german_g
+counter counter_2_5_f army_german_c
+counter counter_2_6_f capital_westwall
+
+counter counter_3_1_f dollars
+counter counter_3_2_f army_italian_5
+counter counter_3_3_f army_italian_10
+counter counter_3_4_f capital_manchukuo
+counter counter_3_5_f army_wang
+counter counter_3_6_f army_poland_1
+counter counter_3_7_f leader_churchill
+counter counter_3_8_f leader_roosevelt
+
+counter counter_4_1_f army_italian_col
+counter counter_4_2_f capital_ccnn
+counter counter_4_3_f army_afrika_korps
+counter counter_4_4_f army_ccp
+counter counter_4_5_f army_japanese_nc_aa
+counter counter_4_6_f army_japanese_cc_aa
+counter counter_4_7_f army_denmark
+counter counter_4_8_f leader_stalin
+
+counter counter_5_1_f blitz
+counter counter_5_4_f army_japanese_28
+counter counter_5_5_f army_japanese_15
+counter counter_5_6_f ship_tanaka
+counter counter_5_7_f lend_lease_liberty_ships
+counter counter_5_8_f lend_lease_jeeps_trucks
+
+counter counter_6_4_f army_burmese
+counter counter_6_5_f army_indian
+counter counter_6_6_f ship_yamato
+counter counter_6_7_f lend_lease_destroyer_deal
+counter counter_6_8_f military_event
+
+counter counter_7_1_f army_japanese_14
+counter counter_7_2_f army_japanese_18
+counter counter_7_3_f army_japanese_31
+counter counter_7_4_f ship_akagi
+counter counter_7_5_f ship_zuikaku
+counter counter_7_6_f ship_hiryu
+counter counter_7_7_f ship_chokai
+counter counter_7_8_f ship_kongo
+
+counter counter_8_1_f army_japanese_32
+counter counter_8_2_f capital_tokyo
+counter counter_8_3_f ship_zero_red
+counter counter_8_4_f ship_iboats_red
+counter counter_8_5_f ship_ryujo
+counter counter_8_6_f ship_zuiho
+counter counter_8_7_f ship_aoba
+counter counter_8_8_f army_sinkiang
+
+counter counter_9_1_f ship_taiho
+counter counter_9_2_f commando_skorzeny
+counter counter_9_3_f submarine_campaign
+counter counter_9_4_f carrier_langley
+counter counter_9_5_f carrier_wasp
+counter counter_9_6_f carrier_ranger
+counter counter_9_7_f carrier_enterprise
+counter counter_9_8_f carrier_hornet
+
+counter counter_10_1_f carrier_yorktown
+counter counter_10_2_f carrier_lexington
+counter counter_10_3_f carrier_saratoga
+counter counter_10_4_f carrier_essex
+counter counter_10_5_f carrier_bunker_hill
+counter counter_10_6_f carrier_intrepid
+counter counter_10_7_f carrier_ticonderoga
+counter counter_10_8_f carrier_fdr
+
+counter counter_11_1_f carrier_midway
+counter counter_11_2_f carrier_princeton
+counter counter_11_3_f naval_actions_1
+counter counter_11_4_f asw
+counter counter_11_5_f spruance_p2
+counter counter_11_6_f panzer_pza
+counter counter_11_7_f economy_japanese
+counter counter_11_8_f siege_normandy
+
+counter counter_1_9_f turn_01
+counter counter_1_10_f turn_02
+counter counter_1_11_f turn_03
+counter counter_1_12_f turn_04
+counter counter_1_13_f turn_05
+counter counter_1_14_f turn_06
+counter counter_1_15_f turn_07
+counter counter_1_16_f turn_08
+
+counter counter_2_9_f turn_09
+counter counter_2_10_f turn_10
+counter counter_2_11_f turn_11
+counter counter_2_12_f turn_12
+counter counter_2_13_f turn_13
+counter counter_2_14_f turn_14
+counter counter_2_15_f turn_15
+counter counter_2_16_f turn_16
+
+counter counter_3_9_f turn_17
+counter counter_3_10_f turn_18
+counter counter_3_11_f turn_19
+counter counter_3_12_f turn_20
+counter counter_3_13_f turn_21
+counter counter_3_14_f turn_22
+counter counter_3_15_f turn_23
+counter counter_3_16_f turn_24
+
+counter counter_4_9_f turn_25
+counter counter_4_10_f turn_26
+counter counter_4_11_f turn_27
+counter counter_4_12_f turn_28
+counter counter_4_13_f convoy_american
+counter counter_4_15_f convoy_british
+counter counter_4_16_f convoy_norwegian
+
+counter counter_5_9_f city_london
+counter counter_5_10_f city_glasgow
+counter counter_5_11_f city_chicago
+counter counter_5_12_f city_sydney
+counter counter_5_13_f city_moscow
+counter counter_5_14_f city_leningrad
+counter counter_5_15_f siege_tunis
+counter counter_5_16_f army_vichy_malg
+
+counter counter_6_9_f city_new_york
+counter counter_6_10_f city_san_francisco
+counter counter_6_11_f city_baku
+counter counter_6_12_f city_chungking
+counter counter_6_13_f city_delhi
+counter counter_6_14_f army_france_1
+counter counter_6_15_f air_base_british
+counter counter_6_16_f army_vichy_syria
+
+counter counter_7_9_f army_knil
+counter counter_7_10_f india_gandhi
+counter counter_7_11_f army_netherlands
+counter counter_7_12_f siege_stalingrad
+counter counter_7_13_f siege_imphal
+counter counter_7_14_f policy_spain_axis
+counter counter_7_15_f fleet_vichy_peace
+counter counter_7_16_f us_marines
+
+counter counter_8_9_f army_greece
+counter counter_8_10_f raider_scharnhorst
+counter counter_8_11_f raider_prinz_eugen
+counter counter_8_12_f siege_guadalcanal
+counter counter_8_13_f malta
+counter counter_8_14_f partisans
+counter counter_8_16_f policy_russia
+
+counter counter_9_9_f raider_kormoran
+counter counter_9_10_f army_aoi
+counter counter_9_11_f army_congo
+counter counter_9_12_f army_iranian_shah
+counter counter_9_13_f aid_china
+counter counter_9_14_f south_africa_un
+counter counter_9_15_f army_finnish
+counter counter_9_16_f greek_surrender
+
+counter counter_10_9_f a_bomb_research
+counter counter_10_10_f policy_italy
+counter counter_10_11_f army_iraqi
+counter counter_10_12_f burma_road_open
+counter counter_10_13_f escort_sao_paulo
+counter counter_10_14_f ricks_place
+counter counter_10_15_f army_turkey
+counter counter_10_16_f cannon_meat
+
+counter counter_11_9_f strategy_a
+counter counter_11_10_f strategy_b
+counter counter_11_11_f strategy_c
+counter counter_11_12_f strategy_d
+counter counter_11_13_f strategy_e
+counter counter_11_14_f strategy_f
+counter counter_11_15_f policy_japan_e
+counter counter_11_16_f policy_japan_f
+
+counter counter_1_1_b capital_hitler
+counter counter_1_2_b army_hungarian
+counter counter_1_3_b air_base_usstaf
+counter counter_1_4_b army_bf109
+counter counter_1_5_b army_do17
+counter counter_1_6_b army_vichy_alger
+counter counter_1_8_b convoy_french
+
+counter counter_2_3_b no_axis_attack
+counter counter_2_4_b army_ju88
+counter counter_2_5_b army_he111
+counter counter_2_6_b capital_goring
+
+counter counter_3_1_b dollars_escort
+counter counter_3_2_b army_german_14
+counter counter_3_3_b army_german_10
+counter counter_3_6_b army_poland_2
+counter counter_3_7_b leader_chamberlain
+counter counter_3_8_b leader_willkie
+
+counter counter_4_1_b army_italian_bers
+counter counter_4_2_b capital_mussolini
+counter counter_4_3_b army_italian_lig
+counter counter_4_7_b army_norway
+counter counter_4_8_b leader_stalin_used
+
+counter counter_5_1_b mushroom
+counter counter_5_6_b ship_akizuki
+counter counter_5_7_b burma_road_hump
+counter counter_5_8_b lend_lease_aid_russia
+
+counter counter_6_6_b ship_nagato
+
+counter counter_7_3_b air_base_tinian
+counter counter_7_4_b ship_hiyo
+counter counter_7_5_b ship_shinano
+counter counter_7_6_b ship_chitose
+counter counter_7_7_b ship_tone
+counter counter_7_8_b ship_haruna
+
+counter counter_8_1_b operation_al
+counter counter_8_3_b ship_zero_white
+counter counter_8_4_b ship_iboats_white
+counter counter_8_5_b ship_unryu
+counter counter_8_6_b ship_ise
+counter counter_8_7_b ship_yahagi
+counter counter_8_8_b sinkiang_ussr
+
+counter counter_9_1_b ship_kamikaze
+counter counter_9_2_b commando_teishin_shudan
+counter counter_9_3_b ship_yamamoto
+
+counter counter_11_3_b naval_actions_2
+counter counter_11_4_b asw_enigma
+counter counter_11_5_b spruance_p1
+counter counter_11_6_b panzer_tiger
+counter counter_11_8_b siege_tightens
+
+counter counter_1_9_b partisans_soviet
+counter counter_1_10_b partisans_communist
+counter counter_1_12_b turn_barbarossa
+counter counter_1_13_b turn_pearl_harbor
+
+counter counter_4_13_b convoy_escorted
+
+counter counter_5_11_b city_singapore
+counter counter_5_13_b city_tbilisi
+counter counter_5_14_b city_gorky
+counter counter_5_16_b army_japanese_madag
+
+counter counter_6_9_b city_montreal
+counter counter_6_10_b city_algiers
+counter counter_6_11_b city_tashkent
+counter counter_6_14_b army_france_2
+counter counter_6_15_b air_base_usaaf
+counter counter_6_16_b army_german_syria
+
+counter counter_7_9_b army_singapore
+counter counter_7_10_b india_revolt
+counter counter_7_11_b army_belgium
+counter counter_7_14_b policy_spain_un
+counter counter_7_15_b fleet_vichy_war
+
+counter counter_8_9_b army_yugoslavia
+counter counter_8_10_b raider_graf_spee
+counter counter_8_11_b raider_bismarck
+counter counter_8_13_b malta_besieged
+
+counter counter_9_9_b raider_rivadavia
+counter counter_9_10_b partisans_italian
+counter counter_9_11_b congo_un
+counter counter_9_12_b army_iranian_vatan
+counter counter_9_14_b south_africa_neutral
+counter counter_9_15_b finland_un
+counter counter_9_16_b army_tito
+
+counter counter_10_9_b a_bomb_available
+counter counter_10_10_b dutch_east_indies
+counter counter_10_11_b army_german_iraq
+counter counter_10_12_b burma_road_closed
+counter counter_10_16_b army_warsaw
+
+counter counter_11_9_b occupied_american
+counter counter_11_10_b occupied_soviet
+counter counter_11_11_b occupied_british
+counter counter_11_15_b capital_thailand
+counter counter_11_16_b army_bataan

@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f map_unit_poitiers_3
+counter counter_1_4_f map_unit_poitiers_4
+counter counter_1_6_f map_unit_bordeaux_4
+
+counter counter_2_1_f map_unit_bordeaux_5
+counter counter_2_3_f map_unit_gascony_5
+
+counter counter_3_1_f map_unit_lombardy_4
+counter counter_3_3_f map_unit_lombardy_5
+counter counter_3_5_f map_unit_lombardy_6
+counter counter_3_6_f iron_crown
+counter counter_3_7_f map_unit_friuli_4
+
+counter counter_4_1_f map_unit_friuli_5
+counter counter_4_3_f map_unit_bavaria_4
+counter counter_4_5_f map_unit_bavaria_5
+counter counter_4_6_f map_unit_bavaria_6
+
+counter counter_5_1_f map_unit_fulda_3
+counter counter_5_3_f map_unit_swabia_3
+counter counter_5_5_f map_unit_swabia_4
+counter counter_5_6_f map_unit_provence_3
+counter counter_5_7_f map_unit_provence_4
+
+counter counter_6_1_f map_unit_burgundy_3
+counter counter_6_3_f map_unit_burgundy_4
+counter counter_6_5_f intrigue
+
+counter counter_7_1_f map_unit_carinthia_3
+counter counter_7_2_f map_unit_carinthia_4
+counter counter_7_3_f map_unit_carinthia_5
+counter counter_7_5_f map_unit_croats_4
+counter counter_7_7_f map_unit_croats_5
+
+counter counter_8_1_f map_unit_moravia_5
+counter counter_8_3_f map_unit_moravia_6
+counter counter_8_5_f map_unit_avars_5
+counter counter_8_6_f map_unit_avars_6
+
+counter counter_9_1_f map_unit_saxons1_6
+counter counter_9_5_f map_unit_saxons1_7
+counter counter_9_7_f map_unit_saxons2_6
+
+counter counter_10_2_f map_unit_saxons2_7
+counter counter_10_5_f map_unit_veleti_5
+counter counter_10_7_f map_unit_veleti_6
+
+counter counter_11_1_f map_unit_paris_4
+counter counter_11_2_f map_unit_paris_5
+counter counter_11_3_f map_unit_reims_3
+counter counter_11_4_f map_unit_reims_4
+counter counter_11_5_f map_unit_breton_4
+counter counter_11_6_f map_unit_breton_5
+
+counter counter_1_9_f map_unit_charlemagne_younger
+counter counter_1_10_f church_started
+counter counter_1_14_f marker_treasury
+counter counter_1_15_f marker_taxes
+counter counter_1_16_f marker_vp_1
+
+counter counter_2_9_f map_unit_marquis
+counter counter_2_13_f marker_game_turn
+counter counter_2_14_f marker_papal_approval_n1
+counter counter_2_15_f marker_papal_approval_p1
+counter counter_2_16_f marker_vp_10
+
+counter counter_3_9_f battle_unit_infantry_1
+
+counter counter_4_9_f battle_unit_infantry_3
+
+counter counter_5_9_f battle_unit_scara_2
+
+counter counter_6_9_f battle_unit_scara_3
+
+counter counter_7_9_f battle_unit_enemy_4_4
+counter counter_7_11_f battle_unit_enemy_4_5
+counter counter_7_13_f battle_unit_enemy_5_5
+
+counter counter_8_9_f battle_unit_enemy_5_6
+counter counter_8_15_f battle_unit_enemy_6_6
+
+counter counter_9_9_f byzantium
+counter counter_9_13_f map_unit_viking
+
+counter counter_10_10_f map_unit_moor
+
+counter counter_11_9_f marker_byzantine_peace
+counter counter_11_10_f marker_al_andalus_peace
+counter counter_11_11_f marker_emergency_vp
+counter counter_11_12_f marker_drm_p1
+counter counter_11_13_f turn_end
+
+counter counter_1_1_b leader_poitiers_1
+counter counter_1_4_b leader_poitiers_2
+counter counter_1_6_b leader_bordeaux_1
+
+counter counter_2_1_b leader_bordeaux_2
+counter counter_2_3_b leader_gascony_1
+counter counter_2_6_b leader_gascony_2
+
+counter counter_3_1_b leader_lombardy_1
+counter counter_3_6_b leader_lombardy_3
+counter counter_3_7_b leader_friuli_1
+
+counter counter_4_1_b leader_friuli_2
+counter counter_4_3_b leader_bavaria_1
+counter counter_4_5_b leader_bavaria_2
+
+counter counter_6_1_b leader_burgundy_1
+counter counter_6_3_b leader_burgundy_2
+
+counter counter_7_1_b leader_carinthia_1
+counter counter_7_5_b leaders_croats_1
+
+counter counter_8_1_b leader_moravia_1
+counter counter_8_3_b leader_moravia_2
+counter counter_8_5_b leader_avars_1
+counter counter_8_6_b leader_avars_2
+
+counter counter_9_1_b leader_saxons1_2
+counter counter_9_5_b leader_saxons1_3
+counter counter_9_7_b leader_saxons2_2
+
+counter counter_10_3_b leader_saxons2_3
+counter counter_10_5_b leader_veleti_1
+counter counter_10_7_b leader_veleti_2
+
+counter counter_11_5_b leader_breton_1
+counter counter_11_7_b leader_breton_2
+
+counter counter_1_9_b map_unit_charlemagne_older
+counter counter_1_10_b church_completed
+
+counter counter_2_9_b map_unit_marquis_crown
+counter counter_2_14_b marker_papal_approval_0
+counter counter_2_15_b marker_papal_approval_p2
+
+counter counter_3_9_b battle_unit_infantry_2
+
+counter counter_4_9_b battle_unit_infantry_4
+
+counter counter_6_9_b battle_unit_scara_4
+
+counter counter_7_9_b battle_unit_enemy_reduced_4_4
+counter counter_7_11_b battle_unit_enemy_reduced_4_5
+counter counter_7_13_b battle_unit_enemy_reduced_5_5
+
+counter counter_8_9_b battle_unit_enemy_reduced_5_6
+counter counter_8_15_b battle_unit_enemy_reduced_6_6
+
+counter counter_11_9_b marker_byzantine_tension
+counter counter_11_10_b marker_al_andalus_tension
+counter counter_11_12_b marker_drm_p1_p2

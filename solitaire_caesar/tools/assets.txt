@@ -1,0 +1,17 @@
+   - assets/images/barbarian_civilized.png
+   - assets/images/barbarian_uncivilized.png
+   - assets/images/capital.png
+   - assets/images/city.png
+   - assets/images/control.png
+   - assets/images/emperor.png
+   - assets/images/legion.png
+   - assets/images/map.png
+   - assets/images/skilled_general.png
+   - assets/images/talents_1.png
+   - assets/images/talents_10.png
+   - assets/images/talents_2.png
+   - assets/images/talents_5.png
+   - assets/images/turn.png
+   - assets/images/vp_1.png
+   - assets/images/vp_10.png
+   - assets/images/vp_100.png

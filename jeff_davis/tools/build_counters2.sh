@@ -1,0 +1,269 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters600/$2.png
+}
+
+counter counter_1_1_f chit_back_8
+counter counter_1_2_f chit_back_7
+counter counter_1_3_f chit_back_6
+counter counter_1_4_f chit_back_5
+counter counter_1_5_f chit_back_4
+counter counter_1_6_f chit_back_3
+counter counter_1_7_f chit_back_2
+counter counter_1_8_f chit_back_1
+
+counter counter_2_1_f chit_back_16
+counter counter_2_2_f chit_back_15
+counter counter_2_3_f chit_back_14
+counter counter_2_4_f chit_back_13
+counter counter_2_5_f chit_back_12
+counter counter_2_6_f chit_back_11
+counter counter_2_7_f chit_back_10
+counter counter_2_8_f chit_back_9
+
+counter counter_3_1_f chit_back_24
+counter counter_3_2_f chit_back_23
+counter counter_3_3_f chit_back_22
+counter counter_3_4_f chit_back_21
+counter counter_3_5_f chit_back_20
+counter counter_3_6_f chit_back_19
+counter counter_3_7_f chit_back_18
+counter counter_3_8_f chit_back_17
+
+counter counter_4_1_f chit_back_32
+counter counter_4_2_f chit_back_31
+counter counter_4_3_f chit_back_30
+counter counter_4_4_f chit_back_29
+counter counter_4_5_f chit_back_28
+counter counter_4_6_f chit_back_27
+counter counter_4_7_f chit_back_26
+counter counter_4_8_f chit_back_25
+
+counter counter_5_1_f chit_back_40
+counter counter_5_2_f chit_back_39
+counter counter_5_3_f chit_back_38
+counter counter_5_4_f chit_back_37
+counter counter_5_5_f chit_back_36
+counter counter_5_6_f chit_back_35
+counter counter_5_7_f chit_back_34
+counter counter_5_8_f chit_back_33
+
+counter counter_6_1_f chit_back_44
+counter counter_6_2_f chit_back_43
+counter counter_6_3_f chit_back_42
+counter counter_6_4_f chit_back_41
+counter counter_6_5_f politician_davis
+counter counter_6_6_f politician_stephens
+counter counter_6_7_f politician_toombs
+counter counter_6_8_f politician_hunter
+
+counter counter_7_1_f politician_benjamin
+counter counter_7_2_f politician_reagan
+counter counter_7_3_f politician_randolph
+counter counter_7_4_f politician_seddon
+counter counter_7_5_f politician_mallory
+counter counter_7_6_f politician_watts
+counter counter_7_7_f politician_memminger
+counter counter_7_8_f politician_trenholm
+
+counter counter_8_1_f level_agriculture
+counter counter_8_2_f level_manufacture
+counter counter_8_3_f level_infrastructure
+counter counter_8_4_f crisis
+counter counter_8_5_f special_campaign_budget
+counter counter_8_6_f treasury
+counter counter_8_7_f path_closed
+
+counter counter_9_1_f defensive_works
+counter counter_9_3_f bushwhacker_2
+counter counter_9_4_f bushwhacker_3
+counter counter_9_5_f artillery
+counter counter_9_7_f trains
+
+counter counter_10_3_f bushwhacker_4
+
+counter counter_11_1_f campaign_failure
+counter counter_11_8_f next_campaign
+
+counter counter_1_9_f general_lee_2
+counter counter_1_12_f general_jackson_2
+counter counter_1_14_f general_longstreet_2
+counter counter_1_15_f general_pemberton_2
+counter counter_1_16_f general_beauregard_2
+
+counter counter_2_9_f general_early_2
+counter counter_2_10_f general_hardee_2
+counter counter_2_11_f general_hood_2
+counter counter_2_12_f general_as_johnston_2
+counter counter_2_13_f general_j_johnston_2
+counter counter_2_14_f general_ewell_2
+counter counter_2_15_f general_bragg_2
+counter counter_2_16_f general_ap_hill_2
+
+counter counter_3_9_f general_stuart_2
+counter counter_3_10_f cavalry_stuart_2
+counter counter_3_11_f shelby
+counter counter_3_12_f trenches
+counter counter_3_13_f states_rights
+counter counter_3_14_f freedmen_2
+counter counter_3_16_f indian_watie
+
+counter counter_4_10_f cavalry_wheeler_2
+counter counter_4_11_f general_van_dorn_2
+counter counter_4_12_f mormon_rebels
+counter counter_4_13_f objective
+counter counter_4_16_f indian_choctaw
+
+counter counter_5_9_f frigate_brooklyn
+counter counter_5_10_f frigate_iroquois
+counter counter_5_11_f blockade_runner_advance
+counter counter_5_12_f blockade_runner_re_lee
+counter counter_5_13_f slaves_2
+
+counter counter_6_9_f frigate_kansas
+counter counter_6_10_f frigate_james_adger
+counter counter_6_11_f blockade_runner_sumter
+counter counter_6_12_f blockade_runner_syren
+
+counter counter_7_9_f lines_cut_p1
+counter counter_7_12_f missouri_rebel_2
+counter counter_7_13_f kentucky_neutral
+counter counter_7_15_f anaconda_plan_landing
+
+counter counter_8_9_f css_hunley
+
+counter counter_9_9_f plantation
+counter counter_9_11_f factory
+counter counter_9_13_f rr_company
+counter counter_9_15_f sustained_offensive
+counter counter_9_16_f general_napier_2
+
+counter counter_10_15_f grant_promoted_east
+counter counter_10_16_f general_bazaine_2
+
+counter counter_11_9_f union_mcclellan
+counter counter_11_11_f union_middle_department
+counter counter_11_12_f union_army_cumberland
+counter counter_11_13_f union_army_gulf
+counter counter_11_14_f union_butler
+counter counter_11_15_f union_grant_4
+counter counter_11_16_f union_lincoln
+
+counter counter_1_1_b chit_info_8
+counter counter_1_2_b chit_info_7
+counter counter_1_3_b chit_info_6
+counter counter_1_4_b chit_info_5
+counter counter_1_5_b chit_info_4
+counter counter_1_6_b chit_info_3
+counter counter_1_7_b chit_info_2
+counter counter_1_8_b chit_info_1
+
+counter counter_2_1_b chit_info_16
+counter counter_2_2_b chit_info_15
+counter counter_2_3_b chit_info_14
+counter counter_2_4_b chit_info_13
+counter counter_2_5_b chit_info_12
+counter counter_2_6_b chit_info_11
+counter counter_2_7_b chit_info_10
+counter counter_2_8_b chit_info_9
+
+counter counter_3_1_b chit_info_24
+counter counter_3_2_b chit_info_23
+counter counter_3_3_b chit_info_22
+counter counter_3_4_b chit_info_21
+counter counter_3_5_b chit_info_20
+counter counter_3_6_b chit_info_19
+counter counter_3_7_b chit_info_18
+counter counter_3_8_b chit_info_17
+
+counter counter_4_1_b chit_info_32
+counter counter_4_2_b chit_info_31
+counter counter_4_3_b chit_info_30
+counter counter_4_4_b chit_info_29
+counter counter_4_5_b chit_info_28
+counter counter_4_6_b chit_info_27
+counter counter_4_7_b chit_info_26
+counter counter_4_8_b chit_info_25
+
+counter counter_5_1_b chit_info_40
+counter counter_5_2_b chit_info_39
+counter counter_5_3_b chit_info_38
+counter counter_5_4_b chit_info_37
+counter counter_5_5_b chit_info_36
+counter counter_5_6_b chit_info_35
+counter counter_5_7_b chit_info_34
+counter counter_5_8_b chit_info_33
+
+counter counter_6_1_b chit_info_44
+counter counter_6_2_b chit_info_43
+counter counter_6_3_b chit_info_42
+counter counter_6_4_b chit_info_41
+counter counter_6_5_b politician_davis_x
+counter counter_6_6_b politician_stephens_x
+counter counter_6_7_b politician_toombs_x
+counter counter_6_8_b politician_hunter_x
+
+counter counter_7_1_b politician_benjamin_x
+counter counter_7_2_b politician_reagan_x
+counter counter_7_3_b politician_randolph_x
+counter counter_7_4_b politician_seddon_x
+counter counter_7_5_b politician_mallory_x
+counter counter_7_6_b politician_watts_x
+counter counter_7_7_b politician_memminger_x
+counter counter_7_8_b politician_trenholm_x
+
+counter counter_9_5_b ironclad
+
+counter counter_11_1_b campaign_success
+
+counter counter_1_9_b general_lee_1
+counter counter_1_12_b general_jackson_1
+counter counter_1_14_b general_longstreet_1
+counter counter_1_15_b general_pemberton_1
+counter counter_1_16_b general_beauregard_1
+
+counter counter_2_9_b general_early_1
+counter counter_2_10_b general_hardee_1
+counter counter_2_11_b general_hood_1
+counter counter_2_12_b general_as_johnston_1
+counter counter_2_13_b general_j_johnston_1
+counter counter_2_14_b general_ewell_1
+counter counter_2_15_b general_bragg_1
+counter counter_2_16_b general_ap_hill_1
+
+counter counter_3_9_b general_stuart_1
+counter counter_3_10_b cavalry_hampton_1
+counter counter_3_13_b lost_cause
+counter counter_3_14_b freedmen_1
+
+counter counter_4_10_b cavalry_forrest_1
+counter counter_4_11_b general_van_dorn_1
+
+counter counter_5_13_b slaves_1
+
+counter counter_7_12_b missouri_rebel_1
+counter counter_7_13_b kentucky_union
+counter counter_7_14_b kentucky_rebel
+
+counter counter_8_10_b lines_cut_n1
+
+counter counter_9_9_b plantation_depleted
+counter counter_9_11_b us_base
+counter counter_9_15_b surprise_offensive
+counter counter_9_16_b general_napier_1
+
+counter counter_10_16_f general_bazaine_1
+
+counter counter_11_9_b union_army_potomac
+counter counter_11_10_b union_army_james
+counter counter_11_11_b union_sheridan
+counter counter_11_12_b union_sherman
+counter counter_11_13_b union_banks
+counter counter_11_15_b union_grant_5
+counter counter_11_16_b washington_panic
+

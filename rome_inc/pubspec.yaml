@@ -1,0 +1,393 @@
+name: rome_inc
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/map.jpg
+   - assets/images/thumbnail.png
+   - assets/images/allied.png
+   - assets/images/allied_veteran.png
+   - assets/images/auxilia.png
+   - assets/images/auxilia_veteran.png
+   - assets/images/barbarian.png
+   - assets/images/date_27bce.png
+   - assets/images/date_70ce.png
+   - assets/images/date_138ce.png
+   - assets/images/date_222ce.png
+   - assets/images/emperors_adoptive.png
+   - assets/images/emperors_antonine.png
+   - assets/images/emperors_barracks.png
+   - assets/images/emperors_claudian.png
+   - assets/images/emperors_flavian.png
+   - assets/images/emperors_illyrian.png
+   - assets/images/emperors_julian.png
+   - assets/images/emperors_severan.png
+   - assets/images/event.png
+   - assets/images/event_doubled.png
+   - assets/images/fleet_aegyptian.png
+   - assets/images/fleet_aegyptian_veteran.png
+   - assets/images/fleet_african.png
+   - assets/images/fleet_african_veteran.png
+   - assets/images/fleet_babylonian.png
+   - assets/images/fleet_babylonian_veteran.png
+   - assets/images/fleet_bosporan.png
+   - assets/images/fleet_bosporan_veteran.png
+   - assets/images/fleet_british.png
+   - assets/images/fleet_british_veteran.png
+   - assets/images/fleet_german.png
+   - assets/images/fleet_german_veteran.png
+   - assets/images/fleet_moesian.png
+   - assets/images/fleet_moesian_veteran.png
+   - assets/images/fleet_pannonian.png
+   - assets/images/fleet_pannonian_veteran.png
+   - assets/images/fleet_pontic.png
+   - assets/images/fleet_pontic_veteran.png
+   - assets/images/fleet_praetorian.png
+   - assets/images/fleet_praetorian_veteran.png
+   - assets/images/fleet_syrian.png
+   - assets/images/fleet_syrian_veteran.png
+   - assets/images/gold1.png
+   - assets/images/gold10.png
+   - assets/images/goldn1.png
+   - assets/images/goldn10.png
+   - assets/images/goldp250.png
+   - assets/images/imperial_cavalry.png
+   - assets/images/imperial_cavalry_veteran.png
+   - assets/images/insurgent.png
+   - assets/images/leader_arminius.png
+   - assets/images/leader_ballomar.png
+   - assets/images/leader_bato.png
+   - assets/images/leader_boudicca.png
+   - assets/images/leader_calgacus.png
+   - assets/images/leader_caratacus.png
+   - assets/images/leader_chrocus.png
+   - assets/images/leader_civilus.png
+   - assets/images/leader_decebalus.png
+   - assets/images/leader_kniva.png
+   - assets/images/leader_shapur.png
+   - assets/images/leader_simeon.png
+   - assets/images/leader_tacfarinus.png
+   - assets/images/leader_vologases.png
+   - assets/images/leader_zenobia.png
+   - assets/images/legion_adiutrix_I.png
+   - assets/images/legion_adiutrix_I_veteran.png
+   - assets/images/legion_adiutrix_II.png
+   - assets/images/legion_adiutrix_II_veteran.png
+   - assets/images/legion_alaudae_V.png
+   - assets/images/legion_alaudae_V_veteran.png
+   - assets/images/legion_apollinaris_XV.png
+   - assets/images/legion_apollinaris_XV_veteran.png
+   - assets/images/legion_augusta_II.png
+   - assets/images/legion_augusta_II_veteran.png
+   - assets/images/legion_augusta_III.png
+   - assets/images/legion_augusta_III_veteran.png
+   - assets/images/legion_augusta_VIII.png
+   - assets/images/legion_augusta_VIII_veteran.png
+   - assets/images/legion_claudia_VII.png
+   - assets/images/legion_claudia_VII_veteran.png
+   - assets/images/legion_claudia_XI.png
+   - assets/images/legion_claudia_XI_veteran.png
+   - assets/images/legion_cyrenaica_III.png
+   - assets/images/legion_cyrenaica_III_veteran.png
+   - assets/images/legion_deiotariana_XXII.png
+   - assets/images/legion_deiotariana_XXII_veteran.png
+   - assets/images/legion_ferrata_VI.png
+   - assets/images/legion_ferrata_VI_veteran.png
+   - assets/images/legion_flavia_IV.png
+   - assets/images/legion_flavia_IV_veteran.png
+   - assets/images/legion_flavia_XVI.png
+   - assets/images/legion_flavia_XVI_veteran.png
+   - assets/images/legion_fretensis_X.png
+   - assets/images/legion_fretensis_X_veteran.png
+   - assets/images/legion_fulminata_XII.png
+   - assets/images/legion_fulminata_XII_veteran.png
+   - assets/images/legion_gallica_III.png
+   - assets/images/legion_gallica_III_veteran.png
+   - assets/images/legion_gallica_XVI.png
+   - assets/images/legion_gallica_XVI_veteran.png
+   - assets/images/legion_gemina_VII.png
+   - assets/images/legion_gemina_VII_veteran.png
+   - assets/images/legion_gemina_X.png
+   - assets/images/legion_gemina_X_veteran.png
+   - assets/images/legion_gemina_XIII.png
+   - assets/images/legion_gemina_XIII_veteran.png
+   - assets/images/legion_gemina_XIV.png
+   - assets/images/legion_gemina_XIV_veteran.png
+   - assets/images/legion_germanica_I.png
+   - assets/images/legion_germanica_I_veteran.png
+   - assets/images/legion_hispana_IX.png
+   - assets/images/legion_hispana_IX_veteran.png
+   - assets/images/legion_illyricorum_I.png
+   - assets/images/legion_illyricorum_I_veteran.png
+   - assets/images/legion_italica_I.png
+   - assets/images/legion_italica_I_veteran.png
+   - assets/images/legion_italica_II.png
+   - assets/images/legion_italica_II_veteran.png
+   - assets/images/legion_italica_III.png
+   - assets/images/legion_italica_III_veteran.png
+   - assets/images/legion_italica_IV.png
+   - assets/images/legion_italica_IV_veteran.png
+   - assets/images/legion_macedonica_IV.png
+   - assets/images/legion_macedonica_IV_veteran.png
+   - assets/images/legion_macedonica_V.png
+   - assets/images/legion_macedonica_V_veteran.png
+   - assets/images/legion_minervia_I.png
+   - assets/images/legion_minervia_I_veteran.png
+   - assets/images/legion_parthica_I.png
+   - assets/images/legion_parthica_I_veteran.png
+   - assets/images/legion_parthica_II.png
+   - assets/images/legion_parthica_II_veteran.png
+   - assets/images/legion_parthica_III.png
+   - assets/images/legion_parthica_III_veteran.png
+   - assets/images/legion_primigenia_XV.png
+   - assets/images/legion_primigenia_XV_veteran.png
+   - assets/images/legion_primigenia_XXII.png
+   - assets/images/legion_primigenia_XXII_veteran.png
+   - assets/images/legion_rapax_XXI.png
+   - assets/images/legion_rapax_XXI_veteran.png
+   - assets/images/legion_scythica_IV.png
+   - assets/images/legion_scythica_IV_veteran.png
+   - assets/images/legion_trajana_II.png
+   - assets/images/legion_trajana_II_veteran.png
+   - assets/images/legion_ulpia_XXX.png
+   - assets/images/legion_ulpia_XXX_veteran.png
+   - assets/images/legion_valeria_XX.png
+   - assets/images/legion_valeria_XX_veteran.png
+   - assets/images/legion_variana_XIX.png
+   - assets/images/legion_variana_XIX_veteran.png
+   - assets/images/legion_variana_XVII.png
+   - assets/images/legion_variana_XVII_veteran.png
+   - assets/images/legion_variana_XVIII.png
+   - assets/images/legion_variana_XVIII_veteran.png
+   - assets/images/legion_victrix_VI.png
+   - assets/images/legion_victrix_VI_veteran.png
+   - assets/images/loyal_aegyptus.png
+   - assets/images/loyal_africa.png
+   - assets/images/loyal_britannia.png
+   - assets/images/loyal_gallia.png
+   - assets/images/loyal_hispania.png
+   - assets/images/loyal_italia.png
+   - assets/images/loyal_moesia.png
+   - assets/images/loyal_pannonia.png
+   - assets/images/loyal_pontica.png
+   - assets/images/loyal_syria.png
+   - assets/images/pay1.png
+   - assets/images/pay10.png
+   - assets/images/payp250.png
+   - assets/images/praetorian_guard.png
+   - assets/images/praetorian_guard_veteran.png
+   - assets/images/prestige1.png
+   - assets/images/prestige10.png
+   - assets/images/prestigen1.png
+   - assets/images/prestigen10.png
+   - assets/images/rebel_aegyptus.png
+   - assets/images/rebel_africa.png
+   - assets/images/rebel_britannia.png
+   - assets/images/rebel_gallia.png
+   - assets/images/rebel_hispania.png
+   - assets/images/rebel_italia.png
+   - assets/images/rebel_moesia.png
+   - assets/images/rebel_pannonia.png
+   - assets/images/rebel_pontica.png
+   - assets/images/rebel_syria.png
+   - assets/images/statesman_aelianus.png
+   - assets/images/statesman_aemilian.png
+   - assets/images/statesman_agricola.png
+   - assets/images/statesman_agrippa.png
+   - assets/images/statesman_alexander.png
+   - assets/images/statesman_antoninus.png
+   - assets/images/statesman_arrian.png
+   - assets/images/statesman_aurelian.png
+   - assets/images/statesman_augustus.png
+   - assets/images/statesman_avidius.png
+   - assets/images/statesman_caligula.png
+   - assets/images/statesman_caracalla.png
+   - assets/images/statesman_carausius.png
+   - assets/images/statesman_carinus.png
+   - assets/images/statesman_carus.png
+   - assets/images/statesman_cerialis.png
+   - assets/images/statesman_claudius.png
+   - assets/images/statesman_commodus.png
+   - assets/images/statesman_corbulo.png
+   - assets/images/statesman_decius.png
+   - assets/images/statesman_diocletian.png
+   - assets/images/statesman_domitian.png
+   - assets/images/statesman_drusus.png
+   - assets/images/statesman_elagabalus.png
+   - assets/images/statesman_galba.png
+   - assets/images/statesman_gallienus.png
+   - assets/images/statesman_gallus.png
+   - assets/images/statesman_germanicus.png
+   - assets/images/statesman_gordian.png
+   - assets/images/statesman_gothicus.png
+   - assets/images/statesman_hadrian.png
+   - assets/images/statesman_julianus.png
+   - assets/images/statesman_laetus.png
+   - assets/images/statesman_lucius.png
+   - assets/images/statesman_macrinus.png
+   - assets/images/statesman_macro.png
+   - assets/images/statesman_marcus.png
+   - assets/images/statesman_maximian.png
+   - assets/images/statesman_maximinus.png
+   - assets/images/statesman_nero.png
+   - assets/images/statesman_nerva.png
+   - assets/images/statesman_niger.png
+   - assets/images/statesman_odaenath.png
+   - assets/images/statesman_otho.png
+   - assets/images/statesman_paulinus.png
+   - assets/images/statesman_pertinax.png
+   - assets/images/statesman_philip.png
+   - assets/images/statesman_plautianus.png
+   - assets/images/statesman_plautius.png
+   - assets/images/statesman_pompeianus.png
+   - assets/images/statesman_postumus.png
+   - assets/images/statesman_probus.png
+   - assets/images/statesman_quietus.png
+   - assets/images/statesman_sejanus.png
+   - assets/images/statesman_severus.png
+   - assets/images/statesman_silvanus.png
+   - assets/images/statesman_tacitus.png
+   - assets/images/statesman_tiberius.png
+   - assets/images/statesman_timesitheus.png
+   - assets/images/statesman_titus.png
+   - assets/images/statesman_turbo.png
+   - assets/images/statesman_valerian.png
+   - assets/images/statesman_vespasian.png
+   - assets/images/statesman_vitellius.png
+   - assets/images/turn.png
+   - assets/images/turn_end.png
+   - assets/images/unrest.png
+   - assets/images/unrestp25.png
+   - assets/images/wall.png
+   - assets/images/war_alamannic_10.png
+   - assets/images/war_alamannic_12.png
+   - assets/images/war_alan_9.png
+   - assets/images/war_british_6.png
+   - assets/images/war_british_7.png
+   - assets/images/war_burgundian_11.png
+   - assets/images/war_caledonian_4.png
+   - assets/images/war_caledonian_5.png
+   - assets/images/war_cantabrian_8.png
+   - assets/images/war_dacian_10.png
+   - assets/images/war_dacian_11.png
+   - assets/images/war_dacian_12.png
+   - assets/images/war_frankish_9.png
+   - assets/images/war_frankish_11.png
+   - assets/images/war_german_8.png
+   - assets/images/war_german_10.png
+   - assets/images/war_german_12.png
+   - assets/images/war_german_14.png
+   - assets/images/war_gothic_13.png
+   - assets/images/war_gothic_15.png
+   - assets/images/war_illyrian_10.png
+   - assets/images/war_illyrian_12.png
+   - assets/images/war_judean_6.png
+   - assets/images/war_judean_7.png
+   - assets/images/war_judean_8.png
+   - assets/images/war_marcomannic_9.png
+   - assets/images/war_marcomannic_11.png
+   - assets/images/war_marcomannic_13.png
+   - assets/images/war_moorish_5.png
+   - assets/images/war_moorish_7.png
+   - assets/images/war_nubian_4.png
+   - assets/images/war_nubian_6.png
+   - assets/images/war_palmyrene_14.png
+   - assets/images/war_parthian_8.png
+   - assets/images/war_parthian_10.png
+   - assets/images/war_parthian_12.png
+   - assets/images/war_parthian_14.png
+   - assets/images/war_persian_9.png
+   - assets/images/war_persian_11.png
+   - assets/images/war_persian_13.png
+   - assets/images/war_persian_15.png
+   - assets/images/war_sarmatian_8.png
+   - assets/images/war_sarmatian_10.png
+   - assets/images/war_saxon_6.png
+   - assets/images/war_vandal_9.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

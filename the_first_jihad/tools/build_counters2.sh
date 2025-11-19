@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1 army_byzantine_strong_generic
+counter counter_1_3 army_pratihara_strong
+counter counter_1_4 army_visigoth_strong
+counter counter_1_5 army_persian_strong
+counter counter_1_7 army_sogdian_strong
+counter counter_1_8 army_turgesh_strong
+
+counter counter_2_1 army_byzantine_garrison_weak_generic
+counter counter_2_3 army_armenian_strong
+counter counter_2_4 army_axum_strong
+counter counter_2_5 army_nubian_strong
+counter counter_2_6 army_exarchate_strong
+counter counter_2_7 army_berber_strong
+counter counter_2_8 army_frankish_strong
+
+counter counter_3_1 army_khazar_strong
+counter counter_3_2 army_chinese_strong
+counter counter_3_3 islam_strong
+
+counter counter_4_1 marker_cyprus_greek
+counter counter_4_2 marker_tibet_buddhist
+counter counter_4_3 marker_bulgars_docile
+counter counter_4_4 marker_socotra_african
+counter counter_4_5 marker_great_king_africa
+counter counter_4_6 refugees_manichees
+counter counter_4_7 mujahideen_strong
+counter counter_4_8 jihad_alternating
+
+counter counter_5_1 capital_byzantine_strong_generic
+counter counter_5_2 marker_ruler_byzantine_generic
+counter counter_5_3 blessing_fleet_weak_generic
+counter counter_5_4 blessing_icons_strong
+counter counter_5_5 castle_byzantine_strong_generic
+counter counter_5_6 refugees_parsees
+counter counter_5_7 capital_persian_strong
+counter counter_5_8 blessing_immortals_weak
+
+counter counter_6_1 marker_ap_west
+counter counter_6_2 marker_religion_byzantine_generic
+counter counter_6_3 castle_byzantine_weak_generic
+counter counter_6_6 refugees_mardaites
+counter counter_6_7 marker_ruler_persian
+counter counter_6_8 marker_ap_east
+
+counter counter_7_1 marker_zabulistan_defiant
+counter counter_7_2 jews_strong
+counter counter_7_3 marker_muslim_navy_active
+counter counter_7_4 christian_damascus
+counter counter_7_5 excubitors_weak_generic
+counter counter_7_6 marker_shattered
+
+counter counter_8_1 arab_stop
+counter counter_8_2 marker_syrians_inactive
+counter counter_8_3 marker_trade_closed
+counter counter_8_5 marker_no_sharia_law
+
+counter counter_9_1 marker_last_stand_byzantine_skill_generic
+counter counter_9_2 marker_last_stand_persian_skill
+counter counter_9_3 marker_kaaba_8
+counter counter_9_4 marker_kaaba_7
+counter counter_9_5 marker_kaaba_6
+counter counter_9_6 marker_kaaba_5
+counter counter_9_7 marker_kaaba_4
+counter counter_9_8 marker_kaaba_3
+
+counter counter_10_4 mecca_strong
+counter counter_10_5 marker_bonus_ap_purple
+counter counter_10_7 marker_bonus_ap_blue
+
+counter counter_1_9 army_turgesh_weak
+counter counter_1_10 army_sogdian_weak
+counter counter_1_11 army_persian_weak
+counter counter_1_13 army_visigoth_weak
+counter counter_1_14 army_pratihara_weak
+counter counter_1_15 army_byzantine_weak_generic
+
+counter counter_2_9 army_frankish_weak
+counter counter_2_10 army_berber_weak
+counter counter_2_11 army_exarchate_weak
+counter counter_2_12 army_nubian_weak
+counter counter_2_13 army_axum_weak
+counter counter_2_14 army_armenian_weak
+counter counter_2_15 baqt_strong
+counter counter_2_15_u baqt_weak
+
+counter counter_3_9 islam_weak
+counter counter_3_15 army_chinese_weak
+counter counter_3_16 army_khazar_weak
+
+counter counter_4_9 jihad_one_front
+counter counter_4_10 mujahideen_weak
+counter counter_4_12 marker_great_king_caucasus
+counter counter_4_13 marker_socotra_indian
+counter counter_4_14 marker_bulgars_wild
+counter counter_4_15 marker_tibet_badass
+counter counter_4_16 marker_cyprus_med
+
+counter counter_5_9 blessing_immortals_strong
+counter counter_5_10 capital_persian_weak
+counter counter_5_13 blessing_themes_strong_generic
+counter counter_5_14 blessing_fleet_strong_generic
+counter counter_5_15 marker_ruler_byzantine_truce_generic
+counter counter_5_16 capital_byzantine_weak_generic
+
+counter counter_6_9 marker_ap_east_divided
+counter counter_6_10 marker_ruler_persian_truce
+counter counter_6_13 castle_persian_weak
+counter counter_6_15 marker_religion_byzantine_schism_generic
+counter counter_6_16 marker_ap_west_divided
+
+counter counter_7_9 marker_cursed
+counter counter_7_12 excubitors_strong_generic
+counter counter_7_13 capital_islamic
+counter counter_7_14 marker_muslim_navy_no
+counter counter_7_15 jews_weak
+counter counter_7_16 marker_zabulistan_subdued
+
+counter counter_9_15 marker_last_stand_persian_ap
+counter counter_9_16 marker_last_stand_byzantine_ap_generic
+
+counter counter_10_9 marker_bonus_ap_red
+counter counter_10_13 mecca_weak
+

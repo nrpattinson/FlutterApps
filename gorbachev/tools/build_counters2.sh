@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1 marker_season
+counter counter_1_2 people_russia_strong
+counter counter_1_3 people_central_asia_weak
+counter counter_1_4 people_cpsu_strong
+counter counter_1_5 people_caucasus_strong
+counter counter_1_6 people_baltics_strong
+counter counter_1_7 vremya
+
+counter counter_2_1 marker_year
+counter counter_2_2 people_russia_weak
+counter counter_2_3 people_uzbek_mafia
+counter counter_2_4 people_cpsu_weak
+counter counter_2_5 people_caucasus_weak
+counter counter_2_6 people_baltics_weak
+
+counter counter_3_1 president_reagan
+counter counter_3_2 president_bush
+counter counter_3_3 president_dukakis
+counter counter_3_4 massacre_fergana
+counter counter_3_5 loyal_communists
+counter counter_3_6 popular_vote
+counter counter_3_7 nuclear_inf
+counter counter_3_8 berlin_wall
+
+counter counter_4_1 massacre_tbilisi
+counter counter_4_2 massacre_vilnius
+counter counter_4_3 massacre_baku
+counter counter_4_4 massacre_sumgait
+counter counter_4_5 massacre_almaata
+counter counter_4_6 massacre_sukhumi
+counter counter_4_7 nuclear_icbm
+counter counter_4_8 disaster_berlin_wall_fall
+
+counter counter_5_1 disaster_armenian_earthquake
+counter counter_5_2 disaster_admiral_nakhimov
+counter counter_5_3 disaster_mathias_rust
+counter counter_5_4 disaster_miners_strike
+counter counter_5_6 disaster_chernobyl
+counter counter_5_7 disaster_random_revolution
+
+counter counter_6_1 country_poland
+counter counter_6_2 country_bulgaria
+counter counter_6_3 country_czechoslovakia
+counter counter_6_4 country_hungary
+counter counter_6_5 country_ddr
+counter counter_6_6 country_romania
+counter counter_6_7 disaster_bigots_in_power
+
+counter counter_7_1 politician_gorbachev
+counter counter_7_2 politician_ligachev
+counter counter_7_3 politician_popova
+counter counter_7_4 politician_vorotnikov
+counter counter_7_5 politician_pugo
+counter counter_7_6 politician_shcherbytsky
+counter counter_7_7 pravda_2
+counter counter_7_8 pravda_3
+
+counter counter_8_1 politician_yeltsin
+counter counter_8_2 politician_yakovlev
+counter counter_8_3 politician_aliyev
+counter counter_8_4 politician_shevardnadze
+counter counter_8_5 politician_ryzhkov
+counter counter_8_6 politician_yanayev
+counter counter_8_8 pravda_4
+
+counter counter_9_1 demonstration_p1
+counter counter_9_5 army_40
+counter counter_9_6 army_1gtk
+counter counter_9_7 mvd_security
+
+counter counter_10_1 demonstration_n1
+counter counter_10_5 army_28
+counter counter_10_6 army_2gtk
+
+counter counter_11_1 asset_five_year_plan
+counter counter_11_2 asset_media_culture
+counter counter_11_3 asset_military_might
+counter counter_11_4 kgb_d
+counter counter_11_5 kgb_i
+counter counter_11_6 kgb_5
+counter counter_11_7 doctrine_sinatra
+counter counter_11_8 doctrine_brezhnev

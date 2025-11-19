@@ -1,0 +1,259 @@
+name: the_napoleonic_wars
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/thumbnail.png
+   - assets/images/map.png
+   - assets/images/turn.png
+   - assets/images/tray.png
+   - assets/images/but.png
+   - assets/images/continental_system.png
+   - assets/images/coronation.png
+   - assets/images/corps_austria_bellegarde.png
+   - assets/images/corps_austria_karl.png
+   - assets/images/corps_austria_radetzky.png
+   - assets/images/corps_austria_schwarzenberg.png
+   - assets/images/corps_bavaria.png
+   - assets/images/corps_britain_beresford.png
+   - assets/images/corps_britain_uxbridge.png
+   - assets/images/corps_britain_wellington.png
+   - assets/images/corps_duchy_fusiliers.png
+   - assets/images/corps_duchy_grenadiers.png
+   - assets/images/corps_duchy_grenzer.png
+   - assets/images/corps_duchy_guards.png
+   - assets/images/corps_duchy_jager.png
+   - assets/images/corps_duchy_landwehr.png
+   - assets/images/corps_duchy_marines.png
+   - assets/images/corps_duchy_musketeers.png
+   - assets/images/corps_duchy_reserve.png
+   - assets/images/corps_emigre_bourbon.png
+   - assets/images/corps_emigre_conde.png
+   - assets/images/corps_france_bernadotte.png
+   - assets/images/corps_france_berthier.png
+   - assets/images/corps_france_bessieres.png
+   - assets/images/corps_france_davoust.png
+   - assets/images/corps_france_dupont.png
+   - assets/images/corps_france_eugene.png
+   - assets/images/corps_france_grouchy.png
+   - assets/images/corps_france_imperial_guard.png
+   - assets/images/corps_france_junot.png
+   - assets/images/corps_france_kellermann.png
+   - assets/images/corps_france_kleber.png
+   - assets/images/corps_france_lannes.png
+   - assets/images/corps_france_macdonald.png
+   - assets/images/corps_france_marmont.png
+   - assets/images/corps_france_massena.png
+   - assets/images/corps_france_moreau.png
+   - assets/images/corps_france_mortier.png
+   - assets/images/corps_france_murat.png
+   - assets/images/corps_france_ney.png
+   - assets/images/corps_france_oudinot.png
+   - assets/images/corps_france_saintcyr.png
+   - assets/images/corps_france_soult.png
+   - assets/images/corps_france_suchet.png
+   - assets/images/corps_france_victor.png
+   - assets/images/corps_naples.png
+   - assets/images/corps_prussia_blucher.png
+   - assets/images/corps_prussia_brauncschweig.png
+   - assets/images/corps_prussia_braunschweig.png
+   - assets/images/corps_prussia_kleist.png
+   - assets/images/corps_prussia_yorck.png
+   - assets/images/corps_royalist.png
+   - assets/images/corps_russia_bagration.png
+   - assets/images/corps_russia_barclay.png
+   - assets/images/corps_russia_bennigsen.png
+   - assets/images/corps_russia_kutuzov.png
+   - assets/images/corps_russia_platov.png
+   - assets/images/corps_spain_blake.png
+   - assets/images/corps_spain_palafox.png
+   - assets/images/corps_sweden.png
+   - assets/images/corps_warsaw.png
+   - assets/images/diplomat_coalition_busy.png
+   - assets/images/diplomat_coalition_castlereagh.png
+   - assets/images/diplomat_coalition_hardenberg.png
+   - assets/images/diplomat_coalition_metternich.png
+   - assets/images/diplomat_coalition_razumovsky.png
+   - assets/images/diplomat_french.png
+   - assets/images/diplomat_french_reinhard.png
+   - assets/images/diplomat_french_talleyrand.png
+   - assets/images/etat_0.png
+   - assets/images/etat_1.png
+   - assets/images/etat_2.png
+   - assets/images/etat_3.png
+   - assets/images/etat_4.png
+   - assets/images/etat_5.png
+   - assets/images/etat_6.png
+   - assets/images/etat_7.png
+   - assets/images/etat_8.png
+   - assets/images/etat_unknown.png
+   - assets/images/etat_warsaw.png
+   - assets/images/fervor_austria.png
+   - assets/images/fervor_france.png
+   - assets/images/fervor_germany.png
+   - assets/images/fervor_italy.png
+   - assets/images/fervor_spain.png
+   - assets/images/fleet_busy.png
+   - assets/images/fleet_coalition.png
+   - assets/images/fleet_french.png
+   - assets/images/fra_diavolo.png
+   - assets/images/fund_admiralty.png
+   - assets/images/fund_minor_war.png
+   - assets/images/fund_treasury.png
+   - assets/images/game_turn.png
+   - assets/images/icon_beethoven.png
+   - assets/images/icon_goethe.png
+   - assets/images/icon_goya.png
+   - assets/images/icon_unknown.png
+   - assets/images/icon_volta.png
+   - assets/images/jews_emancipation.png
+   - assets/images/jews_ghetto.png
+   - assets/images/light_infantry.png
+   - assets/images/napoleon_abdicates.png
+   - assets/images/napoleon_b.png
+   - assets/images/napoleon_n.png
+   - assets/images/napoleon_v.png
+   - assets/images/nelson.png
+   - assets/images/no_war_green.png
+   - assets/images/no_war_red.png
+   - assets/images/ottoman_army.png
+   - assets/images/paris.png
+   - assets/images/pope.png
+   - assets/images/pounds_4.png
+   - assets/images/religion_atheist.png
+   - assets/images/religion_catholic.png
+   - assets/images/religion_deist.png
+   - assets/images/religion_secular.png
+   - assets/images/religion_usurper.png
+   - assets/images/russian_war.png
+   - assets/images/russian_war_lost.png
+   - assets/images/scroll_basel.png
+   - assets/images/scroll_russian_nobility.png
+   - assets/images/scroll_tilsit.png
+   - assets/images/spanish_ulcer.png
+   - assets/images/status_austria_coalition.png
+   - assets/images/status_austria_neutral.png
+   - assets/images/status_prussia_coalition.png
+   - assets/images/status_prussia_neutral.png
+   - assets/images/status_russia_coalition.png
+   - assets/images/status_russia_neutral.png
+   - assets/images/status_spain_coalition.png
+   - assets/images/status_spain_french.png
+   - assets/images/status_sweden_coalition.png
+   - assets/images/status_sweden_neutral.png
+   - assets/images/surrender_austria.png
+   - assets/images/surrender_prussia.png
+   - assets/images/surrender_russia.png
+   - assets/images/terror.png
+   - assets/images/trade_1.png
+   - assets/images/trafalgar.png
+   - assets/images/treaty_san_ildefonso.png
+   - assets/images/war_balkans.png
+   - assets/images/war_cape.png
+   - assets/images/war_caucasus.png
+   - assets/images/war_corfu.png
+   - assets/images/war_denmark.png
+   - assets/images/war_egypt.png
+   - assets/images/war_finland.png
+   - assets/images/war_haiti.png
+   - assets/images/war_ireland.png
+   - assets/images/war_lost.png
+   - assets/images/war_malta.png
+   - assets/images/war_mysore.png
+   - assets/images/war_senegal.png
+   - assets/images/war_serbia.png
+   - assets/images/war_switzerland.png
+   - assets/images/war_usa.png
+   - assets/images/wife_josephine.png
+   - assets/images/wife_marriage.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

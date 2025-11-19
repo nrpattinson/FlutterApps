@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters600
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters400/$2.png
+}
+
+counter counter_1_1_f cavalry_light_mongol
+counter counter_1_4_f cavalry_heavy_mongol
+counter counter_1_7_f khan_mongol
+counter counter_1_8_f siege_engine_mongol
+
+counter counter_2_1_f cavalry_light_allied_red
+counter counter_2_4_f cavalry_heavy_allied_red
+counter counter_2_8_f marker_turn
+
+counter counter_3_1_f cavalry_light_allied_yellow
+counter counter_3_4_f cavalry_heavy_allied_yellow
+counter counter_3_6_f bad_terrain_1
+
+counter counter_4_1_f cavalry_light_allied_blue
+counter counter_4_4_f cavalry_heavy_allied_blue
+counter counter_4_6_f infantry_enemy_1
+
+counter counter_5_1_f cavalry_heavy_enemy_1
+counter counter_5_4_f cavalry_light_enemy_1
+
+counter counter_7_1_f city
+
+counter counter_10_1_f gold_1
+counter counter_10_6_f gold_5
+
+counter counter_11_1_f siege
+counter counter_11_5_f cavalry_light_golden_horde
+counter counter_11_7_f cavalry_heavy_golden_horde
+
+counter counter_2_1_b cavalry_light_enemy_red
+counter counter_2_4_b cavalry_heavy_enemy_red
+
+counter counter_3_1_b cavalry_light_enemy_yellow
+counter counter_3_4_b cavalry_heavy_enemy_yellow
+counter counter_3_6_b bad_terrain_2
+
+counter counter_4_1_b cavalry_light_enemy_blue
+counter counter_4_4_b cavalry_heavy_enemy_blue
+counter counter_4_6_b infantry_enemy_2
+
+counter counter_5_1_b cavalry_light_enemy_2
+counter counter_5_4_b cavalry_heavy_enemy_2
+
+counter counter_7_1_b city_razed
+
+counter counter_10_1_b gold_2
+counter counter_10_6_b gold_10

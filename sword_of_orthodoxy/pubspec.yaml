@@ -1,0 +1,307 @@
+name: sword_of_orthodoxy
+description: "Sword of Orthodoxy"
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+  provider: ^6.0.0
+  path: ^1.9.0
+  path_provider: ^2.1.4
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+
+  flutter_markdown: ^0.7.3+1
+  sqflite_common_ffi: ^2.3.3
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^4.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  assets:
+   - assets/images/thumbnail.png
+   - assets/images/map.png
+   - assets/images/tray.png
+   - assets/images/army_iberia_armenia.png
+   - assets/images/army_iberia_ottoman.png
+   - assets/images/army_iberia_persia.png
+   - assets/images/army_iberia_saracen.png
+   - assets/images/army_iberia_seljuk.png
+   - assets/images/army_magyar.png
+   - assets/images/army_mongol.png
+   - assets/images/army_north_cavalry_1.png
+   - assets/images/army_north_cavalry_2.png
+   - assets/images/army_north_cavalry_3.png
+   - assets/images/army_north_cavalry_4.png
+   - assets/images/army_north_infantry_1.png
+   - assets/images/army_north_infantry_2.png
+   - assets/images/army_north_infantry_3.png
+   - assets/images/army_persia_buyid.png
+   - assets/images/army_persia_il_khan.png
+   - assets/images/army_persia_ottoman.png
+   - assets/images/army_persia_persia.png
+   - assets/images/army_persia_saracen.png
+   - assets/images/army_persia_seljuk.png
+   - assets/images/army_skanderbeg.png
+   - assets/images/army_south_cavalry_1.png
+   - assets/images/army_south_cavalry_2.png
+   - assets/images/army_south_cavalry_3.png
+   - assets/images/army_south_cavalry_4.png
+   - assets/images/army_south_infantry_1.png
+   - assets/images/army_south_infantry_2.png
+   - assets/images/army_south_infantry_3.png
+   - assets/images/army_syria_egypt.png
+   - assets/images/army_syria_il_khan.png
+   - assets/images/army_syria_nomads.png
+   - assets/images/army_syria_ottoman.png
+   - assets/images/army_syria_persia.png
+   - assets/images/army_syria_saracen.png
+   - assets/images/army_syria_seljuk.png
+   - assets/images/army_west_cavalry_1.png
+   - assets/images/army_west_cavalry_2.png
+   - assets/images/army_west_cavalry_3.png
+   - assets/images/army_west_cavalry_4.png
+   - assets/images/army_west_infantry_1.png
+   - assets/images/army_west_infantry_2.png
+   - assets/images/army_west_infantry_3.png
+   - assets/images/basileus.png
+   - assets/images/basileus_alexios.png
+   - assets/images/basileus_andronikos.png
+   - assets/images/basileus_basil.png
+   - assets/images/basileus_constantine_1.png
+   - assets/images/basileus_constantine_2.png
+   - assets/images/basileus_john.png
+   - assets/images/basileus_justinian.png
+   - assets/images/basileus_leo.png
+   - assets/images/basileus_michael.png
+   - assets/images/basileus_nikephoros.png
+   - assets/images/basileus_romanos.png
+   - assets/images/basileus_theodora.png
+   - assets/images/basileus_theodosius.png
+   - assets/images/basileus_zoe.png
+   - assets/images/bulgarian_church_catholic.png
+   - assets/images/bulgarian_church_orthodox.png
+   - assets/images/bulgarian_theme.png
+   - assets/images/caliph.png
+   - assets/images/colonists.png
+   - assets/images/crusade.png
+   - assets/images/dollar_4.png
+   - assets/images/dollar_5.png
+   - assets/images/dynasty_black_anarchy.png
+   - assets/images/dynasty_black_dimidid.png
+   - assets/images/dynasty_black_dyonisid.png
+   - assets/images/dynasty_black_kladiote.png
+   - assets/images/dynasty_black_lantzid.png
+   - assets/images/dynasty_black_lazarid.png
+   - assets/images/dynasty_black_maniote.png
+   - assets/images/dynasty_black_skylosophid.png
+   - assets/images/dynasty_black_souliote.png
+   - assets/images/dynasty_black_sphikid.png
+   - assets/images/dynasty_black_stemniote.png
+   - assets/images/dynasty_black_vlachid.png
+   - assets/images/dynasty_black_ypsilantid.png
+   - assets/images/dynasty_purple_amorian.png
+   - assets/images/dynasty_purple_anarchy.png
+   - assets/images/dynasty_purple_angelid.png
+   - assets/images/dynasty_purple_doukid.png
+   - assets/images/dynasty_purple_heraclian.png
+   - assets/images/dynasty_purple_isaurian.png
+   - assets/images/dynasty_purple_justinian.png
+   - assets/images/dynasty_purple_komnenid.png
+   - assets/images/dynasty_purple_laskarid.png
+   - assets/images/dynasty_purple_leonid.png
+   - assets/images/dynasty_purple_macedonian.png
+   - assets/images/dynasty_purple_palaiologian.png
+   - assets/images/dynasty_purple_theodosian.png
+   - assets/images/egypt_fallen.png
+   - assets/images/egypt_muslim.png
+   - assets/images/empires_in_rubble.png
+   - assets/images/faction_armenian.png
+   - assets/images/faction_blue_team.png
+   - assets/images/faction_eunuchs.png
+   - assets/images/faction_green_team.png
+   - assets/images/faction_hagia_sophia.png
+   - assets/images/faction_patricians.png
+   - assets/images/faction_postal_service.png
+   - assets/images/faction_roman_senate.png
+   - assets/images/faction_salonika.png
+   - assets/images/faction_somateia_guilds.png
+   - assets/images/faction_theodosian_walls.png
+   - assets/images/fitna.png
+   - assets/images/geography_africa.png
+   - assets/images/geography_balkans.png
+   - assets/images/geography_crete.png
+   - assets/images/geography_italy.png
+   - assets/images/holy_roman_empire.png
+   - assets/images/infrastructure_akritai.png
+   - assets/images/infrastructure_hospital.png
+   - assets/images/infrastructure_monastery.png
+   - assets/images/infrastructure_monastery_isolated.png
+   - assets/images/infrastructure_used.png
+   - assets/images/kastron.png
+   - assets/images/kiev_orthodox.png
+   - assets/images/kiev_pagan.png
+   - assets/images/latins.png
+   - assets/images/magister_militum.png
+   - assets/images/military_event.png
+   - assets/images/nike.png
+   - assets/images/outpost_egypt.png
+   - assets/images/outpost_holy_land.png
+   - assets/images/outpost_lazica.png
+   - assets/images/outpost_rome.png
+   - assets/images/outpost_sicily.png
+   - assets/images/outpost_spain.png
+   - assets/images/pagan.png
+   - assets/images/path_iberia.png
+   - assets/images/path_north.png
+   - assets/images/path_persia.png
+   - assets/images/path_south.png
+   - assets/images/path_syria.png
+   - assets/images/path_west.png
+   - assets/images/patriarch_anthimus.png
+   - assets/images/patriarch_antony.png
+   - assets/images/patriarch_constantine.png
+   - assets/images/patriarch_john.png
+   - assets/images/patriarch_michael.png
+   - assets/images/patriarch_nestorius.png
+   - assets/images/patriarch_nicholas.png
+   - assets/images/patriarch_paul.png
+   - assets/images/patriarch_peter.png
+   - assets/images/patriarch_sergius.png
+   - assets/images/plague.png
+   - assets/images/pope_mean.png
+   - assets/images/pope_nice.png
+   - assets/images/ravenna.png
+   - assets/images/reforms.png
+   - assets/images/riots.png
+   - assets/images/ruler_khan.png
+   - assets/images/ruler_rex.png
+   - assets/images/schism.png
+   - assets/images/siege_english.png
+   - assets/images/siege_greek.png
+   - assets/images/social_christians.png
+   - assets/images/social_magnates.png
+   - assets/images/solidus.png
+   - assets/images/stolos_english.png
+   - assets/images/stolos_greek.png
+   - assets/images/tribe_north_bulgar.png
+   - assets/images/tribe_north_bulgarians.png
+   - assets/images/tribe_north_hun.png
+   - assets/images/tribe_north_ostrogoths.png
+   - assets/images/tribe_north_ottoman.png
+   - assets/images/tribe_north_slav.png
+   - assets/images/tribe_south_egypt.png
+   - assets/images/tribe_south_moors.png
+   - assets/images/tribe_south_saracen.png
+   - assets/images/tribe_south_vandal.png
+   - assets/images/tribe_south_venice.png
+   - assets/images/tribe_west_goth.png
+   - assets/images/tribe_west_lombards.png
+   - assets/images/tribe_west_norman.png
+   - assets/images/tribe_west_ottoman.png
+   - assets/images/tribe_west_serbs.png
+   - assets/images/tribute.png
+   - assets/images/turn_chit_01.png
+   - assets/images/turn_chit_02.png
+   - assets/images/turn_chit_03.png
+   - assets/images/turn_chit_04.png
+   - assets/images/turn_chit_05.png
+   - assets/images/turn_chit_06.png
+   - assets/images/turn_chit_07.png
+   - assets/images/turn_chit_08.png
+   - assets/images/turn_chit_09.png
+   - assets/images/turn_chit_10.png
+   - assets/images/turn_chit_11.png
+   - assets/images/turn_chit_12.png
+   - assets/images/turn_chit_13.png
+   - assets/images/turn_chit_14.png
+   - assets/images/turn_chit_15.png
+   - assets/images/turn_chit_16.png
+   - assets/images/turn_chit_17.png
+   - assets/images/turn_chit_18.png
+   - assets/images/turn_chit_19.png
+   - assets/images/turn_chit_20.png
+   - assets/images/turn_chit_21.png
+   - assets/images/turn_chit_22.png
+   - assets/images/turn_chit_23.png
+   - assets/images/turn_chit_24.png
+   - assets/images/turn_chit_25.png
+   - assets/images/turn_chit_26.png
+   - assets/images/turn_chit_27.png
+   - assets/images/turn_chit_28.png
+   - assets/images/university.png
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

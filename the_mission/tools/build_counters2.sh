@@ -1,0 +1,278 @@
+#!/bin/bash
+
+# set -x
+
+mkdir -p counters300
+
+function counter {
+	pnmtopng tmp/${1}.ppm > counters300/$2.png
+}
+
+counter counter_1_1_f field_christian_wealthy3
+counter counter_1_2_f field_christian_physicians2
+counter counter_1_3_f field_christian_women1
+counter counter_1_5_f field_christian_women2
+counter counter_1_8_f field_christian_women3
+
+counter counter_2_2_f field_christian_poor1
+counter counter_2_6_f field_christian_poor2
+counter counter_2_8_f field_christian_slaves1
+
+counter counter_3_1_f field_christian_slaves2
+counter counter_3_3_f field_christian_slaves3
+counter counter_3_5_f field_christian_slaves4
+counter counter_3_6_f field_christian_jews2
+
+counter counter_4_1_f field_christian_ascetics1
+counter counter_4_2_f field_christian_ascetics2
+counter counter_4_5_f field_christian_ascetics3
+counter counter_4_7_f field_christian_jews3
+counter counter_4_8_f field_christian_martyrs4
+
+counter counter_5_1_f field_christian_martyrs3
+counter counter_5_3_f field_christian_scholars3
+counter counter_5_5_f occupied_jerusalem
+counter counter_5_6_f jihad_pa
+counter counter_5_7_f jihad_pb
+counter counter_5_8_f jihad_pc
+
+counter counter_6_2_f field_christian_scholars2
+counter counter_6_3_f persia_zoroastrian
+counter counter_6_4_f knight
+counter counter_6_5_f occupied_spain
+counter counter_6_6_f jihad_pd
+counter counter_6_7_f jihad_pe
+counter counter_6_8_f jihad_pf
+
+counter counter_7_1_f pope_pd
+counter counter_7_2_f bishop_pd
+counter counter_7_3_f heresy_ebionite
+counter counter_7_5_f great_theologian
+counter counter_7_6_f roman_capital_pagan
+counter counter_7_8_f emperor_christian
+
+counter counter_8_1_f king_pd
+counter counter_8_2_f game_turn
+counter counter_8_3_f papal_states
+counter counter_8_5_f solidus
+counter counter_8_6_f dark_ages
+counter counter_8_8_f roman_army
+
+counter counter_9_1_f pope_pe
+counter counter_9_2_f bishop_pe
+counter counter_9_3_f pope_pf
+counter counter_9_4_f pope_pc
+counter counter_9_5_f bishop_pc
+counter counter_9_6_f pope_pb
+counter counter_9_7_f pope_pa
+counter counter_9_8_f bishop_pa
+
+counter counter_10_1_f king_pe
+counter counter_10_2_f bishop_pf
+counter counter_10_3_f king_pf
+counter counter_10_4_f king_pc
+counter counter_10_5_f bishop_pb
+counter counter_10_6_f king_pb
+counter counter_10_7_f king_pa
+counter counter_10_8_f holy_roman_empire
+
+counter counter_11_1_f horde_seljuks_muslim
+counter counter_11_2_f horde_saxons_arian
+counter counter_11_3_f horde_turks_pagan
+counter counter_11_4_f horde_turks_christian
+counter counter_11_5_f horde_bulgars_pagan
+counter counter_11_6_f horde_khazars_pagan
+counter counter_11_7_f horde_vandals_arian
+counter counter_11_8_f faith_catholic
+
+counter counter_1_9_f wafer_heresy
+counter counter_1_13_f wafer_epidemic
+
+counter counter_2_12_f wafer_plain
+
+counter counter_3_9_f wafer_islam_a2d2f2
+counter counter_3_10_f wafer_ruler_b2e2f2
+counter counter_3_11_f wafer_islam_b1d2f1
+counter counter_3_12_f wafer_ruler_a2d2e2
+counter counter_3_13_f wafer_heresy_b2d1e1
+counter counter_3_14_f wafer_ruler_a1c2d2
+counter counter_3_15_f wafer_ruler_c1d2f2
+counter counter_3_16_f wafer_heresy_a1b1f2
+
+counter counter_4_9_f wafer_ruler_c1d2e2
+counter counter_4_10_f wafer_islam_a1c1d3
+counter counter_4_11_f wafer_ruler_b2e1f3
+counter counter_4_12_f wafer_islam_a2d1f2
+counter counter_4_13_f wafer_ruler_a2b1e1
+counter counter_4_14_f wafer_heresy_b2d1f1
+counter counter_4_15_f wafer_ruler_a2c2f2
+counter counter_4_16_f wafer_islam_b2c2f1
+
+counter counter_5_9_f roman_control_pagan
+counter counter_5_11_f romana_pax
+counter counter_5_12_f infrastructure_monastery
+counter counter_5_13_f infrastructure_hospital
+counter counter_5_14_f infrastructure_university
+counter counter_5_15_f cult_isis
+counter counter_5_16_f heresy_mithra
+
+counter counter_7_9_f bible_greek
+counter counter_7_10_f bible_latin
+counter counter_7_11_f bible_syriac
+counter counter_7_12_f bible_coptic
+counter counter_7_13_f bible_armenian
+counter counter_7_14_f heresy_paulician
+counter counter_7_15_f heresy_iconoclast
+counter counter_7_16_f heresy_adoptionist
+
+counter counter_8_9_f horde_himyar
+counter counter_8_10_f heresy_pelagian
+counter counter_8_11_f heresy_bogomil
+counter counter_8_12_f heresy_cathar
+counter counter_8_13_f heresy_monothelete
+counter counter_8_14_f heresy_sabellian
+counter counter_8_15_f heresy_montanist
+counter counter_8_16_f heresy_marcionite
+
+counter counter_9_9_f heresy_gnostics
+counter counter_9_11_f heresy_manichees
+counter counter_9_12_f persian_empire_c0
+counter counter_9_13_f apostle_jerusalem
+counter counter_9_14_f apostle_pb
+counter counter_9_15_f apostle_pa
+counter counter_9_16_f apostle_pf
+
+counter counter_10_12_f persian_empire_n1
+counter counter_10_13_f persian_empire_p1
+counter counter_10_14_f apostle_pe
+counter counter_10_15_f apostle_pd
+counter counter_10_16_f apostle_pc
+
+counter counter_11_9_f faith_orthodox_eagle
+counter counter_11_10_f faith_orthodox
+counter counter_11_11_f faith_nestorian
+counter counter_11_12_f faith_one_nature
+counter counter_11_14_f faith_donatist
+counter counter_11_15_f faith_apollinarian
+counter counter_11_16_f faith_arian
+
+counter counter_1_1_b field_pagan_wealthy4
+counter counter_1_2_b field_pagan_physicians2
+counter counter_1_3_b field_pagan_women1
+counter counter_1_5_b field_pagan_women2
+counter counter_1_8_b field_pagan_women3
+
+counter counter_2_2_b field_pagan_poor1
+counter counter_2_6_b field_pagan_poor2
+counter counter_2_8_b field_pagan_slaves1
+
+counter counter_3_1_b field_pagan_slaves2
+counter counter_3_3_b field_pagan_slaves3
+counter counter_3_5_b field_pagan_slaves4
+counter counter_3_6_b field_pagan_jews3
+
+counter counter_4_1_b field_pagan_ascetics2
+counter counter_4_2_b field_pagan_ascetics3
+counter counter_4_5_b field_pagan_ascetics4
+counter counter_4_7_b field_pagan_jews4
+counter counter_4_8_b field_pagan_martyrs4
+
+counter counter_5_1_b field_pagan_martyrs3
+counter counter_5_3_b field_pagan_scholars4
+counter counter_5_6_b abbasid_pa
+counter counter_5_7_b abbasid_pb
+counter counter_5_8_b abbasid_pc
+
+counter counter_6_2_b field_pagan_scholars3
+counter counter_6_3_b persia_muslim
+counter counter_6_4_b pray_for_peace
+counter counter_6_5_b reconquista
+counter counter_6_6_b abbasid_pd
+counter counter_6_7_b abbasid_pe
+counter counter_6_8_b abbasid_pf
+
+counter counter_7_1_b schism_pd
+counter counter_7_2_b archbishop_pd
+counter counter_7_6_b roman_capital_christian
+counter counter_7_8_b emperor_heretical
+
+counter counter_8_1_b tyrant_pd
+
+counter counter_9_1_b schism_pe
+counter counter_9_2_b archbishop_pe
+counter counter_9_3_b schism_pf
+counter counter_9_4_b schism_pc
+counter counter_9_5_b archbishop_pc
+counter counter_9_6_b schism_pb
+counter counter_9_8_b archbishop_pa
+
+counter counter_10_1_b tyrant_pe
+counter counter_10_2_b archbishop_pf
+counter counter_10_3_b tyrant_pf
+counter counter_10_4_b tyrant_pc
+counter counter_10_5_b archbishop_pb
+counter counter_10_6_b tyrant_pb
+counter counter_10_7_b tyrant_pa
+counter counter_10_8_b unholy_arian_empire
+
+counter counter_11_2_b horde_saxons_christian
+counter counter_11_3_b horde_turks_manichee
+counter counter_11_4_b horde_turks_muslim
+counter counter_11_5_b horde_bulgars_christian
+counter counter_11_6_b horde_khazars_jewish
+counter counter_11_7_b horde_berbers_muslim
+
+counter counter_1_9_b wafer_c01
+counter counter_1_9_b wafer_c02
+counter counter_1_11_b wafer_c03
+counter counter_1_12_b wafer_c04
+counter counter_1_13_b wafer_c05
+counter counter_1_13_b wafer_c06
+counter counter_1_15_b wafer_c07
+counter counter_1_16_b wafer_c08
+
+counter counter_2_9_b wafer_c09
+counter counter_2_10_b wafer_c10
+counter counter_2_11_b wafer_c11
+counter counter_2_12_b wafer_c12
+counter counter_2_13_b wafer_c13
+counter counter_2_14_b wafer_c14
+counter counter_2_15_b wafer_c15
+counter counter_2_16_b wafer_c16
+
+counter counter_3_9_b wafer_c17
+counter counter_3_9_b wafer_c18
+counter counter_3_11_b wafer_c19
+counter counter_3_12_b wafer_c20
+counter counter_3_13_b wafer_c21
+counter counter_3_13_b wafer_c22
+counter counter_3_15_b wafer_c23
+counter counter_3_16_b wafer_c24
+
+counter counter_4_9_b wafer_c25
+counter counter_4_10_b wafer_c26
+counter counter_4_11_b wafer_c27
+counter counter_4_12_b wafer_c28
+counter counter_4_13_b wafer_c29
+counter counter_4_14_b wafer_c30
+counter counter_4_15_b wafer_c31
+counter counter_4_16_b wafer_c32
+
+counter counter_5_9_b roman_control_christian
+counter counter_5_11_b romana_lex
+counter counter_5_15_b nubia
+counter counter_5_16_b melkite
+
+counter counter_6_15_b baqt
+
+counter counter_7_9_b bible_greek_used
+counter counter_7_10_b bible_latin_used
+counter counter_7_11_b bible_syriac_used
+counter counter_7_12_b bible_coptic_used
+counter counter_7_13_b bible_armenian_used
+
+counter counter_8_9_b horde_shewa_muslim
+
+counter counter_9_13_b relics
+
+counter counter_11_10_b faith_submit
