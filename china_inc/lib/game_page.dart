@@ -62,6 +62,8 @@ class GamePageState extends State<GamePage> {
 
   final _logScrollController = ScrollController();
 
+  bool _hadPlayerChoices = false;
+
   GamePageState() {
 
     const pieceCounterNames = {
@@ -1330,7 +1332,7 @@ class GamePageState extends State<GamePage> {
       }
 
       empireStatus = '''
-# $governmentDesc under $rulerDesc
+# $governmentDesc under $rulerDesc, ${appState.game!.yearDesc(gameState.turn)}
 ___
 |Prestige|Unrest|Cash|Pay|Tax Base|
 |:---:|:---:|:---:|:---:|:---:|
@@ -1652,22 +1654,26 @@ ___
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_logScrollController.hasClients) {
-        //_logScrollController.jumpTo(_logScrollController.position.maxScrollExtent);
-        final position = _logScrollController.position;
-        final distance = position.maxScrollExtent - position.pixels;
-        if (distance > 0.0) {
-          final newPosition = position.maxScrollExtent + 10000.0;
-          if (distance == 0) {
-            position.jumpTo(newPosition);
-          } else {
-            final animateTime = 100.0 * sqrt(distance);
-            position.animateTo(
-              newPosition,
-              duration: Duration(milliseconds: animateTime.toInt()),
-              curve: Curves.ease);
+        if (!_hadPlayerChoices || playerChoices == null) {
+          _logScrollController.jumpTo(_logScrollController.position.maxScrollExtent + 1000000.0);
+        } else {
+          final position = _logScrollController.position;
+          final distance = position.maxScrollExtent - position.pixels;
+          if (distance > 0.0) {
+            final newPosition = position.maxScrollExtent + 10000.0;
+            if (distance == 0) {
+              position.jumpTo(newPosition);
+            } else {
+              final animateTime = 100.0 * sqrt(distance);
+              position.animateTo(
+                newPosition,
+                duration: Duration(milliseconds: animateTime.toInt()),
+                curve: Curves.ease);
+            }
           }
         }
       }
+      _hadPlayerChoices = playerChoices != null;
     });
 
     return rootWidget;

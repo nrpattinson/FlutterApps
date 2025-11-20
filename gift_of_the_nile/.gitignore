@@ -41,11 +41,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Assets
-/assets/
-/tools/HIRES/
-/tools/tmp/
-/tools/counters600/
-/tools/counters192/
-/tools/counters96/
