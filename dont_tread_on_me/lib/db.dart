@@ -54,8 +54,10 @@ class GameDatabase {
           gameId INTEGER NOT NULL,
           sequence INTEGER NOT NULL,
           stateJson TEXT NOT NULL,
+          randomStateJson TEXT NOT NULL,
           step INTEGER NOT NULL,
           subStep INTEGER NOT NULL,
+          turn INTEGER NOT NULL,
           stage TEXT NOT NULL,
           logLength INTEGER NOT NULL,
           PRIMARY KEY(gameId, sequence)
@@ -101,7 +103,7 @@ class GameDatabase {
     await _db;
   }
 
-  Future<int> createGame(int scenario, String optionsJson, String stateJson) async {
+  Future<int> createGame(int scenario, String optionsJson, String stateJson, String randomStateJson) async {
     int startTime = DateTime.timestamp().millisecondsSinceEpoch;
     Database db = await _db;
     int gameId = 0;
@@ -118,13 +120,13 @@ class GameDatabase {
         'INSERT INTO gameInProgress(gameId, scenario, optionsJson, startTime, updateTime, currentSequence, gameJson, log) VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
         [gameId, scenario, optionsJson, startTime, startTime, 0, '', '']);
       await txn.rawInsert(
-        'INSERT INTO gameSnapshot(gameId, sequence, stateJson, step, subStep, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?)',
-        [gameId, 0, stateJson, 0, 0, '', 0]);
+        'INSERT INTO gameSnapshot(gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [gameId, 0, stateJson, randomStateJson, 0, 0, 0, '', 0]);
     });
     return gameId;
   }
 
-  Future<void> appendGameSnapshot(int gameId, String stateJson, int step, int subStep, String stage, String log) async {
+  Future<void> appendGameSnapshot(int gameId, String stateJson, String randomStateJson, int step, int subStep, int turn, String stage, String log) async {
     int updateTime = DateTime.timestamp().millisecondsSinceEpoch;
     Database db = await _db;
     await db.transaction((txn) async {
@@ -137,21 +139,21 @@ class GameDatabase {
         'DELETE FROM gameSnapshot WHERE gameId = ? AND sequence = ?',
         [gameId, -1]);
       await txn.rawInsert(
-        'INSERT INTO gameSnapshot(gameId, sequence, stateJson, step, subStep, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?)',
-        [gameId, sequence, stateJson, step, subStep, stage, log.length]);
+        'INSERT INTO gameSnapshot(gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, log.length]);
       await txn.execute(
         'UPDATE gameInProgress SET updateTime = ?, currentSequence = ?, gameJson = ?, log = ? WHERE gameId = ?',
         [updateTime, sequence, '', log, gameId]);
     });
   }
 
-  Future<void> setGameState(int gameId, String stateJson, int step, int subStep, String stage, String gameJson, String log) async {
+  Future<void> setGameState(int gameId, String stateJson, String randomStateJson, int step, int subStep, int turn, String stage, String gameJson, String log) async {
     int updateTime = DateTime.timestamp().millisecondsSinceEpoch;
     Database db = await _db;
     await db.transaction((txn) async {
       await txn.rawInsert(
-        'INSERT OR REPLACE INTO gameSnapshot(gameId, sequence, stateJson, step, subStep, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?)',
-         [gameId, -1, stateJson, step, subStep, stage, log.length]);
+        'INSERT OR REPLACE INTO gameSnapshot(gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
+         [gameId, -1, stateJson, randomStateJson, step, subStep, turn, stage, log.length]);
       await txn.execute(
         'UPDATE gameInProgress SET updateTime = ?, gameJson = ?, log = ? WHERE gameId = ?',
         [updateTime, gameJson, log, gameId]);
@@ -188,11 +190,37 @@ class GameDatabase {
         'UPDATE sequence SET maximumSequenceId = ?',
         [newGameId]);
       await txn.execute(
-        'INSERT INTO gameSnapshot (gameId, sequence, stateJson, step, subStep, stage, logLength) SELECT ?, sequence, stateJson, step, subStep, stage, logLength FROM gameSnapshot WHERE gameId = ?',
+        'INSERT INTO gameSnapshot (gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) SELECT ?, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength FROM gameSnapshot WHERE gameId = ?',
         [newGameId, gameId]);
       await txn.execute(
         'INSERT INTO gameInProgress (gameId, scenario, optionsJson, startTime, updateTime, currentSequence, gameJson, log) SELECT ?, scenario, optionsJson, startTime, ?, currentSequence, gameJson, log FROM gameInProgress WHERE gameId = ?',
         [newGameId, updateTime, gameId]);
+    });
+    return newGameId;
+  }
+
+  Future<int> duplicatePartialGame(int gameId, int maximumSequence, String log) async {
+    int updateTime = DateTime.timestamp().millisecondsSinceEpoch;
+    Database db = await _db;
+    int newGameId = 0;
+    await db.transaction((txn) async {
+      final records = await txn.rawQuery(
+        'SELECT maximumSequenceId FROM sequence WHERE sequenceName = ?',
+        ['gameId']);
+      newGameId = records.first['maximumSequenceId'] as int;
+      newGameId += 1;
+      await txn.execute(
+        'UPDATE sequence SET maximumSequenceId = ?',
+        [newGameId]);
+      await txn.execute(
+        'INSERT INTO gameSnapshot (gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) SELECT ?, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength FROM gameSnapshot WHERE gameId = ? and sequence != -1 and sequence <= ?',
+        [newGameId, gameId, maximumSequence]);
+      await txn.execute(
+        'INSERT INTO gameSnapshot (gameId, sequence, stateJson, randomStateJson, step, subStep, turn, stage, logLength) SELECT gameId, ?, stateJson, randomStateJson, step, subStep, turn, stage, logLength FROM gameSnapshot WHERE gameId = ? and sequence = ?',
+        [-1, newGameId, maximumSequence]);
+      await txn.execute(
+        'INSERT INTO gameInProgress (gameId, scenario, optionsJson, startTime, updateTime, currentSequence, gameJson, log) SELECT ?, scenario, optionsJson, startTime, ?, ?, ?, ? FROM gameInProgress WHERE gameId = ?',
+        [newGameId, updateTime, maximumSequence, '', log, gameId]);
     });
     return newGameId;
   }
@@ -215,7 +243,7 @@ class GameDatabase {
   Future<List<Map<String, dynamic>>> fetchGameInProgressList() async {
     Database db = await _db;
     return await db.rawQuery('''
-      SELECT g.gameId, g.scenario, g.optionsJson, g.startTime, g.updateTime, s.stage
+      SELECT g.gameId, g.scenario, g.optionsJson, g.startTime, g.updateTime, s.turn, s.stage
       FROM gameInProgress g, gameSnapshot s
       WHERE s.gameId = g.gameId AND s.sequence = -1
       ORDER BY updateTime DESC
@@ -225,11 +253,54 @@ class GameDatabase {
   Future<Map<String, dynamic>> fetchGameInProgress(int gameId) async {
     Database db = await _db;
     final records = await db.rawQuery('''
-      SELECT g.scenario, g.optionsJson, g.gameJson, g.log, s.stateJson, s.step, s.subStep
+      SELECT g.scenario, g.optionsJson, g.currentSequence, g.gameJson, g.log, s.stateJson, s.randomStateJson, s.step, s.subStep
       FROM gameInProgress g, gameSnapshot s
       WHERE g.gameId = ? AND s.gameId = g.gameId AND s.sequence = -1
     ''',
     [gameId]);
     return records.first;    
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGameCompletedList() async {
+    Database db = await _db;
+    return await db.rawQuery('''
+      SELECT g.gameId, g.scenario, g.optionsJson, g.startTime, g.finishTime, s.turn, s.stage
+      FROM gameCompleted g, gameSnapshot s
+      WHERE s.gameId = g.gameId AND s.sequence = g.maximumSequence
+      ORDER BY finishTime DESC
+    ''');
+  }
+
+  Future<Map<String, dynamic>> fetchGameCompleted(int gameId) async {
+    Database db = await _db;
+    final records = await db.rawQuery('''
+      SELECT g.scenario, g.optionsJson, g.maximumSequence, g.outcomeJson, g.log, s.stateJson, s.randomStateJson, s.step, s.subStep
+      FROM gameCompleted g, gameSnapshot s
+      WHERE g.gameId = ? AND s.gameId = g.gameId AND s.sequence = g.maximumSequence
+    ''',
+    [gameId]);
+    return records.first;
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGameSnapshotList(int gameId) async {
+    Database db = await _db;
+    return await db.rawQuery('''
+      SELECT sequence, stage
+      FROM gameSnapshot
+      WHERE gameId = ? AND sequence >= 0
+      ORDER BY sequence ASC
+    ''',
+    [gameId]);
+  }
+
+  Future<Map<String, dynamic>> fetchGameSnapshot(int gameId, int sequence) async {
+    Database db = await _db;
+    final records = await db.rawQuery('''
+      SELECT stateJson, randomStateJson, step, subStep, turn, stage, logLength
+      FROM gameSnapshot
+      WHERE gameId = ? and sequence = ?
+    ''',
+    [gameId, sequence]);
+    return records.first;
   }
 }
