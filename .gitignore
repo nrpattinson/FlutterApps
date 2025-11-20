@@ -10,3 +10,7 @@
 # Documents
 *.pdf
 *.doc
+
+# Working Files
+assets.txt
+
