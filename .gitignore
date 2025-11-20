@@ -1,0 +1,12 @@
+# Images
+*.png
+*.jpg
+*.ppm
+*.ico
+*.gif
+*.gbr
+*.xcf
+
+# Documents
+*.pdf
+*.doc
