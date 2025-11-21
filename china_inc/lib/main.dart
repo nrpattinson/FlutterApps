@@ -60,8 +60,8 @@ class MyAppState extends ChangeNotifier {
   void newGame(Scenario scenario, GameOptions options) async {
     _scenario = scenario;
     _options = options;
-    _gameState = GameState.fromScenario(scenario);
     final random = XorshiftRPlus();
+    _gameState = GameState.fromScenario(scenario);
     _gameId = await GameDatabase.instance.createGame(scenario.index, jsonEncode(options.toJson()), jsonEncode(_gameState!.toJson()), jsonEncode(randomToJson(random)));
     _game = Game(_gameId!, scenario, options, _gameState!, random);
     _completed = false;
