@@ -57,7 +57,6 @@ class GamePageState extends State<GamePage> {
   final _expandedStacks = <StackKey>[];
 
   final _logScrollController = ScrollController();
-
   bool _hadPlayerChoices = false;
 
   GamePageState() {

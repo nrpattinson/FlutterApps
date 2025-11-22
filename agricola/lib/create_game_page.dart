@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:agricola/game.dart';
 import 'package:agricola/main.dart';
 
 class CreateGamePage extends StatefulWidget {
@@ -69,7 +70,7 @@ you want to duplicate Agricola’s achievement.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame();
+                          appState.newGame(Scenario.standard, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

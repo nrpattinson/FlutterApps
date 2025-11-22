@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:stilicho/completed_games_page.dart';
 import 'package:stilicho/create_game_page.dart';
 import 'package:stilicho/db.dart';
 import 'package:stilicho/game.dart';
 import 'package:stilicho/game_page.dart';
 import 'package:stilicho/in_progress_games_page.dart';
+import 'package:stilicho/random.dart';
 
 void main() async {
   GameDatabase.instance.initialize();
@@ -30,51 +31,88 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFD2D2D2)),
           useMaterial3: true,
         ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
       )
     );
   }
 }
 
 class MyAppState extends ChangeNotifier {
-  int selectedHomePageIndex = 0;
-  final logScrollController = ScrollController();
-  Scenario? createGameScenario;
-  GameState? gameState;
-  Game? game;
-  PlayerChoiceInfo? playerChoices;
+  int _selectedHomePageIndex = 0;
+  int? _gameId;
+  Scenario? _scenario;
+  GameOptions? _options;
+  GameState? _gameState;
+  Game? _game;
+  bool _completed = false;
+  String _log = '';
+  int _sequence = -1;
+  int _maxSequence = -1;
+  PlayerChoiceInfo? _playerChoices;
 
   MyAppState();
 
   void pageSelected(int pageIndex) {
-    selectedHomePageIndex = pageIndex;
+    _selectedHomePageIndex = pageIndex;
     notifyListeners();
   }
 
-  void newGame() async {
-    final random = Random();
-    const scenario = Scenario.standard;
-    final options = GameOptions();
-    gameState = GameState.setupStandard(random);
-    int gameId = await GameDatabase.instance.createGame(scenario.index, jsonEncode(options.toJson()), jsonEncode(gameState!.toJson()));
-    game = Game(gameId, scenario, options, gameState!, random);
-    playerChoices = await game!.play(PlayerChoice());
-    selectedHomePageIndex = 2;
+  void newGame(Scenario scenario, GameOptions options) async {
+    _scenario = scenario;
+    _options = options;
+    final random = XorshiftRPlus();
+    _gameState = GameState.setupStandard(random);
+    _gameId = await GameDatabase.instance.createGame(scenario.index, jsonEncode(options.toJson()), jsonEncode(_gameState!.toJson()), jsonEncode(randomToJson(random)));
+    _game = Game(_gameId!, scenario, options, _gameState!, random);
+    _completed = false;
+    _playerChoices = await _game!.play(PlayerChoice());
+    _updateGame();
+    _selectedHomePageIndex = 3;
     notifyListeners();
   }
 
   void resumeGame(int gameId) async {
+    _gameId = gameId;
     final gameRecord = await GameDatabase.instance.fetchGameInProgress(gameId);
-    final scenario = Scenario.values[gameRecord['scenario'] as int];
-    final options = GameOptions.fromJson(jsonDecode(gameRecord['optionsJson'] as String));
-    gameState = GameState.fromJson(jsonDecode(gameRecord['stateJson'] as String));
+    _scenario = Scenario.values[gameRecord['scenario'] as int];
+    _options = GameOptions.fromJson(jsonDecode(gameRecord['optionsJson'] as String));
+    _gameState = GameState.fromJson(jsonDecode(gameRecord['stateJson'] as String));
+    final random = randomFromJson(jsonDecode(gameRecord['randomStateJson'] as String));
     final step = gameRecord['step'] as int;
     final subStep = gameRecord['subStep'] as int;
-    final log = gameRecord['log'] as String;
-    final gameJson = jsonDecode(gameRecord['gameJson'] as String);
-    game = Game.saved(gameId, scenario, options, gameState!, step, subStep, log, gameJson);
-    playerChoices = await game!.play(PlayerChoice());
-    selectedHomePageIndex = 2;
+    _log = gameRecord['log'] as String;
+    _maxSequence = gameRecord['currentSequence'] as int;
+    _sequence = _maxSequence;
+    final gameJsonString = gameRecord['gameJson'] as String;
+    if (gameJsonString != '') {
+      final gameJson = jsonDecode(gameJsonString);
+      _game = Game.inProgress(gameId, _scenario!, _options!, _gameState!, random, step, subStep, _log, gameJson);
+    } else {
+      _game = Game.snapshot(gameId, _scenario!, _options!, _gameState!, random, step, subStep, _log);
+    }
+    _completed = false;
+    _playerChoices = await _game!.play(PlayerChoice());
+    _updateGame();
+    _selectedHomePageIndex = 3;
+    notifyListeners();
+  }
+
+  void replayCompletedGame(int gameId) async {
+    _gameId = gameId;
+    final gameRecord = await GameDatabase.instance.fetchGameCompleted(gameId);
+    _scenario = Scenario.values[gameRecord['scenario'] as int];
+    _options = GameOptions.fromJson(jsonDecode(gameRecord['optionsJson'] as String));
+    _gameState = GameState.fromJson(jsonDecode(gameRecord['stateJson'] as String));
+    final random = randomFromJson(jsonDecode(gameRecord['randomStateJson'] as String));
+    final step = gameRecord['step'] as int;
+    final subStep = gameRecord['subStep'] as int;
+    _log = gameRecord['log'] as String;
+    _maxSequence = gameRecord['maximumSequence'] as int;
+    _sequence = _maxSequence;
+    final outcomeJson = jsonDecode(gameRecord['outcomeJson'] as String);
+    _game = Game.completed(gameId, _scenario!, _options!, _gameState!, random, step, subStep, _log, outcomeJson);
+    _completed = true;
+    _selectedHomePageIndex = 3;
     notifyListeners();
   }
 
@@ -88,36 +126,154 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void madeChoice(Choice choiceId) async {
-    var playerChoice = PlayerChoice();
-    playerChoice.choice = choiceId;
-    playerChoices = await game!.play(playerChoice);
+  void duplicateCurrentGame() async {
+    if (_sequence == -1) {
+      await GameDatabase.instance.duplicateGame(_gameId!);
+    } else {
+      await GameDatabase.instance.duplicatePartialGame(_gameId!, _sequence, _game!.log);
+    }
     notifyListeners();
   }
 
-  void choseLocation(Location locationId) async {
+  void firstSnapshot() async {
+    _loadGameSnapshot(0);
+  }
+
+  void previousTurn() async {
+    int turn = _gameState!.currentTurn;
+    int targetTurn = turn;
+    int sequence = _sequence;
+    int snapshotTurn = turn;
+    bool first = true;
+    while (sequence > 0 && snapshotTurn == targetTurn) {
+      sequence = sequence == -1 ? _maxSequence : sequence - 1;
+      var snapshotRecord = await GameDatabase.instance.fetchGameSnapshot(_gameId!, sequence);
+      snapshotTurn = snapshotRecord['turn'] as int;
+      if (first) {
+        if (snapshotTurn != turn) {
+          targetTurn = snapshotTurn;
+        }
+        first = false;
+      }
+    }
+    if (snapshotTurn != targetTurn) {
+      sequence = sequence == _maxSequence ? -1 : sequence + 1;
+    }
+    _loadGameSnapshot(sequence);
+  }
+
+  void previousSnapshot() async {
+    _loadGameSnapshot(_sequence == -1 ? _maxSequence : _sequence - 1);
+  }
+
+  void nextSnapshot() async {
+    _loadGameSnapshot(_sequence == _maxSequence ? -1 : _sequence + 1);
+  }
+
+  void nextTurn() async {
+    int turn = _gameState!.currentTurn;
+    int sequence = _sequence;
+    int snapshotTurn = turn;
+    while (sequence != -1 && snapshotTurn == turn) {
+      sequence = sequence == _maxSequence ? -1 : sequence + 1;
+      final snapshotRecord = await GameDatabase.instance.fetchGameSnapshot(_gameId!, sequence);
+      snapshotTurn = snapshotRecord['turn'] as int;
+    }
+    _loadGameSnapshot(sequence);
+  }
+
+  void lastSnapshot() async {
+    _loadGameSnapshot(_completed ? _maxSequence : -1);
+  }
+
+  void _loadGameSnapshot(int sequence) async {
+    _sequence = sequence;
+    if (_sequence == -1) {
+      resumeGame(_gameId!);
+    } else {
+      final snapshotRecord = await GameDatabase.instance.fetchGameSnapshot(_gameId!, sequence);
+      final random = randomFromJson(jsonDecode(snapshotRecord['randomStateJson'] as String));
+      final step = snapshotRecord['step'] as int;
+      final subStep = snapshotRecord['subStep'] as int;
+      final logLength = snapshotRecord['logLength'] as int;
+      String log = _log.substring(0, logLength);
+      _gameState = GameState.fromJson(jsonDecode(snapshotRecord['stateJson'] as String));
+      _game = Game.snapshot(_gameId!, _scenario!, _options!, _gameState!, random, step, subStep, log);
+      _playerChoices = null;
+      notifyListeners();
+    }
+  }
+
+  void madeChoice(Choice choice) async {
     var playerChoice = PlayerChoice();
-    playerChoice.location = locationId;
-    playerChoices = await game!.play(playerChoice);
+    playerChoice.choice = choice;
+    _playerChoices = await _game!.play(playerChoice);
+    _updateGame();
     notifyListeners();
   }
 
-  void chosePiece(Piece pieceId) async {
+  void choseLocation(Location location) async {
     var playerChoice = PlayerChoice();
-    playerChoice.piece = pieceId;
-    playerChoices = await game!.play(playerChoice);
+    playerChoice.location = location;
+    _playerChoices = await _game!.play(playerChoice);
     notifyListeners();
+  }
+
+  void chosePiece(Piece piece) async {
+    var playerChoice = PlayerChoice();
+    playerChoice.piece = piece;
+    _playerChoices = await _game!.play(playerChoice);
+    notifyListeners();
+  }
+
+  bool get previousSnapshotAvailable {
+    return _sequence != 0;
+  }
+
+  bool get nextSnapshotAvailable {
+    if (_sequence == -1) {
+      return false;
+    }
+    if (_sequence + 1 < _maxSequence) {
+      return true;
+    }
+    return !_completed;
+  }
+
+  GameState? get gameState {
+    return _gameState;
+  }
+
+  Game? get game {
+    return _game;
+  }
+
+  PlayerChoiceInfo? get playerChoices {
+    return _playerChoices;
+  }
+
+  void _updateGame() async {
+    if (_playerChoices != null) {
+      final gameRecord = await GameDatabase.instance.fetchGameInProgress(_gameId!);
+      _log = gameRecord['log'];
+      _maxSequence = gameRecord['currentSequence'] as int;
+      _sequence = -1;
+    } else {
+      final gameRecord = await GameDatabase.instance.fetchGameCompleted(_gameId!);
+      _completed = true;
+      _log = gameRecord['log'];
+      _maxSequence = gameRecord['maximumSequence'] as int;
+      _sequence = _maxSequence;
+    }
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
-    final selectedIndex = appState.selectedHomePageIndex;
+    final selectedIndex = appState._selectedHomePageIndex;
 
     Widget page;
     switch (selectedIndex) {
@@ -126,7 +282,9 @@ class MyHomePage extends StatelessWidget {
     case 1:
       page = const InProgressGamesPage();
     case 2:
-      page = GamePage();
+      page = const CompletedGamesPage();
+    case 3:
+      page = const GamePage();
     default:
       throw UnimplementedError('no widget for $selectedIndex');
     }
@@ -145,8 +303,12 @@ class MyHomePage extends StatelessWidget {
                       label: Text('Create Game'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.view_list),
+                      icon: Icon(Icons.list),
                       label: Text('Current Games'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.view_list),
+                      label: Text('Completed Games'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.start),

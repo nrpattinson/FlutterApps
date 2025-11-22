@@ -174,7 +174,7 @@ actual conflict.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame(_options);
+                          appState.newGame(Scenario.campaign, _options);
                         }
                       },
                       child: const Text('Create Game'),

@@ -74,7 +74,7 @@ passes to The Afterlife, and the game will end.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame(_options);
+                          appState.newGame(Scenario.standard, _options);
                         }
                       },
                       child: const Text('Create Game'),

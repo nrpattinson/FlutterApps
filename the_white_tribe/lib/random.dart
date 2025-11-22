@@ -26,7 +26,7 @@ class XorshiftRPlus implements Random {
     final int y = _state1;
     _state0 = y;
     x ^= x << 23;
-    x ^= x >> 17;
+    x ^= x >>> 17;
     x ^= y;
     _state1 = x + y;
     return x;
@@ -64,8 +64,8 @@ class XorshiftRPlus implements Random {
     // Is this correct ? Unused.
     int rnd = _nextRaw64();
     int rnd0 = rnd & 0xFFFFFFFF;
-    int rnd1 = rnd >> 32;
-    return rnd0 * 2.3283064365386963e-10 + (rnd1 >> 12) * 2.220446049250313e-16;
+    int rnd1 = rnd >>> 32;
+    return rnd0 * 2.3283064365386963e-10 + (rnd1 >>> 12) * 2.220446049250313e-16;
   }
 }
 

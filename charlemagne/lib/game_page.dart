@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:charlemagne/game.dart';
 import 'package:charlemagne/main.dart';
@@ -8,14 +9,28 @@ enum BoardArea {
   map,
 }
 
-class GamePage extends StatelessWidget {
+class GamePage extends StatefulWidget {
+
+  const GamePage({super.key});
+
+  @override
+  GamePageState createState() {
+    return GamePageState();
+  }
+}
+
+class GamePageState extends State<GamePage> {
   static const _mapWidth = 2112.0;
   static const _mapHeight = 1632.0;
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _mapStackChildren = <Widget>[];
 
-  GamePage({super.key}) {
+  final _logScrollController = ScrollController();
+
+  bool _hadPlayerChoices = false;
+
+  GamePageState() {
 
     final Map<Piece,String> counterNames = {
       Piece.poitiers0: 'map_unit_poitiers_3',
@@ -750,7 +765,7 @@ class GamePage extends StatelessWidget {
                   ),
                   strong: textTheme.headlineMedium,
                 ),
-                controller: appState.logScrollController,
+                controller: _logScrollController,
                 data: log,
               ),
             ),
@@ -759,11 +774,29 @@ class GamePage extends StatelessWidget {
       ),
     );
 
-    if (appState.logScrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        appState.logScrollController.jumpTo(appState.logScrollController.position.maxScrollExtent);
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_logScrollController.hasClients) {
+        if (!_hadPlayerChoices || playerChoices == null) {
+          _logScrollController.jumpTo(_logScrollController.position.maxScrollExtent + 1000000.0);
+        } else {
+          final position = _logScrollController.position;
+          final distance = position.maxScrollExtent - position.pixels;
+          if (distance > 0.0) {
+            final newPosition = position.maxScrollExtent + 10000.0;
+            if (distance == 0) {
+              position.jumpTo(newPosition);
+            } else {
+              final animateTimeMs = min(100.0 * sqrt(distance), 2.5);
+              position.animateTo(
+                newPosition,
+                duration: Duration(milliseconds: animateTimeMs.toInt()),
+                curve: Curves.ease);
+            }
+          }
+        }
+      }
+      _hadPlayerChoices = playerChoices != null;
+    });
 
     return rootWidget;
   }

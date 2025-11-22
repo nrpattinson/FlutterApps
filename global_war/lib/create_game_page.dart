@@ -100,7 +100,7 @@ fate of the globe - for this is **GLOBAL WAR**!
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame(_scenario!);
+                          appState.newGame(_scenario!, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
+
 import 'package:rome_iinc/db.dart';
+import 'package:rome_iinc/random.dart';
 
 enum Location {
   provinceCorsicaSardinia,
@@ -5979,17 +5981,26 @@ class Game {
   AssassinationAttemptState? _assassinationAttemptState;
   EventAssassinState? _eventAssassinState;
   NewEmperorState? _newEmperorState;
-  final _random = Random();
+  final Random _random;
   final int _gameId;
 
-  Game(this._gameId, this._scenario, this._options, this._state)
+  Game(this._gameId, this._scenario, this._options, this._state, this._random)
   : _choiceInfo = PlayerChoiceInfo() {
     _setScenarioInfo();
   }
 
-  Game.saved(this._gameId, this._scenario, this._options, this._state, this._step, this._subStep, this._log, Map<String, dynamic> gameStateJson) {
+  Game.inProgress(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log, Map<String, dynamic> gameStateJson) {
     _setScenarioInfo();
     _gameStateFromJson(gameStateJson);
+  }
+
+  Game.completed(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log, Map<String, dynamic> gameOutcomeJson) {
+    _setScenarioInfo();
+    _outcome = GameOutcome.fromJson(gameOutcomeJson);
+  }
+
+  Game.snapshot(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log) {
+    _setScenarioInfo();
   }
 
   void _setScenarioInfo() {
@@ -6128,7 +6139,9 @@ class Game {
     await GameDatabase.instance.appendGameSnapshot(
       _gameId,
       jsonEncode(_state.toJson()),
+      jsonEncode(randomToJson(_random)),
       _step, _subStep,
+      _state.turn,
       yearDesc(_state.turn),
       _log);
   }
@@ -6137,7 +6150,9 @@ class Game {
     await GameDatabase.instance.setGameState(
       _gameId,
       jsonEncode(_state.toJson()),
+      jsonEncode(randomToJson(_random)),
       _step, _subStep,
+      _state.turn,
       yearDesc(_state.turn),
       jsonEncode(gameStateToJson()),
       _log);

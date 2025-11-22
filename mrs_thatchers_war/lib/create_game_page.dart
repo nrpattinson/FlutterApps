@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:mrs_thatchers_war/game.dart';
 import 'package:mrs_thatchers_war/main.dart';
 
 class CreateGamePage extends StatefulWidget {
@@ -60,7 +61,7 @@ of the war and highlights important historical themes.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame();
+                          appState.newGame(Scenario.standard, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

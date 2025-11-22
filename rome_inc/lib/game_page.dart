@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
+
 import 'package:rome_inc/game.dart';
 import 'package:rome_inc/main.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 enum MarkerType {
   gold,
@@ -58,6 +61,9 @@ class GamePageState extends State<GamePage> {
 
   final _pieceStackKeys = <Piece,StackKey>{};
   final _expandedStacks = <StackKey>[];
+
+  final _logScrollController = ScrollController();
+  bool _hadPlayerChoices = false;
 
   GamePageState() {
 
@@ -1577,7 +1583,7 @@ ___
                         ),
                         strong: textTheme.headlineMedium,
                       ),
-                      controller: appState.logScrollController,
+                      controller: _logScrollController,
                       data: log,
                     ),
                   ),
@@ -1589,11 +1595,29 @@ ___
       ),
     );
 
-    if (appState.logScrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        appState.logScrollController.jumpTo(appState.logScrollController.position.maxScrollExtent);
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_logScrollController.hasClients) {
+        if (!_hadPlayerChoices || playerChoices == null) {
+          _logScrollController.jumpTo(_logScrollController.position.maxScrollExtent + 1000000.0);
+        } else {
+          final position = _logScrollController.position;
+          final distance = position.maxScrollExtent - position.pixels;
+          if (distance > 0.0) {
+            final newPosition = position.maxScrollExtent + 10000.0;
+            if (distance == 0) {
+              position.jumpTo(newPosition);
+            } else {
+              final animateTimeMs = min(100.0 * sqrt(distance), 2.5);
+              position.animateTo(
+                newPosition,
+                duration: Duration(milliseconds: animateTimeMs.toInt()),
+                curve: Curves.ease);
+            }
+          }
+        }
+      }
+      _hadPlayerChoices = playerChoices != null;
+    });
 
     return rootWidget;
   }

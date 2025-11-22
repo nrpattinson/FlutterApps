@@ -1,15 +1,26 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart';
 import 'package:mrs_thatchers_war/game.dart';
 import 'package:mrs_thatchers_war/main.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 
 enum BoardArea {
   strategicMap,
   tacticalMap,
 }
 
-class GamePage extends StatelessWidget {
+class GamePage extends StatefulWidget {
+
+  const GamePage({super.key});
+
+  @override
+  GamePageState createState() {
+    return GamePageState();
+  }
+}
+
+class GamePageState extends State<GamePage> {
   static const _strategicMapWidth = 816.0;
   static const _strategicMapHeight = 1056.0;
   static const _tacticalMapWidth = 1632.0;
@@ -19,8 +30,10 @@ class GamePage extends StatelessWidget {
   final _tacticalMapImage = Image.asset('assets/images/tactical_map.png', key: UniqueKey(), width: _tacticalMapWidth, height: _tacticalMapHeight);
   final _strategicMapStackChildren = <Widget>[];
   final _tacticalMapStackChildren = <Widget>[];
+  final _logScrollController = ScrollController();
+  bool _hadPlayerChoices = false;
 
-  GamePage({super.key}) {
+  GamePageState() {
 
     final Map<Piece,String> counterNames = {
       Piece.airArgA4_0: 'air_arg_a4_elite',
@@ -569,7 +582,7 @@ class GamePage extends StatelessWidget {
                   ),
                   strong: textTheme.headlineMedium,
                 ),
-                controller: appState.logScrollController,
+                controller: _logScrollController,
                 data: log,
               ),
             ),
@@ -578,11 +591,29 @@ class GamePage extends StatelessWidget {
       ),
     );
 
-    if (appState.logScrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        appState.logScrollController.jumpTo(appState.logScrollController.position.maxScrollExtent);
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_logScrollController.hasClients) {
+        if (!_hadPlayerChoices || playerChoices == null) {
+          _logScrollController.jumpTo(_logScrollController.position.maxScrollExtent + 1000000.0);
+        } else {
+          final position = _logScrollController.position;
+          final distance = position.maxScrollExtent - position.pixels;
+          if (distance > 0.0) {
+            final newPosition = position.maxScrollExtent + 10000.0;
+            if (distance == 0) {
+              position.jumpTo(newPosition);
+            } else {
+              final animateTimeMs = min(100.0 * sqrt(distance), 2.5);
+              position.animateTo(
+                newPosition,
+                duration: Duration(milliseconds: animateTimeMs.toInt()),
+                curve: Curves.ease);
+            }
+          }
+        }
+      }
+      _hadPlayerChoices = playerChoices != null;
+    });
 
     return rootWidget;
   }

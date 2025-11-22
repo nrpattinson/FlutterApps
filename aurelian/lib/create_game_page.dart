@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:aurelian/game.dart';
 import 'package:aurelian/main.dart';
 
 class CreateGamePage extends StatefulWidget {
@@ -78,7 +79,7 @@ the senate: Restitutor Orbis, “Restorer of the World”.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame();
+                          appState.newGame(Scenario.standard, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

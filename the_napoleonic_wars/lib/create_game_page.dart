@@ -96,7 +96,7 @@ out the entire three-decade grand campaign.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame(_scenario!);
+                          appState.newGame(_scenario!, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

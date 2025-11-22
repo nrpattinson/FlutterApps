@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:aurelian/db.dart';
+import 'package:aurelian/random.dart';
 
 enum Location {
   germania,
@@ -1277,15 +1278,21 @@ class Game {
   PhaseState? _phaseState;
   ReactionState? _reactionState;
   PlayerChoiceInfo _choiceInfo = PlayerChoiceInfo();
-  Random _random = Random();
+  final Random _random;
   final int _gameId;
 
   Game(this._gameId, this._scenario, this._options, this._state, this._random)
     : _choiceInfo = PlayerChoiceInfo();
 
-  Game.saved(this._gameId, this._scenario, this._options, this._state, this._step, this._subStep, this._log, Map<String, dynamic> gameStateJson) {
+  Game.inProgress(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log, Map<String, dynamic> gameStateJson) {
     _gameStateFromJson(gameStateJson);
   }
+
+  Game.completed(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log, Map<String, dynamic> gameOutcomeJson) {
+    _outcome = GameOutcome.fromJson(gameOutcomeJson);
+  }
+
+  Game.snapshot(this._gameId, this._scenario, this._options, this._state, this._random, this._step, this._subStep, this._log);
 
   void _gameStateFromJson(Map<String, dynamic> json) {
     _phaseState = null;
@@ -1323,7 +1330,9 @@ class Game {
     await GameDatabase.instance.appendGameSnapshot(
       _gameId,
       jsonEncode(_state.toJson()),
+      jsonEncode(randomToJson(_random)),
       _step, _subStep,
+      _state.currentTurn,
       _state.turnName(_state.currentTurn),
       _log);
   }
@@ -1332,7 +1341,9 @@ class Game {
     await GameDatabase.instance.setGameState(
       _gameId,
       jsonEncode(_state.toJson()),
+      jsonEncode(randomToJson(_random)),
       _step, _subStep,
+      _state.currentTurn,
       _state.turnName(_state.currentTurn),
       jsonEncode(gameStateToJson()),
       _log);

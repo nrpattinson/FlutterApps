@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:the_wars_of_marcus_aurelius/game.dart';
 import 'package:the_wars_of_marcus_aurelius/main.dart';
 
 class CreateGamePage extends StatefulWidget {
@@ -71,7 +72,7 @@ strategies.
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame();
+                          appState.newGame(Scenario.standard, GameOptions());
                         }
                       },
                       child: const Text('Create Game'),

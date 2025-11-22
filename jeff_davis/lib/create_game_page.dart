@@ -79,7 +79,7 @@ fight the Civil War as Jeff Davis!
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          appState.newGame(_options);
+                          appState.newGame(Scenario.standard, _options);
                         }
                       },
                       child: const Text('Create Game'),
