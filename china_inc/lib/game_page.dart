@@ -907,8 +907,8 @@ class GamePageState extends State<GamePage> {
         (spaceX - 24.0, spaceY - 52.0, 0.0, 0.0),	// Top middle, no stacking
         (spaceX - 52.0, spaceY - 52.0, 0.0, 0.0),	// Upper left, no stacking
         (spaceX + 1.0, spaceY - 52.0, 6.0, -6.0),	// Upper right
-        (spaceX - 52.0, spaceY + 1.0, 0.0, 14.0),	// Lower left, stack down
-        (spaceX - 24.0, spaceY + 1.0, 0.0, 14.0),	// Lower middle, stack down
+        (spaceX - 52.0, spaceY + 1.0, 0.0, 17.0),	// Lower left, stack down
+        (spaceX - 24.0, spaceY + 1.0, 0.0, 17.0),	// Lower middle, stack down
         (spaceX - 24.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
         (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
       ];

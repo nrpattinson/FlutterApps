@@ -52,7 +52,7 @@ class GamePageState extends State<GamePage> {
   final _markerImages = <(MarkerType,MarkerValueType),Image>{};
   final _dateMarkerImages = <Image>[];
   final _eventMarkerImages = <Image>[];
-  final _mapImage = Image.asset('assets/images/map.jpg', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
+  final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _mapStackChildren = <Widget>[];
 
   final _pieceStackKeys = <Piece,StackKey>{};
@@ -375,7 +375,7 @@ class GamePageState extends State<GamePage> {
     for (final piece in PieceType.all.pieces) {
       final counterName = pieceCounterNames[piece]!;
       var imagePath = 'assets/images/$counterName.png';
-      _pieceImages[piece] = Image.asset(imagePath, key: UniqueKey(), width: 60.0, height: 60.0);
+      _pieceImages[piece] = Image.asset(imagePath, key: UniqueKey(), width: 48.0, height: 48.0);
     }
 
     final Map<Location,String> governorshipCounterNames = {
@@ -395,8 +395,8 @@ class GamePageState extends State<GamePage> {
       final counterName = governorshipCounterNames[command]!;
       final loyalImagePath = 'assets/images/loyal_$counterName.png';
       final rebelImagePath = 'assets/images/rebel_$counterName.png';
-      _loyalGovernorshipImages[command] = Image.asset(loyalImagePath, key: UniqueKey(), width: 60.0, height: 60.0);
-      _rebelGovernorshipImages[command] = Image.asset(rebelImagePath, key: UniqueKey(), width: 60.0, height: 60.0);
+      _loyalGovernorshipImages[command] = Image.asset(loyalImagePath, key: UniqueKey(), width: 48.0, height: 48.0);
+      _rebelGovernorshipImages[command] = Image.asset(rebelImagePath, key: UniqueKey(), width: 48.0, height: 48.0);
     }
 
     final Map<ProvinceStatus,String?> provinceStatusCounterNames = {
@@ -410,7 +410,7 @@ class GamePageState extends State<GamePage> {
     for (final counterName in provinceStatusCounterNames.entries) {
       if (counterName.value != null) {
         final imagePath = 'assets/images/${counterName.value}.png';
-        _provinceStatusImages[counterName.key] = Image.asset(imagePath, key: UniqueKey(), width: 60.0, height:60.0);
+        _provinceStatusImages[counterName.key] = Image.asset(imagePath, key: UniqueKey(), width: 48.0, height: 48.0);
       }
     }
 
@@ -433,21 +433,21 @@ class GamePageState extends State<GamePage> {
     ];
 
     for (final marker in markers) {
-      _markerImages[(marker.$1, marker.$2)] = Image.asset('assets/images/${marker.$3}.png', key: UniqueKey(), width: 60.0, height: 60.0);
+      _markerImages[(marker.$1, marker.$2)] = Image.asset('assets/images/${marker.$3}.png', key: UniqueKey(), width: 48.0, height: 48.0);
     }
 
     final dataMarkerYears = ['27bce', '70ce', '138ce', '222ce'];
 
     for (int era = 0; era < 4; ++era) {
       final year = dataMarkerYears[era];
-      _dateMarkerImages.add(Image.asset('assets/images/date_$year.png', key: UniqueKey(), width: 60.0, height: 60.0));
+      _dateMarkerImages.add(Image.asset('assets/images/date_$year.png', key: UniqueKey(), width: 48.0, height: 48.0));
     }
 
     final eventMarkers = ['event', 'event_doubled'];
 
     for (int i = 0; i < 2; ++i) {
       final eventMarker = eventMarkers[i];
-      _eventMarkerImages.add(Image.asset('assets/images/$eventMarker.png', key: UniqueKey(), width: 60.0, height: 60.0));
+      _eventMarkerImages.add(Image.asset('assets/images/$eventMarker.png', key: UniqueKey(), width: 48.0, height: 48.0));
     }
   }
 
@@ -813,7 +813,7 @@ class GamePageState extends State<GamePage> {
       );
       revoltWidget = Positioned(
         left: x - 25.0,
-        top: y - 105.0,
+        top: y - 100.0,
         child: revoltWidget,
       );
       _mapStackChildren.add(revoltWidget);
@@ -959,10 +959,10 @@ class GamePageState extends State<GamePage> {
   void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, double x, double y, double dx, double dy) {
     if (_expandedStacks.contains(stackKey)) {
       dx = 0.0;
-      dy = 60.0;
+      dy = 50.0;
       double bottom = y + (pieces.length + 1) * dy + 10.0;
       if (bottom >= _mapHeight) {
-        dy = -60.0;
+        dy = -50.0;
       }
     }
     for (int i = 0; i < pieces.length; ++i) {
@@ -986,12 +986,12 @@ class GamePageState extends State<GamePage> {
 
     if (!_emptyMap) {
       final stackLocations = [
-        (spaceX - 30.0, spaceY - 66.0, 0.0, 0.0),	// Top middle, no stacking
-        (spaceX - 61.0, spaceY - 61.0, 0.0, 0.0),	// Upper left, no stacking
-        (spaceX + 1.0, spaceY - 61.0, 6.0, -6.0),	// Upper right
-        (spaceX - 61.0, spaceY + 1.0, 0.0, 20.0),	// Lower left, stack down
-        (spaceX - 30.0, spaceY + 1.0, 0.0, 20.0),	// Lower middle, stack down
-        (spaceX - 30.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
+        (spaceX - 24.0, spaceY - 52.0, 0.0, 0.0),	// Top middle, no stacking
+        (spaceX - 52.0, spaceY - 52.0, 0.0, 0.0),	// Upper left, no stacking
+        (spaceX + 1.0, spaceY - 52.0, 6.0, -6.0),	// Upper right
+        (spaceX - 52.0, spaceY + 1.0, 0.0, 17.0),	// Lower left, stack down
+        (spaceX - 24.0, spaceY + 1.0, 0.0, 17.0),	// Lower middle, stack down
+        (spaceX - 24.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
         (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
       ];
 
@@ -1065,7 +1065,7 @@ class GamePageState extends State<GamePage> {
         final spaceX = coordinates.$1;
         final spaceY = coordinates.$2;
 
-        layoutStack(appState, sk, barbarians, spaceX - 30, spaceY - 30, -6, 6);
+        layoutStack(appState, sk, barbarians, spaceX - 30.0, spaceY - 30.0, -6.0, 6.0);
       }
     }
   }
@@ -1123,19 +1123,19 @@ class GamePageState extends State<GamePage> {
     }
     
     if (commander != null) {
-      double x = spaceX - 30.0;
-      double y = spaceY - 30.0;
+      double x = spaceX - 24.0;
+      double y = spaceY - 24.0;
       if (wars.isNotEmpty || rebelCommands.isNotEmpty || loyalCommand != null) {
-        y -= 22.0;
+        y -= 27.0;
       }
       addPieceToMap(appState, commander, x, y);
     }
 
     for (int i = wars.length - 1; i >= 0; --i) {
-      double x = spaceX - 30.0;
-      double y = spaceY + 8.0;
+      double x = spaceX - 24.0;
+      double y = spaceY + 2.0;
       if (rebelCommands.isNotEmpty || loyalCommand != null) {
-        x -= 32.0;
+        x += 26.0;
       }
       x -= i * 3.0;
       y += i * 3.0;
@@ -1143,10 +1143,10 @@ class GamePageState extends State<GamePage> {
     }
 
     for (int i = rebelCommands.length - 1; i >= 0 || (i == -1 && loyalCommand != null); --i) {
-      double x = spaceX - 30.0;
-      double y = spaceY + 8.0;
+      double x = spaceX - 24.0;
+      double y = spaceY + 2.0;
       if (wars.isNotEmpty) {
-        x += 32.0;
+        x += 26.0;
       }
       x += i * 3.0;
       y += i * 3.0;
@@ -1167,7 +1167,7 @@ class GamePageState extends State<GamePage> {
   void layoutTreasuryTopCell(List<(MarkerType, MarkerValueType)> markers, double x, double y, double dx, double dy) {
     for (final marker in markers) {
       addMarkerToMap(marker.$1, marker.$2, x, y);
-      x += 60.0;
+      x += 50.0;
     }
   }
 
@@ -1240,12 +1240,12 @@ class GamePageState extends State<GamePage> {
       double y = 0.0;
 
       if (i <= 10) {
-        x = 30.0;
-        y = 998.0 + i * 57.41;
+        x = 34.0;
+        y = 1003.0 + i * 57.41;
         layoutTreasuryTopCell(markers, x, y, 15.0, 15.0);
       } else {
-        x = 30.0 + ((i - 11) % 3) * 60.0;
-        y = 998.0 + (11  + (i - 11) ~/ 3) * 57.41;
+        x = 34.0 + ((i - 11) % 3) * 57.41;
+        y = 1003.0 + (11  + (i - 11) ~/ 3) * 57.41;
         layoutTreasuryBottomCell(markers, x, y, 15.0, 15.0);
       }
     }
@@ -1261,8 +1261,8 @@ class GamePageState extends State<GamePage> {
     (double, double) statesmanBoxCoordinates(int sequence) {
       int col = sequence % 6;
       int row = sequence ~/ 6;
-      double x = 961.0 + col * 69.0;
-      double y = 44.0 + row * 62.0;
+      double x = 966.0 + col * 69.0;
+      double y = 47.0 + row * 62.0;
       return (x, y);
     }
 
@@ -1288,8 +1288,8 @@ class GamePageState extends State<GamePage> {
     (double, double) warsBoxCoordinates(int sequence) {
       int col = sequence % 7;
       int row = sequence ~/ 7;
-      double x = 1404.0 + col * 62.0;
-      double y = 44.0 + row * 62.0;
+      double x = 1409.0 + col * 62.0;
+      double y = 47.0 + row * 62.0;
       return (x, y);
     }
 
@@ -1336,8 +1336,8 @@ class GamePageState extends State<GamePage> {
     for (final unit in state.piecesInLocation(PieceType.unit, Location.boxBarracks)) {
       int col = count % 6;
       int row = count ~/ 6;
-      double x = 2675.0 + col * 61.0;
-      double y = 1881.0 + row * 61.0;
+      double x = 2682.0 + col * 60.0;
+      double y = 1881.0 + row * 60.0;
       addPieceToMap(appState, unit, x, y);
       count += 1;
     }
@@ -1349,8 +1349,8 @@ class GamePageState extends State<GamePage> {
     for (final legion in state.piecesInLocation(PieceType.legion, Location.boxDestroyedLegions)) {
       int col = count % 3;
       int row = count ~/ 3;
-      double x = 3060.0 + col * 61.0;
-      double y = 1823.0 + row * 61.0;
+      double x = 3065.0 + col * 61.0;
+      double y = 1828.0 + row * 61.0;
       addPieceToMap(appState, legion, x, y);
       count += 1;
     }

@@ -70,7 +70,7 @@ flutter:
   # https://flutter.dev/assets-and-images/#from-packages
 
   assets:
-   - assets/images/map.jpg
+   - assets/images/map.png
    - assets/images/thumbnail.png
    - assets/images/allied.png
    - assets/images/allied_veteran.png

@@ -2,10 +2,10 @@
 
 # set -x
 
-mkdir -p counters144
+mkdir -p counters180
 
 function counter {
-	cp "HIRES/${1}.png" counters144/$2.png
+	cp "HIRES/${1}.png" counters180/$2.png
 }
 
 function fleet {
