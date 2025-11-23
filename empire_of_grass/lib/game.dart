@@ -1699,7 +1699,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Resolve Sieges Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Resolve Sieges Phase');
   }
@@ -1715,7 +1719,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Income Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Income Phase');
     _phaseState = PhaseStateIncome();
@@ -1800,7 +1808,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Enemy Increases Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Enemy Increases Phase');
     _phaseState = PhaseStateEnemyIncreases();

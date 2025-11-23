@@ -78,13 +78,21 @@ flutter:
    - assets/images/tray.png
    - assets/images/thumbnail.png
    - assets/images/army_aoi_a.png
+   - assets/images/army_aoi_a_flipped.png
    - assets/images/army_aoi_b.png
+   - assets/images/army_aoi_b_flipped.png
    - assets/images/army_aoi_c.png
+   - assets/images/army_aoi_c_flipped.png
    - assets/images/army_aoi_d.png
+   - assets/images/army_aoi_d_flipped.png
    - assets/images/army_italian_a.png
+   - assets/images/army_italian_a_flipped.png
    - assets/images/army_italian_b.png
+   - assets/images/army_italian_b_flipped.png
    - assets/images/army_italian_c.png
+   - assets/images/army_italian_c_flipped.png
    - assets/images/army_italian_d.png
+   - assets/images/army_italian_d_flipped.png
    - assets/images/attack.png
    - assets/images/black_lions.png
    - assets/images/blackshirts.png
@@ -118,11 +126,17 @@ flutter:
    - assets/images/chit_8.png
    - assets/images/chit_9.png
    - assets/images/diplomat_britain.png
+   - assets/images/diplomat_britain_flipped.png
    - assets/images/diplomat_china.png
+   - assets/images/diplomat_china_flipped.png
    - assets/images/diplomat_france.png
+   - assets/images/diplomat_france_flipped.png
    - assets/images/diplomat_italy.png
+   - assets/images/diplomat_italy_flipped.png
    - assets/images/diplomat_mexico.png
+   - assets/images/diplomat_mexico_flipped.png
    - assets/images/diplomat_ussr.png
+   - assets/images/diplomat_ussr_flipped.png
    - assets/images/dollars.png
    - assets/images/drm_n1.png
    - assets/images/drm_p1.png

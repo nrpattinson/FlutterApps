@@ -867,7 +867,7 @@ class GameState {
     state.setupPieceTypes([
       (PieceType.turnChit, Location.trayTurnChits),
       (PieceType.fascistRule, Location.trayFascistRule),
-      (PieceType.diplomat, Location.trayDiplomats),
+      (PieceType.diplomatFront, Location.trayDiplomats),
       (PieceType.ras, Location.trayRas),
       (PieceType.partisans, Location.trayPartisans),
       (PieceType.italianArmyFront, Location.trayItalianArmies),
@@ -907,7 +907,7 @@ class GameState {
     state.setupPieceTypes([
       (PieceType.turnChit, Location.cupTurnChit),
       (PieceType.ras, Location.boxImperialTent),
-      (PieceType.diplomat, Location.boxUnusedDiplomats),
+      (PieceType.diplomatFront, Location.boxUnusedDiplomats),
     ]);
 
     state.setupPieces([
@@ -1423,7 +1423,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Draw Chit Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Draw Chit Phase');
   }
@@ -1439,7 +1443,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Turn Start Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Turn Start Phase');
   }
@@ -1651,7 +1659,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Berhanena Selam Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Berhanena Selam Phase');
     _phaseState = PhaseStateBerhanenaSelam();

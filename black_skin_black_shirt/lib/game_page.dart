@@ -25,6 +25,11 @@ class GamePageState extends State<GamePage> {
   static const _mapHeight = 1632.0;
   static const _trayWidth = 1261.0;
   static const _trayHeight = 1632.0;
+
+  final _displayOptionsFormKey = GlobalKey<FormState>();
+ 
+  bool _emptyMap = false;
+
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _trayImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _trayWidth, height: _trayHeight);
@@ -38,58 +43,72 @@ class GamePageState extends State<GamePage> {
   GamePageState() {
 
     final Map<Piece,String> counterNames = {
-     Piece.armyA: 'army_italian_a',
-     Piece.armyB: 'army_italian_b',
-     Piece.armyC: 'army_italian_c',
-     Piece.armyD: 'army_italian_d',
-     Piece.armyAoiA: 'army_aoi_a',
-     Piece.armyAoiB: 'army_aoi_b',
-     Piece.armyAoiC: 'army_aoi_c',
-     Piece.armyAoiD: 'army_aoi_d',
-     Piece.planeBlueA: 'plane_blue_a',
-     Piece.planeBlueB: 'plane_blue_b',
-     Piece.planeBlueC: 'plane_blue_c',
-     Piece.planeBlueD: 'plane_blue_d',
-     Piece.planeYellowA: 'plane_yellow_a',
-     Piece.planeYellowB: 'plane_yellow_b',
-     Piece.planeYellowC: 'plane_yellow_c',
-     Piece.planeYellowD: 'plane_yellow_d',
-     Piece.fascistRuleA: 'fascist_rule',
-     Piece.fascistRuleB: 'fascist_rule',
-     Piece.fascistRuleC: 'fascist_rule',
-     Piece.fascistRuleD: 'fascist_rule',
-     Piece.rasA: 'ras_a',
-     Piece.rasB: 'ras_b',
-     Piece.rasC: 'ras_c',
-     Piece.rasD: 'ras_d',
-     Piece.partisansA: 'partisans_a',
-     Piece.partisansB: 'partisans_b',
-     Piece.partisansC: 'partisans_c',
-     Piece.partisansD: 'partisans_d',
-     Piece.minefield: 'minefield',
-     Piece.blackshirts: 'blackshirts',
-     Piece.carroArmato: 'carro_armato',
-     Piece.negus: 'negus',
-     Piece.planeIea: 'iea',
-     Piece.diplomatBritain: 'diplomat_britain',
-     Piece.diplomatFrance: 'diplomat_france',
-     Piece.diplomatItaly: 'diplomat_italy',
-     Piece.diplomatMexico: 'diplomat_mexico',
-     Piece.diplomatUssr: 'diplomat_ussr',
-     Piece.diplomatChina: 'diplomat_china',
-     Piece.mehalSefari: 'attack',
-     Piece.keburZabanya: 'kebur_zabanya',
-     Piece.markerSequenceOfPlay: 'sequence_of_play',
-     Piece.markerDollars: 'dollars',
-     Piece.markerOerlikon: 'oerlikon',
-     Piece.markerMilitaryEvent: 'military_events',
-     Piece.markerDrmP1: 'drm_p1',
-     Piece.markerDrmN1: 'drm_n1',
-     Piece.markerDuce: 'duce',
-     Piece.markerHospital: 'red_cross_hospital',
-     Piece.markerEmpireOfEthiopia: 'empire_ethiopia',
-     Piece.markerItalianEastAfrica: 'italian_east_africa',
-     Piece.markerBlackLions: 'black_lions',
+      Piece.armyA: 'army_italian_a',
+      Piece.armyB: 'army_italian_b',
+      Piece.armyC: 'army_italian_c',
+      Piece.armyD: 'army_italian_d',
+      Piece.armyAoiA: 'army_aoi_a',
+      Piece.armyAoiB: 'army_aoi_b',
+      Piece.armyAoiC: 'army_aoi_c',
+      Piece.armyAoiD: 'army_aoi_d',
+      Piece.armyAFlipped: 'army_italian_a_flipped',
+      Piece.armyBFlipped: 'army_italian_b_flipped',
+      Piece.armyCFlipped: 'army_italian_c_flipped',
+      Piece.armyDFlipped: 'army_italian_d_flipped',
+      Piece.armyAoiAFlipped: 'army_aoi_a_flipped',
+      Piece.armyAoiBFlipped: 'army_aoi_b_flipped',
+      Piece.armyAoiCFlipped: 'army_aoi_c_flipped',
+      Piece.armyAoiDFlipped: 'army_aoi_d_flipped',
+      Piece.planeBlueA: 'plane_blue_a',
+      Piece.planeBlueB: 'plane_blue_b',
+      Piece.planeBlueC: 'plane_blue_c',
+      Piece.planeBlueD: 'plane_blue_d',
+      Piece.planeYellowA: 'plane_yellow_a',
+      Piece.planeYellowB: 'plane_yellow_b',
+      Piece.planeYellowC: 'plane_yellow_c',
+      Piece.planeYellowD: 'plane_yellow_d',
+      Piece.fascistRuleA: 'fascist_rule',
+      Piece.fascistRuleB: 'fascist_rule',
+      Piece.fascistRuleC: 'fascist_rule',
+      Piece.fascistRuleD: 'fascist_rule',
+      Piece.rasA: 'ras_a',
+      Piece.rasB: 'ras_b',
+      Piece.rasC: 'ras_c',
+      Piece.rasD: 'ras_d',
+      Piece.partisansA: 'partisans_a',
+      Piece.partisansB: 'partisans_b',
+      Piece.partisansC: 'partisans_c',
+      Piece.partisansD: 'partisans_d',
+      Piece.minefield: 'minefield',
+      Piece.blackshirts: 'blackshirts',
+      Piece.carroArmato: 'carro_armato',
+      Piece.negus: 'negus',
+      Piece.planeIea: 'iea',
+      Piece.diplomatBritain: 'diplomat_britain',
+      Piece.diplomatFrance: 'diplomat_france',
+      Piece.diplomatItaly: 'diplomat_italy',
+      Piece.diplomatMexico: 'diplomat_mexico',
+      Piece.diplomatUssr: 'diplomat_ussr',
+      Piece.diplomatChina: 'diplomat_china',
+      Piece.diplomatBritainFlipped: 'diplomat_britain_flipped',
+      Piece.diplomatFranceFlipped: 'diplomat_france_flipped',
+      Piece.diplomatItalyFlipped: 'diplomat_italy_flipped',
+      Piece.diplomatMexicoFlipped: 'diplomat_mexico_flipped',
+      Piece.diplomatUssrFlipped: 'diplomat_ussr_flipped',
+      Piece.diplomatChinaFlipped: 'diplomat_china_flipped',
+      Piece.mehalSefari: 'attack',
+      Piece.keburZabanya: 'kebur_zabanya',
+      Piece.markerSequenceOfPlay: 'sequence_of_play',
+      Piece.markerDollars: 'dollars',
+      Piece.markerOerlikon: 'oerlikon',
+      Piece.markerMilitaryEvent: 'military_events',
+      Piece.markerDrmP1: 'drm_p1',
+      Piece.markerDrmN1: 'drm_n1',
+      Piece.markerDuce: 'duce',
+      Piece.markerHospital: 'red_cross_hospital',
+      Piece.markerEmpireOfEthiopia: 'empire_ethiopia',
+      Piece.markerItalianEastAfrica: 'italian_east_africa',
+      Piece.markerBlackLions: 'black_lions',
       Piece.turnChit1: 'chit_1',
       Piece.turnChit2: 'chit_2',
       Piece.turnChit3: 'chit_3',
@@ -312,34 +331,36 @@ class GamePageState extends State<GamePage> {
       addRegionToMap(appState, space, xSpace, ySpace);
     }
 
-    Piece? fascistRule;
-    Piece? army;
-    Piece? plane;
-    final otherPieces = <Piece>[];
-    for (final piece in state.piecesInLocation(PieceType.all, space)) {
-      if (piece.isType(PieceType.fascistRule)) {
-        fascistRule = piece;
-      } else if (piece.isType(PieceType.army)) {
-        army = piece;
-      } else if (piece.isType(PieceType.plane)) {
-        plane = piece;
-      } else {
-        otherPieces.add(piece);
+    if (!_emptyMap) {
+      Piece? fascistRule;
+      Piece? army;
+      Piece? plane;
+      final otherPieces = <Piece>[];
+      for (final piece in state.piecesInLocation(PieceType.all, space)) {
+        if (piece.isType(PieceType.fascistRule)) {
+          fascistRule = piece;
+        } else if (piece.isType(PieceType.army)) {
+          army = piece;
+        } else if (piece.isType(PieceType.plane)) {
+          plane = piece;
+        } else {
+          otherPieces.add(piece);
+        }
+      }
+      if (army != null) {
+        addPieceToBoard(appState, army, BoardArea.map, xSpace, ySpace + 70.0);
+      }
+      if (plane != null) {
+        addPieceToBoard(appState, plane, BoardArea.map, xSpace + 70.0, ySpace + 70.0);
+      }
+      if (fascistRule != null) {
+        addPieceToBoard(appState, fascistRule, BoardArea.map, xSpace + 70.0, ySpace);
+      }
+      for (int i = 0; i < otherPieces.length; ++i) {
+        addPieceToBoard(appState, otherPieces[i], BoardArea.map, xSpace + 4.0 * i, ySpace + 4.0 * i);
       }
     }
-    if (army != null) {
-      addPieceToBoard(appState, army, BoardArea.map, xSpace, ySpace + 70.0);
-    }
-    if (plane != null) {
-      addPieceToBoard(appState, plane, BoardArea.map, xSpace + 70.0, ySpace + 70.0);
-    }
-    if (fascistRule != null) {
-      addPieceToBoard(appState, fascistRule, BoardArea.map, xSpace + 70.0, ySpace);
-    }
-    for (int i = 0; i < otherPieces.length; ++i) {
-      addPieceToBoard(appState, otherPieces[i], BoardArea.map, xSpace + 4.0 * i, ySpace + 4.0 * i);
-    }
- 
+  
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(space)) {
       addRegionToMap(appState, space, xSpace, ySpace);
     }
@@ -519,6 +540,36 @@ class GamePageState extends State<GamePage> {
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
@@ -527,10 +578,94 @@ class GamePageState extends State<GamePage> {
           SizedBox(
             width: 300.0,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: choiceWidgets,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: choiceWidgets,
+                ),
+                Form(
+                  key: _displayOptionsFormKey,
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

@@ -2571,7 +2571,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Levy Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Levy Phase');
     _phaseState = PhaseStateLevy();
@@ -2652,7 +2656,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Campaign Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Campaign Phase');
     _phaseState = PhaseStateCampaign();

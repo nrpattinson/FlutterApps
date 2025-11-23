@@ -4321,7 +4321,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to History Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## History Phase');
   }
@@ -4566,7 +4570,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Secular Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Secular Phase');
     _phaseState = PhaseStateSecular();
@@ -5090,7 +5098,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Religious Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Religious Phase');
     _phaseState = PhaseStateReligious();
@@ -6006,7 +6018,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to End of Turn Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## End of Turn Phase');
     _phaseState = PhaseStateEndOfTurn();

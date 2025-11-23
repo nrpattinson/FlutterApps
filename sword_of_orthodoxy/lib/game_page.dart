@@ -1,7 +1,9 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
+
 import 'package:sword_of_orthodoxy/game.dart';
 import 'package:sword_of_orthodoxy/main.dart';
 
@@ -27,6 +29,11 @@ class GamePageState extends State<GamePage> {
   static const _mapHeight = 1728.0;
   static const _counterTrayWidth = 1327.0;
   static const _counterTrayHeight = 1728.0;
+
+  final _displayOptionsFormKey = GlobalKey<FormState>();
+ 
+  bool _emptyMap = false;
+
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _counterTrayImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _counterTrayWidth, height: _counterTrayHeight);
@@ -804,74 +811,77 @@ class GamePageState extends State<GamePage> {
     final coordinates = locationCoordinates(Location.constantinople);
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
-    final factions = <Piece>[];
-    final riots = <Piece>[];
-    Piece? theodosianWalls;
-    Piece? basileus;
-    Piece? magisterMilitum;
-    Piece? university;
-    for (final piece in state.piecesInLocation(PieceType.all, Location.constantinople)) {
-      if (piece.isType(PieceType.faction)) {
-        if (piece == Piece.factionTheodosianWalls) {
-          theodosianWalls = piece;
-        } else {
-          factions.add(piece);
+
+    if (!_emptyMap) {
+      final factions = <Piece>[];
+      final riots = <Piece>[];
+      Piece? theodosianWalls;
+      Piece? basileus;
+      Piece? magisterMilitum;
+      Piece? university;
+      for (final piece in state.piecesInLocation(PieceType.all, Location.constantinople)) {
+        if (piece.isType(PieceType.faction)) {
+          if (piece == Piece.factionTheodosianWalls) {
+            theodosianWalls = piece;
+          } else {
+            factions.add(piece);
+          }
+        } else if (piece.isType(PieceType.riots) || piece.isType(PieceType.latins)) {
+          riots.add(piece);
+        } else if (piece == Piece.basileus || piece == Piece.plague) {
+          basileus = piece;
+        } else if (piece == Piece.magisterMilitum) {
+          magisterMilitum = piece;
+        } else if (piece == Piece.university) {
+          university = piece;
         }
-      } else if (piece.isType(PieceType.riots) || piece.isType(PieceType.latins)) {
-        riots.add(piece);
-      } else if (piece == Piece.basileus || piece == Piece.plague) {
-        basileus = piece;
-      } else if (piece == Piece.magisterMilitum) {
-        magisterMilitum = piece;
-      } else if (piece == Piece.university) {
-        university = piece;
       }
-    }
-    for (int i = factions.length - 1; i >= 0; --i) {
-      int col = i % 5;
-      int row = i ~/ 5;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, factions[i], BoardArea.map, x, y);
-    }
-    for (int i = riots.length - 1; i >= 0; --i) {
-      int col = i % 5;
-      int row = 3 + i ~/ 5;
-      if (i == 5) {
-        col = 4;
-        row = 2;
+      for (int i = factions.length - 1; i >= 0; --i) {
+        int col = i % 5;
+        int row = i ~/ 5;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, factions[i], BoardArea.map, x, y);
       }
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, riots[i], BoardArea.map, x, y);
-    }
-    if (theodosianWalls != null) {
-      int col = 3;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, theodosianWalls, BoardArea.map, x, y);
-    }
-    if (university != null) {
-      int col = 2;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, university, BoardArea.map, x, y);
-    }
-    if (magisterMilitum != null) {
-      int col = 1;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, magisterMilitum, BoardArea.map, x, y);
-    }
-    if (basileus != null) {
-      int col = 0;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, basileus, BoardArea.map, x, y);
+      for (int i = riots.length - 1; i >= 0; --i) {
+        int col = i % 5;
+        int row = 3 + i ~/ 5;
+        if (i == 5) {
+          col = 4;
+          row = 2;
+        }
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, riots[i], BoardArea.map, x, y);
+      }
+      if (theodosianWalls != null) {
+        int col = 3;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, theodosianWalls, BoardArea.map, x, y);
+      }
+      if (university != null) {
+        int col = 2;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, university, BoardArea.map, x, y);
+      }
+      if (magisterMilitum != null) {
+        int col = 1;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, magisterMilitum, BoardArea.map, x, y);
+      }
+      if (basileus != null) {
+        int col = 0;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, basileus, BoardArea.map, x, y);
+      }
     }
   }
 
@@ -885,72 +895,74 @@ class GamePageState extends State<GamePage> {
       addZoneToMap(appState, zone, xLand, yLand);
     }
 
-    final pieces = state.piecesInLocation(PieceType.all, zone);
-    Piece? modifier;
-    Piece? geography;
-    Piece? monastery;
-    Piece? social;
-    Piece? ruler;
-    final others = <Piece>[];
-    for (final piece in pieces) {
-      if (piece.isType(PieceType.geography)) {
-        geography = piece;
-      } else if (piece.isType(PieceType.monastery)) {
-        monastery = piece;
-      } else if (piece.isType(PieceType.social)) {
-        social = piece;
-      } else if (piece.isType(PieceType.ruler)) {
-        ruler = piece;
-      } else if ([Piece.ravenna, Piece.holyRomanEmpire, Piece.bulgarianTheme].contains(piece)) {
-        modifier = piece;
-      } else if (piece != Piece.stolos) {
-        others.add(piece);
+    if (!_emptyMap) {
+      final pieces = state.piecesInLocation(PieceType.all, zone);
+      Piece? modifier;
+      Piece? geography;
+      Piece? monastery;
+      Piece? social;
+      Piece? ruler;
+      final others = <Piece>[];
+      for (final piece in pieces) {
+        if (piece.isType(PieceType.geography)) {
+          geography = piece;
+        } else if (piece.isType(PieceType.monastery)) {
+          monastery = piece;
+        } else if (piece.isType(PieceType.social)) {
+          social = piece;
+        } else if (piece.isType(PieceType.ruler)) {
+          ruler = piece;
+        } else if ([Piece.ravenna, Piece.holyRomanEmpire, Piece.bulgarianTheme].contains(piece)) {
+          modifier = piece;
+        } else if (piece != Piece.stolos) {
+          others.add(piece);
+        }
       }
-    }
-    for (int i = others.length - 1; i >= 0; --i) {
-      int col = i % 3;
-      int row = i ~/ 3;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      if (others[i] == state.stolosArmy) {
-        addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+      for (int i = others.length - 1; i >= 0; --i) {
+        int col = i % 3;
+        int row = i ~/ 3;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        if (others[i] == state.stolosArmy) {
+          addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+        }
+        addPieceToBoard(appState, others[i], BoardArea.map, x, y);
       }
-      addPieceToBoard(appState, others[i], BoardArea.map, x, y);
-    }
-    if (monastery != null) {
-      int col = 2;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, monastery, BoardArea.map, x, y);
-    }
-    if (social != null) {
-      int col = 0;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, social, BoardArea.map, x, y);
-    }
-    if (modifier != null) {
-      int col = 1;
-      int row = 2;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, modifier, BoardArea.map, x, y);
-    }
-    if (geography != null) {
-      int col = 1;
-      int row = -1;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, geography, BoardArea.map, x, y);
-    }
-    if (ruler != null) {
-      int col = 2;
-      int row = 1;
-      double x = xLand + col * 65.0;
-      double y = yLand + row * 65.0;
-      addPieceToBoard(appState, ruler, BoardArea.map, x, y);
+      if (monastery != null) {
+        int col = 2;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, monastery, BoardArea.map, x, y);
+      }
+      if (social != null) {
+        int col = 0;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, social, BoardArea.map, x, y);
+      }
+      if (modifier != null) {
+        int col = 1;
+        int row = 2;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, modifier, BoardArea.map, x, y);
+      }
+      if (geography != null) {
+        int col = 1;
+        int row = -1;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, geography, BoardArea.map, x, y);
+      }
+      if (ruler != null) {
+        int col = 2;
+        int row = 1;
+        double x = xLand + col * 65.0;
+        double y = yLand + row * 65.0;
+        addPieceToBoard(appState, ruler, BoardArea.map, x, y);
+      }
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(zone)) {
@@ -968,17 +980,19 @@ class GamePageState extends State<GamePage> {
       addThemeToMap(appState, theme, xLand, yLand);
     }
 
-    final pieces = state.piecesInLocation(PieceType.all, theme);
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      if (pieces[i] == Piece.stolos) {
-        continue;
+    if (_emptyMap) {
+      final pieces = state.piecesInLocation(PieceType.all, theme);
+      for (int i = pieces.length - 1; i >= 0; --i) {
+        if (pieces[i] == Piece.stolos) {
+          continue;
+        }
+        double x = xLand + i * 4.0;
+        double y = yLand + i * 4.0;
+        if (pieces[i] == state.stolosArmy) {
+          addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+        }
+        addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
       }
-      double x = xLand + i * 4.0;
-      double y = yLand + i * 4.0;
-      if (pieces[i] == state.stolosArmy) {
-        addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
-      }
-      addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(theme)) {
@@ -996,21 +1010,23 @@ class GamePageState extends State<GamePage> {
       addHomelandToMap(appState, homeland, xLand, yLand);
     }
 
-    final pieces = <Piece>[];
-    for (final piece in state.piecesInLocation(PieceType.all, homeland)) {
-      if (piece != Piece.stolos) {
-        pieces.add(piece);
+    if (!_emptyMap) {
+      final pieces = <Piece>[];
+      for (final piece in state.piecesInLocation(PieceType.all, homeland)) {
+        if (piece != Piece.stolos) {
+          pieces.add(piece);
+        }
       }
-    }
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      int col = 2 - i % 3;
-      int depth = i ~/ 3;
-      double x = xLand + col * 72.0 + depth * 4.0;
-      double y = yLand + depth * 4.0;
-      if (pieces[i] == state.stolosArmy) {
-        addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+      for (int i = pieces.length - 1; i >= 0; --i) {
+        int col = 2 - i % 3;
+        int depth = i ~/ 3;
+        double x = xLand + col * 72.0 + depth * 4.0;
+        double y = yLand + depth * 4.0;
+        if (pieces[i] == state.stolosArmy) {
+          addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+        }
+        addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
       }
-      addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(homeland)) {
@@ -1222,6 +1238,36 @@ class GamePageState extends State<GamePage> {
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.3)),
       child: Row(
@@ -1230,10 +1276,94 @@ class GamePageState extends State<GamePage> {
           SizedBox(
             width: 400.0,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: choiceWidgets,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: choiceWidgets,
+                ),
+                Form(
+                  key: _displayOptionsFormKey,
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

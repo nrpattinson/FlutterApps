@@ -2726,7 +2726,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Entente Powers Attack Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Entente Powers Attack Phase');
   }
@@ -2887,7 +2891,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Berliner Tageblatt Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Berliner Tageblatt Phase');
   }
@@ -3225,7 +3233,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Naval/Air Warfare Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Naval/Air Warfare Phase');
   }
@@ -3665,7 +3677,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Central Powers Attack Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Central Powers Attack Phase');
     _phaseState = PhaseStateCentralPowersAttack();
@@ -3945,7 +3961,11 @@ class Game {
       if (!checkChoiceAndClear(Choice.next)) {
         setPrompt('Proceed to Near East Phase');
         choiceChoosable(Choice.next, true);
+      if (_subStep == 0) {
+        _subStep = 1;
         throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
       }
       logLine('## Near East Phase');
     }
@@ -4188,7 +4208,11 @@ void industrialPhaseBegin() {
   if (!checkChoiceAndClear(Choice.next)) {
     setPrompt('Proceed to Industrial Phase');
     choiceChoosable(Choice.next, true);
-    throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
   }
   logLine('## Industrial Phase');
 }
@@ -4252,7 +4276,11 @@ void turnEndPhaseBegin() {
   if (!checkChoiceAndClear(Choice.next)) {
     setPrompt('Proceed to Turn End Phase');
     choiceChoosable(Choice.next, true);
-    throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
   }
   logLine('## Turn End Phase');
 }

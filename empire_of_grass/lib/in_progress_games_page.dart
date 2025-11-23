@@ -31,8 +31,8 @@ class InProgressGamesPageState extends State<InProgressGamesPage> {
         List<Map<String, dynamic>> data = snapshot.data as List<Map<String, dynamic>>;
         return DataTable(
           columns: const [
-            DataColumn(label: Text('Scenario')),
-            DataColumn(label: Text('Options')),
+            //DataColumn(label: Text('Scenario')),
+            //DataColumn(label: Text('Options')),
             DataColumn(label: Text('Begun')),
             DataColumn(label: Text('Last Move')),
             DataColumn(label: Text('Turn')),
@@ -43,8 +43,8 @@ class InProgressGamesPageState extends State<InProgressGamesPage> {
           rows: data
             .map((e) => DataRow(
               cells: [
-                DataCell(Text(Scenario.values[e['scenario'] as int].desc)),
-                DataCell(Text(GameOptions.fromJson(jsonDecode(e['optionsJson'])).desc)),
+                //DataCell(Text(Scenario.values[e['scenario'] as int].desc)),
+                //DataCell(Text(GameOptions.fromJson(jsonDecode(e['optionsJson'])).desc)),
                 DataCell(Text(DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(e['startTime'] as int)))),
                 DataCell(Text(DateFormat.yMd().format(DateTime.fromMillisecondsSinceEpoch(e['updateTime'] as int)))),
                 DataCell(Text(e['stage'] as String)),

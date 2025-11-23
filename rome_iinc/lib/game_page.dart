@@ -23,12 +23,6 @@ enum MarkerValueType {
   plus,
 }
 
-enum ProvinceHighlight {
-  none,
-  revolt,
-  loyalty,
-}
-
 typedef StackKey = (Location, int);
 
 class GamePage extends StatefulWidget {
@@ -47,7 +41,9 @@ class GamePageState extends State<GamePage> {
 
   final _displayOptionsFormKey = GlobalKey<FormState>();
 
-  ProvinceHighlight? _provinceHighlight = ProvinceHighlight.none;
+  bool _provinceRevoltModifiers = false;
+  bool _provinceLoyalty = false;
+  bool _emptyMap = false;
 
   final _pieceImages = <Piece,Image>{};
   final _loyalGovernorshipImages = <Location,Image>{};
@@ -617,89 +613,98 @@ class GamePageState extends State<GamePage> {
     bool choosable = playerChoices != null && playerChoices.locations.contains(province);
     bool selected = playerChoices != null && playerChoices.selectedLocations.contains(province);
 
-    Color? color;
+    Color? innerColor;
+    Color? revoltColor;
+    int? revoltModifier;
 
-    if (_provinceHighlight != null && game != null) {
-      switch (_provinceHighlight!) {
-      case ProvinceHighlight.revolt:
-        final status = gameState.provinceStatus(province);
-        if (status != ProvinceStatus.barbarian) {
-          int modifiers = game.calculateProvinceRevoltModifier(province, false, false);
-          if (modifiers < 0) {
-            color = null;
-          } else {
-            switch (modifiers) {
-            case 0:
-              if (game.calculateProvinceRevoltModifier(province, true, false) > 0) {
-                color = Colors.teal;
-              } else {
-                color = null;
-              }
-            case 1:
-              color = Colors.lightGreen;
-            case 2:
-              color = Colors.yellow;
-            case 3:
-              color = Colors.orange;
-            case 4:
-              color = Colors.red;
-            case 5:
-              color = Colors.brown.shade800;
-            case 6:
-            default:
-              color = Colors.black;
-            }
+    if (_provinceRevoltModifiers && game != null) {
+      final status = gameState.provinceStatus(province);
+      if (status != ProvinceStatus.barbarian) {
+        int revoltModifierWithoutMobileUnits = game.calculateProvinceRevoltModifier(province, true, false);
+        if (revoltModifierWithoutMobileUnits > 0) {
+          revoltModifier = game.calculateProvinceRevoltModifier(province, false, false);
+          if (revoltModifier == 0) {
+            revoltColor = Colors.orange;
+          } else if (revoltModifier > 0) {
+            revoltColor = Colors.redAccent;
           }
-        } else {
-          color = null;
         }
-      case ProvinceHighlight.loyalty:
-        final status = gameState.provinceStatus(province);
-        if (status != ProvinceStatus.barbarian) {
-          final command = gameState.provinceCommand(province);
-          if (gameState.commandLoyal(command)) {
-            final empire = gameState.commandEmpire(command);
-            final emperor = gameState.empireEmperor(empire);
-            if (emperor == Location.commandWesternEmperor) {
-              color = const Color.fromRGBO(0x89, 0x33, 0x1C, 1.0);
-            } else {
-              color = const Color.fromRGBO(0x62, 0x21, 0x57, 1.0);
-            }
-          } else {
-            final loyalty = gameState.commandAllegiance(command);
-            switch (loyalty) {
-            case Location.commandWesternEmperor:
-              color = const Color.fromRGBO(0x89, 0x33, 0x1C, 1.0);
-            case Location.commandEasternEmperor:
-              color = const Color.fromRGBO(0x62, 0x21, 0x57, 1.0);
-            case Location.commandItalia:
-              color = const Color.fromRGBO(0xD3, 0x52, 0x7B, 1.0);
-            case Location.commandBritannia:
-              color = const Color.fromRGBO(0x8A, 0x45, 0x36, 1.0);
-            case Location.commandGallia:
-              color = const Color.fromRGBO(0x56, 0x8D, 0x49, 1.0);
-            case Location.commandPannonia:
-              color = const Color.fromRGBO(0x2C, 0x2C, 0x2C, 1.0);
-            case Location.commandMoesia:
-              color = const Color.fromRGBO(0x4E, 0xAD, 0xCB, 1.0);
-            case Location.commandHispania:
-              color = const Color.fromRGBO(0xE8, 0xB3, 0x43, 1.0);
-            case Location.commandAfrica:
-              color = const Color.fromRGBO(0x87, 0x74, 0x49, 1.0);
-            case Location.commandThracia:
-              color = const Color.fromRGBO(0x74, 0xD9, 0x3B, 1.0);
-            case Location.commandOriens:
-              color = const Color.fromRGBO(0xE4, 0x33, 0x29, 1.0);
-            case Location.commandPontica:
-              color = const Color.fromRGBO(0x3E, 0x56, 0x92, 1.0);
-            default:
-            }
-          }
-        } else {
-          color = null;
-        }
-      case ProvinceHighlight.none:
       }
+    }
+
+    if (_provinceLoyalty) {
+      final status = gameState.provinceStatus(province);
+      if (status != ProvinceStatus.barbarian) {
+        final command = gameState.provinceCommand(province);
+        if (gameState.commandLoyal(command)) {
+          final empire = gameState.commandEmpire(command);
+          final emperor = gameState.empireEmperor(empire);
+          if (emperor == Location.commandWesternEmperor) {
+            innerColor = const Color.fromRGBO(0x89, 0x33, 0x1C, 1.0);
+          } else {
+            innerColor = const Color.fromRGBO(0x62, 0x21, 0x57, 1.0);
+          }
+        } else {
+          final loyalty = gameState.commandAllegiance(command);
+          switch (loyalty) {
+          case Location.commandWesternEmperor:
+            innerColor = const Color.fromRGBO(0x89, 0x33, 0x1C, 1.0);
+          case Location.commandEasternEmperor:
+            innerColor = const Color.fromRGBO(0x62, 0x21, 0x57, 1.0);
+          case Location.commandItalia:
+            innerColor = const Color.fromRGBO(0xD3, 0x52, 0x7B, 1.0);
+          case Location.commandBritannia:
+            innerColor = const Color.fromRGBO(0x8A, 0x45, 0x36, 1.0);
+          case Location.commandGallia:
+            innerColor = const Color.fromRGBO(0x56, 0x8D, 0x49, 1.0);
+          case Location.commandPannonia:
+            innerColor = const Color.fromRGBO(0x2C, 0x2C, 0x2C, 1.0);
+          case Location.commandMoesia:
+            innerColor = const Color.fromRGBO(0x4E, 0xAD, 0xCB, 1.0);
+          case Location.commandHispania:
+            innerColor = const Color.fromRGBO(0xE8, 0xB3, 0x43, 1.0);
+          case Location.commandAfrica:
+            innerColor = const Color.fromRGBO(0x87, 0x74, 0x49, 1.0);
+          case Location.commandThracia:
+            innerColor = const Color.fromRGBO(0x74, 0xD9, 0x3B, 1.0);
+          case Location.commandOriens:
+            innerColor = const Color.fromRGBO(0xE4, 0x33, 0x29, 1.0);
+          case Location.commandPontica:
+            innerColor = const Color.fromRGBO(0x3E, 0x56, 0x92, 1.0);
+          default:
+          }
+        }
+      }
+    }
+
+    if (revoltColor != null) {
+      final textTheme = Theme.of(context).textTheme;
+
+      Widget revoltWidget = Text(
+        '${7 - revoltModifier!}',
+        style: textTheme.displayMedium,
+      );
+      revoltWidget = SizedBox(
+        width: 50.0,
+        height: 50.0,
+        child: Center(
+          child: revoltWidget,
+        ),
+      );
+      revoltWidget = DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: revoltColor,
+          border: Border.all(color: Colors.black, width: 2.0),
+        ),
+        child: revoltWidget,
+      );
+      revoltWidget = Positioned(
+        left: x - 25.0,
+        top: y - 105.0,
+        child: revoltWidget,
+      );
+      _mapStackChildren.add(revoltWidget);
     }
 
     Color? outerColor;
@@ -710,60 +715,58 @@ class GamePageState extends State<GamePage> {
       outerColor = Colors.red;
     }
 
-    if (color == null && outerColor == null) {
-      return;
-    }
+    if (innerColor != null || outerColor != null) {
+      double halfSize = 50.0;
+      if (province == Location.provinceRome || province == Location.provinceConstantinople) {
+        halfSize = 74.0;
+      }
 
-    double halfSize = 50.0;
-    if (province == Location.provinceRome || province == Location.provinceConstantinople) {
-      halfSize = 74.0;
-    }
+      Widget widget = SizedBox(
+        height: 2.0 * halfSize,
+        width: 2.0 * halfSize);
 
-    Widget widget = SizedBox(
-      height: 2.0 * halfSize,
-      width: 2.0 * halfSize);
-
-    widget = Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.transparent,
-        border: Border.all(color: color ?? Colors.transparent, width: 5.0),
-      ),
-      child: widget,
-    );
-    halfSize += 5.0;
-
-    if (outerColor != null) {
       widget = Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.transparent,
-          border: Border.all(color: outerColor, width: 5.0),
+          border: Border.all(color: innerColor ?? Colors.transparent, width: 5.0),
         ),
         child: widget,
       );
       halfSize += 5.0;
-    }
 
-    if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.choseLocation(province);
-          },
+      if (outerColor != null) {
+        widget = Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.transparent,
+            border: Border.all(color: outerColor, width: 5.0),
+          ),
           child: widget,
-        ),
+        );
+        halfSize += 5.0;
+      }
+
+      if (choosable) {
+        widget = MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () {
+              appState.choseLocation(province);
+            },
+            child: widget,
+          ),
+        );
+      }
+
+      widget = Positioned(
+        left: x - halfSize,
+        top: y - halfSize,
+        child: widget,
       );
+
+      _mapStackChildren.add(widget);
     }
-
-    widget = Positioned(
-      left: x - halfSize,
-      top: y - halfSize,
-      child: widget,
-    );
-
-    _mapStackChildren.add(widget);
   }
 
   void addCommandToMap(MyAppState appState, Location command, double x, double y) {
@@ -868,59 +871,61 @@ class GamePageState extends State<GamePage> {
       addProvinceToMap(appState, province, spaceX, spaceY);
     }
 
-    final stackLocations = [
-      (spaceX - 30.0, spaceY - 66.0, 0.0, 0.0),	// Top middle, no stacking
-      (spaceX - 61.0, spaceY - 61.0, 0.0, 0.0),	// Upper left, no stacking
-      (spaceX + 1.0, spaceY - 61.0, 6.0, -6.0),	// Upper right
-      (spaceX - 61.0, spaceY + 1.0, -6.0, 6.0),	// Lower left
-      (spaceX - 30.0, spaceY + 1.0, -6.0, 6.0),	// Lower middle, stack left
-      (spaceX - 30.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack right
-      (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
-    ];
+    if (!_emptyMap) {
+      final stackLocations = [
+        (spaceX - 30.0, spaceY - 66.0, 0.0, 0.0),	// Top middle, no stacking
+        (spaceX - 61.0, spaceY - 61.0, 0.0, 0.0),	// Upper left, no stacking
+        (spaceX + 1.0, spaceY - 61.0, 6.0, -6.0),	// Upper right
+        (spaceX - 61.0, spaceY + 1.0, 0.0, 20.0),	// Lower left, stack down
+        (spaceX - 30.0, spaceY + 1.0, 0.0, 20.0),	// Lower middle, stack down
+        (spaceX - 30.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
+        (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
+      ];
 
-    final romans = state.piecesInLocation(PieceType.mobileLandUnit, province);
-    final fleets = state.piecesInLocation(PieceType.fleet, province);
-    final forts = state.piecesInLocation(PieceType.fort, province);
-    final barbarians = state.piecesInLocation(PieceType.barbarian, province);
+      final romans = state.piecesInLocation(PieceType.mobileLandUnit, province);
+      final fleets = state.piecesInLocation(PieceType.fleet, province);
+      final forts = state.piecesInLocation(PieceType.fort, province);
+      final barbarians = state.piecesInLocation(PieceType.barbarian, province);
 
-    final fleetsAndForts = fleets + forts;
+      final fleetsAndForts = fleets + forts;
 
-    var sk = (province, 0);
-    (double, double, double, double)? sl;
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      sl = stackLocations[2];
-      layoutStack(appState, sk, fleetsAndForts, sl.$1, sl.$2, sl.$3, sl.$4);
-    }
-
-    sk = (province, 1);
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      if (barbarians.isNotEmpty) {
-        sl = stackLocations[6];
-      } else {
-        sl = stackLocations[5];
+      var sk = (province, 0);
+      (double, double, double, double)? sl;
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        sl = stackLocations[2];
+        layoutStack(appState, sk, fleetsAndForts, sl.$1, sl.$2, sl.$3, sl.$4);
       }
-      layoutStack(appState, sk, romans, sl.$1, sl.$2, sl.$3, sl.$4);
-    }
 
-    sk = (province, 2);
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      if (romans.isNotEmpty) {
-        sl = stackLocations[3];
-      } else {
-        sl = stackLocations[4];
-      }
-      layoutStack(appState, sk, barbarians, sl.$1, sl.$2, sl.$3, sl.$4);
-    }
-
-    if (pass == 0) {
-      final status = state.provinceStatus(province);
-      if (status != ProvinceStatus.roman) {
-        if (fleetsAndForts.isEmpty) {
-          sl = stackLocations[0];
+      sk = (province, 1);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        if (barbarians.isNotEmpty) {
+          sl = stackLocations[6];
         } else {
-          sl = stackLocations[1];
+          sl = stackLocations[5];
         }
-        addProvinceStatusToMap(appState, status, sl.$1, sl.$2);
+        layoutStack(appState, sk, romans, sl.$1, sl.$2, sl.$3, sl.$4);
+      }
+
+      sk = (province, 2);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        if (romans.isNotEmpty) {
+          sl = stackLocations[3];
+        } else {
+          sl = stackLocations[4];
+        }
+        layoutStack(appState, sk, barbarians, sl.$1, sl.$2, sl.$3, sl.$4);
+      }
+
+      if (pass == 0) {
+        final status = state.provinceStatus(province);
+        if (status != ProvinceStatus.roman) {
+          if (fleetsAndForts.isEmpty) {
+            sl = stackLocations[0];
+          } else {
+            sl = stackLocations[1];
+          }
+          addProvinceStatusToMap(appState, status, sl.$1, sl.$2);
+        }
       }
     }
 
@@ -1291,44 +1296,50 @@ class GamePageState extends State<GamePage> {
     if (gameState != null) {
 
       for (final empire in LocationType.empire.locations) {
-        String emperorDesc;
+        String empireDesc;
         if (gameState.empireHasFallen(empire)) {
-          emperorDesc = 'Fallen';
-        } else if (gameState.empireHasViceroy(empire)) {
-          emperorDesc = 'under Viceroy';
+          empireDesc = 'Fallen ${gameState.empireDesc(empire)} Empire';
         } else {
-          final statesman = gameState.pieceInLocation(PieceType.statesman, empire);
-          if (statesman != null) {
-            emperorDesc = 'under **${gameState.statesmanName(statesman)}**';
-          } else if (gameState.commandRebel(empire)) {
-            emperorDesc = 'under Rebel Emperor';
+          String emperorDesc;
+          if (gameState.empireHasViceroy(empire)) {
+            emperorDesc = 'under Viceroy';
           } else {
-            emperorDesc = 'under Generic Emperor';
+            final statesman = gameState.pieceInLocation(PieceType.statesman, empire);
+            if (statesman != null) {
+              emperorDesc = '**${gameState.statesmanName(statesman)}**';
+            } else if (gameState.commandRebel(empire)) {
+              emperorDesc = 'Rebel Emperor';
+            } else {
+              emperorDesc = 'Generic Emperor';
+            }
           }
+          empireDesc = '${gameState.empireDesc(empire)} Empire under $emperorDesc';
         }
 
         empireStatuses[empire.index - LocationType.empire.firstIndex] = '''
-# **${gameState.empireDesc(empire)} Empire** $emperorDesc
+# $empireDesc, ${appState.game!.yearDesc(gameState.turn)}
 ___
-|Prestige|Unrest|Gold|Pay|
-|:---:|:---:|:---:|:---:|
-|${gameState.empirePrestige(empire)}|${gameState.empireUnrest(empire)}|${gameState.empireGold(empire)}|${gameState.empirePay(empire)}|
+|Prestige|Unrest|Gold|Pay|Tax Base|
+|:---:|:---:|:---:|:---:|:---:|
+|${gameState.empirePrestige(empire)}|${gameState.empireUnrest(empire)}|${gameState.empireGold(empire)}|${gameState.empirePay(empire)}|${gameState.empireTaxBase(empire)}|
 ''';
       }
 
-      layoutCommands(appState, Location.commandWesternEmperor);
-      layoutCommands(appState, Location.commandEasternEmperor);
-      layoutTreasury(appState, Location.commandWesternEmperor);
-      layoutTreasury(appState, Location.commandEasternEmperor);
-      layoutStatesmenBox(appState);
-      layoutWarsBox(appState);
-      layoutEvents(appState);
-      layoutDynastiesBox(appState);
-      layoutBarracksBox(appState);
-      layoutHomelands(appState, 0);
-      layoutProvinces(appState, 0);
-      layoutHomelands(appState, 1);
-      layoutProvinces(appState, 1);
+      if (!_emptyMap) {
+        layoutCommands(appState, Location.commandWesternEmperor);
+        layoutCommands(appState, Location.commandEasternEmperor);
+        layoutTreasury(appState, Location.commandWesternEmperor);
+        layoutTreasury(appState, Location.commandEasternEmperor);
+        layoutStatesmenBox(appState);
+        layoutWarsBox(appState);
+        layoutEvents(appState);
+        layoutDynastiesBox(appState);
+        layoutBarracksBox(appState);
+        layoutHomelands(appState, 0);
+        layoutProvinces(appState, 0);
+        layoutHomelands(appState, 1);
+        layoutProvinces(appState, 1);
+      }
 
       const choiceTexts = {
         Choice.transferGoldEastToWest: 'Transfer Gold to Western Empire',
@@ -1396,6 +1407,36 @@ ___
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
@@ -1414,61 +1455,111 @@ ___
                 ),
                 Form(
                   key: _displayOptionsFormKey,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Province Highlight',
-                            style: textTheme.labelMedium),
-                          RadioListTile<ProvinceHighlight>(
-                            title: Text(
-                              'None',
-                              style: textTheme.labelMedium),
-                            value: ProvinceHighlight.none,
-                            groupValue: _provinceHighlight,
-                            onChanged: (ProvinceHighlight? provinceHighlight) {
-                              setState(() {
-                                if (provinceHighlight != null) {
-                                  _provinceHighlight = provinceHighlight;
-                                }
-                              });
-                            },
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Province Revolt Modifiers',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _provinceRevoltModifiers,
+                                onChanged: (bool? provinceRevoltModifiers) {
+                                  setState(() {
+                                    if (provinceRevoltModifiers != null) {
+                                      _provinceRevoltModifiers = provinceRevoltModifiers;
+                                    }
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
+                                title: Text(
+                                  'Province Loyalty',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _provinceLoyalty,
+                                onChanged: (bool? provinceLoyalty) {
+                                  setState(() {
+                                    if (provinceLoyalty != null) {
+                                      _provinceLoyalty = provinceLoyalty;
+                                    }
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                          RadioListTile<ProvinceHighlight>(
-                            title: Text(
-                              'Revolt Modifier',
-                              style: textTheme.labelMedium),
-                            value: ProvinceHighlight.revolt,
-                            groupValue: _provinceHighlight,
-                            onChanged: (ProvinceHighlight? provinceHighlight) {
-                              setState(() {
-                                if (provinceHighlight != null) {
-                                  _provinceHighlight = provinceHighlight;
-                                }
-                              });
-                            },
-                          ),
-                          RadioListTile<ProvinceHighlight>(
-                            title: Text(
-                              'Loyalty',
-                              style: textTheme.labelMedium),
-                            value: ProvinceHighlight.loyalty,
-                            groupValue: _provinceHighlight,
-                            onChanged: (ProvinceHighlight? provinceHighlight) {
-                              setState(() {
-                                if (provinceHighlight != null) {
-                                  _provinceHighlight = provinceHighlight;
-                                }
-                              });
-                            },
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

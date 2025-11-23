@@ -3111,6 +3111,23 @@ class GameState {
     return total;
   }
 
+  int empireTaxBase(Location empire) {
+    int total = 0;
+    for (final command in LocationType.governorship.locations) {
+      if (commandEmpire(command) == empire) {
+        if (!commandRebel(command)) {
+          final provinceLocationType = commandLocationType(command)!;
+          for (final province in provinceLocationType.locations) {
+            if (provinceStatus(province) == ProvinceStatus.roman) {
+              total += provinceRevenue(province);
+            }
+          }
+        }
+      }
+    }
+    return total;
+  }
+
   bool unitCanBuild(Piece unit) {
     if (pieceLocation(unit) != Location.boxBarracks) {
       return false;
@@ -9475,7 +9492,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Event Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Event Phase');
     _phaseState = PhaseStateEvent();
@@ -9791,7 +9812,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Treasury Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Treasury Phase');
     _phaseState = PhaseStateTreasury();
@@ -10067,7 +10092,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to Unrest Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## Unrest Phase');
     _phaseState = PhaseStateUnrest();
@@ -10592,7 +10621,11 @@ class Game {
     if (!checkChoiceAndClear(Choice.next)) {
       setPrompt('Proceed to War Phase');
       choiceChoosable(Choice.next, true);
-      throw PlayerChoiceException.withSnapshot();
+      if (_subStep == 0) {
+        _subStep = 1;
+        throw PlayerChoiceException.withSnapshot();
+      }
+      throw PlayerChoiceException();
     }
     logLine('## War Phase');
     _phaseState = PhaseStateWar();

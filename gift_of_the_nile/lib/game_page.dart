@@ -30,6 +30,11 @@ class GamePageState extends State<GamePage> {
   static const _bookOfTheDeadHeight = 1632.0;
   static const _counterTrayWidth = 1261.0;
   static const _counterTrayHeight = 1632.0;
+
+  final _displayOptionsFormKey = GlobalKey<FormState>();
+ 
+  bool _emptyMap = false;
+
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _actsTrackImage = Image.asset('assets/images/book.png', key: UniqueKey(), width: _bookOfTheDeadWidth, height: _bookOfTheDeadHeight);
@@ -613,26 +618,29 @@ class GamePageState extends State<GamePage> {
     final coordinates = locationCoordinates(Location.landMenNefer);
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
-    final pieces = state.piecesInLocation(PieceType.all, Location.landMenNefer);
-    Piece? pharaoh;
-    final others = <Piece>[];
-    for (final piece in pieces) {
-      if (piece == Piece.pharaoh) {
-        pharaoh = piece;
-      } else {
-        others.add(piece);
+
+    if (!_emptyMap) {
+      final pieces = state.piecesInLocation(PieceType.all, Location.landMenNefer);
+      Piece? pharaoh;
+      final others = <Piece>[];
+      for (final piece in pieces) {
+        if (piece == Piece.pharaoh) {
+          pharaoh = piece;
+        } else {
+          others.add(piece);
+        }
       }
-    }
 
-    double xStack = xLand;
-    if (pharaoh == null) {
-      xStack -= 30.0;
-    }
-    layoutStack(appState, (Location.landMenNefer, 0), others, BoardArea.map, xStack, yLand, 4.0, 4.0);
+      double xStack = xLand;
+      if (pharaoh == null) {
+        xStack -= 30.0;
+      }
+      layoutStack(appState, (Location.landMenNefer, 0), others, BoardArea.map, xStack, yLand, 4.0, 4.0);
 
-    if (pharaoh != null) {
-      double x = others.isEmpty ? xLand - 30.0 : xLand - 60.0;
-      addPieceToBoard(appState, pharaoh, BoardArea.map, x, yLand);
+      if (pharaoh != null) {
+        double x = others.isEmpty ? xLand - 30.0 : xLand - 60.0;
+        addPieceToBoard(appState, pharaoh, BoardArea.map, x, yLand);
+      }
     }
   }
 
@@ -646,39 +654,41 @@ class GamePageState extends State<GamePage> {
       addLandToMap(appState, land, xLand, yLand);
     }
 
-    final pieces = state.piecesInLocation(PieceType.all, land);
+    if (!_emptyMap) {
+      final pieces = state.piecesInLocation(PieceType.all, land);
 
-    Piece? sepat;
-    Piece? troops;
-    Piece? army;
-    final others = <Piece>[];
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      final piece = pieces[i];
-      if (piece.isType(PieceType.sepat)) {
-        sepat = piece;
-      } else if (piece.isType(PieceType.medjaiTroops)) {
-        troops = piece;
-      } else if (piece.isType(PieceType.khasti)) {
-        army = piece;
-      } else if (piece.isType(PieceType.rivalDynasty)) {
-        army = piece;
-      } else {
-        others.add(piece);
+      Piece? sepat;
+      Piece? troops;
+      Piece? army;
+      final others = <Piece>[];
+      for (int i = pieces.length - 1; i >= 0; --i) {
+        final piece = pieces[i];
+        if (piece.isType(PieceType.sepat)) {
+          sepat = piece;
+        } else if (piece.isType(PieceType.medjaiTroops)) {
+          troops = piece;
+        } else if (piece.isType(PieceType.khasti)) {
+          army = piece;
+        } else if (piece.isType(PieceType.rivalDynasty)) {
+          army = piece;
+        } else {
+          others.add(piece);
+        }
       }
-    }
 
-    var sk = (land, 0);
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      layoutStack(appState, sk, others, BoardArea.map, xLand + 24.0, yLand + 2.0, 4.0, 4.0);
-    }
-    if (troops != null) {
-      addPieceToBoard(appState, troops, BoardArea.map, xLand + 24.0, yLand + 2.0);
-    }
-    if (sepat != null) {
-      addPieceToBoard(appState, sepat, BoardArea.map, xLand + 2.0, yLand + 24.0);
-    }
-    if (army != null) {
-      addPieceToBoard(appState, army, BoardArea.map, xLand + 24.0, yLand + 2.0);
+      var sk = (land, 0);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        layoutStack(appState, sk, others, BoardArea.map, xLand + 24.0, yLand + 2.0, 4.0, 4.0);
+      }
+      if (troops != null) {
+        addPieceToBoard(appState, troops, BoardArea.map, xLand + 24.0, yLand + 2.0);
+      }
+      if (sepat != null) {
+        addPieceToBoard(appState, sepat, BoardArea.map, xLand + 2.0, yLand + 24.0);
+      }
+      if (army != null) {
+        addPieceToBoard(appState, army, BoardArea.map, xLand + 24.0, yLand + 2.0);
+      }
     }
 
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
@@ -696,26 +706,28 @@ class GamePageState extends State<GamePage> {
       addCountryToMap(appState, country, xLand, yLand);
     }
 
-    final pieces = state.piecesInLocation(PieceType.all, country);
+    if (!_emptyMap) {
+      final pieces = state.piecesInLocation(PieceType.all, country);
 
-    Piece? khasti;
-    final others = <Piece>[];
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      final piece = pieces[i];
-      if (piece.isType(PieceType.khasti)) {
-        khasti = piece;
-      } else {
-        others.add(piece);
+      Piece? khasti;
+      final others = <Piece>[];
+      for (int i = pieces.length - 1; i >= 0; --i) {
+        final piece = pieces[i];
+        if (piece.isType(PieceType.khasti)) {
+          khasti = piece;
+        } else {
+          others.add(piece);
+        }
       }
-    }
 
-    var sk = (country, 0);
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      layoutStack(appState, sk, others, BoardArea.map, xLand + 75.0, yLand + 25.0, 4.0, 4.0);
-    }
+      var sk = (country, 0);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        layoutStack(appState, sk, others, BoardArea.map, xLand + 75.0, yLand + 25.0, 4.0, 4.0);
+      }
 
-    if (khasti != null) {
-      addPieceToBoard(appState, khasti, BoardArea.map, xLand + 2.0, yLand + 25.0);
+      if (khasti != null) {
+        addPieceToBoard(appState, khasti, BoardArea.map, xLand + 2.0, yLand + 25.0);
+      }
     }
 
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(country)) {
@@ -913,6 +925,36 @@ class GamePageState extends State<GamePage> {
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
@@ -921,10 +963,94 @@ class GamePageState extends State<GamePage> {
             width: 350.0,
             height: _mapHeight,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: choiceWidgets,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: choiceWidgets,
+                ),
+                Form(
+                  key: _displayOptionsFormKey,
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

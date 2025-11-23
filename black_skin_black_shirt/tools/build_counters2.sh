@@ -95,3 +95,20 @@ counter counter_11_5 army_aoi_a
 counter counter_11_6 army_aoi_b
 counter counter_11_7 army_aoi_c
 counter counter_11_8 army_aoi_d
+
+counter counter_1_3_r180 diplomat_britain_flipped
+counter counter_1_4_r180 diplomat_france_flipped
+counter counter_1_5_r180 diplomat_italy_flipped
+counter counter_1_7_r180 army_italian_a_flipped
+counter counter_1_8_r180 army_italian_b_flipped
+
+counter counter_2_3_r180 diplomat_mexico_flipped
+counter counter_2_4_r180 diplomat_ussr_flipped
+counter counter_2_5_r180 diplomat_china_flipped
+counter counter_2_7_r180 army_italian_c_flipped
+counter counter_2_8_r180 army_italian_d_flipped
+
+counter counter_11_5_r180 army_aoi_a_flipped
+counter counter_11_6_r180 army_aoi_b_flipped
+counter counter_11_7_r180 army_aoi_c_flipped
+counter counter_11_8_r180 army_aoi_d_flipped

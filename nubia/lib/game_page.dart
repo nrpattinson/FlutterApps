@@ -1,7 +1,9 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
+
 import 'package:nubia/game.dart';
 import 'package:nubia/main.dart';
 
@@ -27,6 +29,11 @@ class GamePageState extends State<GamePage> {
   static const _mapHeight = 1632.0;
   static const _trayWidth = 1261.0;
   static const _trayHeight = 1632.0;
+
+  final _displayOptionsFormKey = GlobalKey<FormState>();
+ 
+  bool _emptyMap = false;
+
   final _pieceTypeCounters = <PieceType,Image>{};
   final _pieceCounters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
@@ -393,9 +400,11 @@ class GamePageState extends State<GamePage> {
       addProvinceToMap(appState, land, xLand, yLand);
     }
 
-    final sk = (land, 0);
-    if (_expandedStacks.contains(sk) == (pass == 1)) {
-      layoutStack(appState, (land, 0), state.piecesInLocation(PieceType.all, land), BoardArea.map, xLand, yLand, 4.0, 4.0);
+    if (!_emptyMap) {
+      final sk = (land, 0);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        layoutStack(appState, (land, 0), state.piecesInLocation(PieceType.all, land), BoardArea.map, xLand, yLand, 4.0, 4.0);
+      }
     }
  
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
@@ -544,6 +553,36 @@ class GamePageState extends State<GamePage> {
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
@@ -552,10 +591,94 @@ class GamePageState extends State<GamePage> {
           SizedBox(
             width: 300.0,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: choiceWidgets,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: choiceWidgets,
+                ),
+                Form(
+                  key: _displayOptionsFormKey,
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

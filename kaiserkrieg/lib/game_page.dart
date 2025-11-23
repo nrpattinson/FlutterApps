@@ -25,6 +25,11 @@ class GamePageState extends State<GamePage> {
   static const _mapHeight = 1728.0;
   static const _counterTrayWidth = 1335.0;
   static const _counterTrayHeight = 1728.0;
+
+  final _displayOptionsFormKey = GlobalKey<FormState>();
+ 
+  bool _emptyMap = false;
+
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _counterTrayImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _counterTrayWidth, height: _counterTrayHeight);
@@ -399,31 +404,33 @@ class GamePageState extends State<GamePage> {
   ];
 
   void layoutFront(MyAppState appState, Location location, double x, double y, List<Piece> pieces) {
-    GameState state = appState.gameState!;
-    var defenders = <Piece>[];
-    var others = <Piece>[];
-    for (final piece in pieces) {
-      if (state.pieceLocation(piece) == location) {
-        if (piece.isType(PieceType.army) || piece.isType(PieceType.overTheTop) || piece.isType(PieceType.forts) || piece.isType(PieceType.trenches)) {
-          defenders.add(piece);
-        } else {
-          others.add(piece);
+    if (!_emptyMap) {
+      GameState state = appState.gameState!;
+      var defenders = <Piece>[];
+      var others = <Piece>[];
+      for (final piece in pieces) {
+        if (state.pieceLocation(piece) == location) {
+          if (piece.isType(PieceType.army) || piece.isType(PieceType.overTheTop) || piece.isType(PieceType.forts) || piece.isType(PieceType.trenches)) {
+            defenders.add(piece);
+          } else {
+            others.add(piece);
+          }
         }
       }
-    }
-    for (int i = 0; i < defenders.length; ++i) {
-      int col = i % 3;
-      int row = i ~/ 3;
-      double xC = x + col * 62.0;
-      double yC = y + row * 62.0;
-      addPieceToBoard(appState, defenders[i], BoardArea.map, xC, yC);
-    }
-    for (int i = 0; i < others.length; ++i) {
-      int col = others.length == 1 && defenders.length <= 6 ? 1 : 2 - (i % 3);
-      int row = others.length == 1 && defenders.length <= 3 ? 1 : 2 + i ~/ 3;
-      double xC = x + col * 62.0;
-      double yC = y + row * 62.0;
-      addPieceToBoard(appState, others[i], BoardArea.map, xC, yC);
+      for (int i = 0; i < defenders.length; ++i) {
+        int col = i % 3;
+        int row = i ~/ 3;
+        double xC = x + col * 62.0;
+        double yC = y + row * 62.0;
+        addPieceToBoard(appState, defenders[i], BoardArea.map, xC, yC);
+      }
+      for (int i = 0; i < others.length; ++i) {
+        int col = others.length == 1 && defenders.length <= 6 ? 1 : 2 - (i % 3);
+        int row = others.length == 1 && defenders.length <= 3 ? 1 : 2 + i ~/ 3;
+        double xC = x + col * 62.0;
+        double yC = y + row * 62.0;
+        addPieceToBoard(appState, others[i], BoardArea.map, xC, yC);
+      }
     }
   }
 
@@ -457,33 +464,35 @@ class GamePageState extends State<GamePage> {
  ];
 
   void layoutOttomanBox(MyAppState appState, Location location, double x, double y, List<Piece> pieces) {
-    final state = appState.gameState!;
-    var armies = <Piece>[];
-    var nonArmies = <Piece>[];
-    for (final piece in pieces) {
-      if (state.pieceLocation(piece) == location) {
-        if (piece == Piece.armyArabInactive) {
-          addPieceToBoard(appState, piece, BoardArea.map, x + 30.0, y + 75.0);
-        } else if (piece.isType(PieceType.army) || piece.isType(PieceType.askari)) {
-          armies.add(piece);
-        } else {
-          nonArmies.add(piece);
+    if (!_emptyMap) {
+      final state = appState.gameState!;
+      var armies = <Piece>[];
+      var nonArmies = <Piece>[];
+      for (final piece in pieces) {
+        if (state.pieceLocation(piece) == location) {
+          if (piece == Piece.armyArabInactive) {
+            addPieceToBoard(appState, piece, BoardArea.map, x + 30.0, y + 75.0);
+          } else if (piece.isType(PieceType.army) || piece.isType(PieceType.askari)) {
+            armies.add(piece);
+          } else {
+            nonArmies.add(piece);
+          }
         }
       }
-    }
-    for (int i = 0; i < armies.length; ++i) {
-      int col = i % 2;
-      int row = i ~/ 2;
-      double xC = x + col * 62.0;
-      double yC = y + row * 62.0;
-      addPieceToBoard(appState, armies[i], BoardArea.map, xC, yC);
-    }
-    for (int i = 0; i < nonArmies.length; ++i) {
-      int col = i % 2;
-      int row = 2 + i ~/ 2;
-      double xC = x + col * 62.0;
-      double yC = y + row * 62.0;
-      addPieceToBoard(appState, nonArmies[i], BoardArea.map, xC, yC);
+      for (int i = 0; i < armies.length; ++i) {
+        int col = i % 2;
+        int row = i ~/ 2;
+        double xC = x + col * 62.0;
+        double yC = y + row * 62.0;
+        addPieceToBoard(appState, armies[i], BoardArea.map, xC, yC);
+      }
+      for (int i = 0; i < nonArmies.length; ++i) {
+        int col = i % 2;
+        int row = 2 + i ~/ 2;
+        double xC = x + col * 62.0;
+        double yC = y + row * 62.0;
+        addPieceToBoard(appState, nonArmies[i], BoardArea.map, xC, yC);
+      }
     }
   }
 
@@ -1018,6 +1027,36 @@ class GamePageState extends State<GamePage> {
       }
     }
 
+    VoidCallback? onFirstSnapshot;
+    VoidCallback? onPrevTurn;
+    VoidCallback? onPrevSnapshot;
+    VoidCallback? onNextSnapshot;
+    VoidCallback? onNextTurn;
+    VoidCallback? onLastSnapshot;
+
+    if (appState.previousSnapshotAvailable) {
+      onFirstSnapshot = () {
+        appState.firstSnapshot();
+      };
+      onPrevTurn = () {
+        appState.previousTurn();
+      };
+      onPrevSnapshot = () {
+        appState.previousSnapshot();
+      };
+    }
+    if (appState.nextSnapshotAvailable) {
+      onNextSnapshot = () {
+        appState.nextSnapshot();
+      };
+      onNextTurn = () {
+        appState.nextTurn();
+      };
+      onLastSnapshot = () {
+        appState.lastSnapshot();
+      };
+    }
+
     final rootWidget = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
@@ -1026,10 +1065,94 @@ class GamePageState extends State<GamePage> {
           SizedBox(
             width: 350.0,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: choiceWidgets,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: choiceWidgets,
+                ),
+                Form(
+                  key: _displayOptionsFormKey,
+                  child: Column(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.tertiaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CheckboxListTile(
+                                title: Text(
+                                  'Empty Map',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _emptyMap,
+                                onChanged: (bool? emptyMap) {
+                                  setState(() {
+                                    if (emptyMap != null) {
+                                      _emptyMap = emptyMap;
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: colorScheme.secondaryContainer),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  appState.duplicateCurrentGame();
+                                },
+                                icon: const Icon(Icons.copy),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                              IconButton(
+                                onPressed: onFirstSnapshot,
+                                icon: const Icon(Icons.skip_previous),
+                              ),
+                              IconButton(
+                                onPressed: onPrevTurn,
+                                icon: const Icon(Icons.fast_rewind),
+                              ),
+                              IconButton(
+                                onPressed: onPrevSnapshot,
+                                icon: const Icon(Icons.arrow_left),
+                              ),
+                              IconButton(
+                                onPressed: onNextSnapshot,
+                                icon: const Icon(Icons.arrow_right),
+                              ),
+                              IconButton(
+                                onPressed: onNextTurn,
+                                icon: const Icon(Icons.fast_forward),
+                              ),
+                              IconButton(
+                                onPressed: onLastSnapshot,
+                                icon: const Icon(Icons.skip_next),
+                              ),
+                              const Spacer(
+                                flex: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(

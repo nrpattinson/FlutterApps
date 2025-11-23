@@ -9,6 +9,7 @@ do
 	do
 		echo counter $ROW $COL
 		pnmcut -top $(expr $TOP) -left $(expr $LEFT) -width 368 -height 368 HIRES/counters.ppm > tmp/counter_${ROW}_${COL}.ppm
+		pnmflip -r180 tmp/counter_${ROW}_${COL}.ppm > tmp/counter_${ROW}_${COL}_r180.ppm
 		COL=$(expr $COL + 1)
 	done
 	ROW=$(expr $ROW + 1)

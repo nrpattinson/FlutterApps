@@ -1,9 +1,11 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:china_inc/game.dart';
-import 'package:china_inc/main.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
+
+import 'package:china_inc/game.dart';
+import 'package:china_inc/main.dart';
 
 enum MarkerType {
   cash,
@@ -38,7 +40,6 @@ class GamePageState extends State<GamePage> {
   static const _mapHeight = 2272.0;
 
   final _displayOptionsFormKey = GlobalKey<FormState>();
-
  
   bool _provinceRevoltModifiers = false;
   bool _provinceLoyalty = false;
