@@ -902,61 +902,59 @@ class GamePageState extends State<GamePage> {
       addProvinceToMap(context, appState, province, spaceX, spaceY);
     }
 
-    if (!_emptyMap) {
-      final stackLocations = [
-        (spaceX - 24.0, spaceY - 52.0, 0.0, 0.0),	// Top middle, no stacking
-        (spaceX - 52.0, spaceY - 52.0, 0.0, 0.0),	// Upper left, no stacking
-        (spaceX + 1.0, spaceY - 52.0, 6.0, -6.0),	// Upper right
-        (spaceX - 52.0, spaceY + 1.0, 0.0, 17.0),	// Lower left, stack down
-        (spaceX - 24.0, spaceY + 1.0, 0.0, 17.0),	// Lower middle, stack down
-        (spaceX - 24.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
-        (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
-      ];
+    final stackLocations = [
+      (spaceX - 24.0, spaceY - 52.0, 0.0, 0.0),	// Top middle, no stacking
+      (spaceX - 52.0, spaceY - 52.0, 0.0, 0.0),	// Upper left, no stacking
+      (spaceX + 1.0, spaceY - 52.0, 6.0, -6.0),	// Upper right
+      (spaceX - 52.0, spaceY + 1.0, 0.0, 14.0),	// Lower left, stack down
+      (spaceX - 24.0, spaceY + 1.0, 0.0, 14.0),	// Lower middle, stack down
+      (spaceX - 24.0, spaceY + 1.0, 6.0, 6.0),	// Lower middle, stack down/right
+      (spaceX + 1.0, spaceY + 1.0, 6.0, 6.0)	// Lower right
+    ];
 
-      final chinese = state.piecesInLocation(PieceType.mobileLandUnit, province);
-      final fleets = state.piecesInLocation(PieceType.fleet, province);
-      final forts = state.piecesInLocation(PieceType.fort, province);
-      final barbarians = state.piecesInLocation(PieceType.barbarian, province);
+    final chinese = state.piecesInLocation(PieceType.mobileLandUnit, province);
+    final fleets = state.piecesInLocation(PieceType.fleet, province);
+    final forts = state.piecesInLocation(PieceType.fort, province);
+    final barbarians = state.piecesInLocation(PieceType.barbarian, province);
 
-      final fleetsAndForts = fleets + forts;
+    final fleetsAndForts = fleets + forts;
 
-      var sk = (province, 0);
-      (double, double, double, double)? sl;
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        sl = stackLocations[2];
-        layoutStack(appState, sk, fleetsAndForts, sl.$1, sl.$2, sl.$3, sl.$4);
+    var sk = (province, 0);
+    (double, double, double, double)? sl;
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      sl = stackLocations[2];
+      layoutStack(appState, sk, fleetsAndForts, sl.$1, sl.$2, sl.$3, sl.$4);
+    }
+
+    sk = (province, 1);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      if (barbarians.isNotEmpty) {
+        sl = stackLocations[6];
+      } else {
+        sl = stackLocations[5];
       }
+      layoutStack(appState, sk, chinese, sl.$1, sl.$2, sl.$3, sl.$4);
+    }
 
-      sk = (province, 1);
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        if (barbarians.isNotEmpty) {
-          sl = stackLocations[6];
+    sk = (province, 2);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      if (chinese.isNotEmpty) {
+        sl = stackLocations[3];
+      } else {
+        sl = stackLocations[4];
+      }
+      layoutStack(appState, sk, barbarians, sl.$1, sl.$2, sl.$3, sl.$4);
+    }
+
+    if (pass == 0) {
+      final status = state.provinceStatus(province);
+      if (status != ProvinceStatus.chinese) {
+        if (fleetsAndForts.isEmpty) {
+          sl = stackLocations[0];
         } else {
-          sl = stackLocations[5];
+          sl = stackLocations[1];
         }
-        layoutStack(appState, sk, chinese, sl.$1, sl.$2, sl.$3, sl.$4);
-      }
-
-      sk = (province, 2);
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        if (chinese.isNotEmpty) {
-          sl = stackLocations[3];
-        } else {
-          sl = stackLocations[4];
-        }
-        layoutStack(appState, sk, barbarians, sl.$1, sl.$2, sl.$3, sl.$4);
-      }
-
-      if (pass == 0) {
-        final status = state.provinceStatus(province);
-        if (status != ProvinceStatus.chinese) {
-          if (fleetsAndForts.isEmpty) {
-            sl = stackLocations[0];
-          } else {
-            sl = stackLocations[1];
-          }
-          addProvinceStatusToMap(appState, status, sl.$1, sl.$2);
-        }
+        addProvinceStatusToMap(appState, status, sl.$1, sl.$2);
       }
     }
 
@@ -983,7 +981,7 @@ class GamePageState extends State<GamePage> {
         final spaceX = coordinates.$1;
         final spaceY = coordinates.$2;
 
-        layoutStack(appState, sk, barbarians, spaceX - 30, spaceY - 30, -6, 6);
+        layoutStack(appState, sk, barbarians, spaceX - 30.0, spaceY - 30.0, -6.0, 6.0);
       }
     }
   }

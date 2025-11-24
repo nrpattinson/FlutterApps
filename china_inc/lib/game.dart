@@ -5670,7 +5670,7 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
   }
 
   String redDieFace(int die) {

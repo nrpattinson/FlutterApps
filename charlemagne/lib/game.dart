@@ -2037,12 +2037,25 @@ class Game {
     _log += '$line  \n';
   }
 
+  String dieFace(int die) {
+    return '![](resource:assets/images/d8_white_$die.png)';
+  }
+
   // Randomness
 
   int rollD8() {
     int die = _random.nextInt(8) + 1;
-    logLine('> Roll: $die');
     return die;
+  }
+
+  void logD8(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD8InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -2170,27 +2183,27 @@ class Game {
   void adjustTreasury(int delta) {
     _state.adjustTreasury(delta);
     if (delta > 0) {
-      logLine('> Treasury: +$delta → ${_state.treasury}');
+      logLine('>Treasury: +$delta → ${_state.treasury}');
     } else if (delta < 0) {
-      logLine('> Treasury: $delta → ${_state.treasury}');
+      logLine('>Treasury: $delta → ${_state.treasury}');
     }
   }
 
   void adjustVictoryPoints(int delta) {
     _state.adjustVictoryPoints(delta);
     if (delta > 0) {
-      logLine('> Victory Points: +$delta → ${_state.victoryPoints}');
+      logLine('>Victory Points: +$delta → ${_state.victoryPoints}');
     } else if (delta < 0) {
-      logLine('> Victory Points: $delta → ${_state.victoryPoints}');
+      logLine('>Victory Points: $delta → ${_state.victoryPoints}');
     }
   }
 
   void adjustEmergencyVictoryPoints(int delta) {
     _state.adjustEmergencyVictoryPoints(delta);
     if (delta > 0) {
-      logLine('> Emergency Victory Points: +$delta → ${_state.emergencyVictoryPoints}');
+      logLine('>Emergency Victory Points: +$delta → ${_state.emergencyVictoryPoints}');
     } else if (delta < 0) {
-      logLine('> Emergency Victory Points: $delta → ${_state.emergencyVictoryPoints}');
+      logLine('>Emergency Victory Points: $delta → ${_state.emergencyVictoryPoints}');
     }
   }
 
@@ -2325,7 +2338,7 @@ class Game {
   void cupAdjustment(Location from, Location to) {
     final piece = randPiece(_state.piecesInLocation(PieceType.all, from));
     if (piece != null) {
-      logLine('> A chit moves from ${from.desc} to ${to.desc}.');
+      logLine('>A chit moves from ${from.desc} to ${to.desc}.');
       return;
     }
     if (from == Location.cupFriendly) {
@@ -2337,24 +2350,27 @@ class Game {
     logLine('### ${enemyUnit.desc} becomes Hostile.');
     final space = _state.enemyHome(enemyUnit);
     if (_state.piecesInLocationCount(PieceType.moor, space) > 0) {
-      logLine('> Uprising in ${space.desc} is suppressed by the Moors.');
+      logLine('>Uprising in ${space.desc} is suppressed by the Moors.');
       _state.setPieceLocation(enemyUnit, Location.poolDead);
       return;
     }
     if (_state.pieceLocation(_state.charlemagne) == space) {
-      logLine('> Uprising in ${space.desc} is suppressed by Charlemagne.');
+      logLine('>Uprising in ${space.desc} is suppressed by Charlemagne.');
       _state.setPieceLocation(enemyUnit, Location.poolDead);
       return;
     }
     if (_state.piecesInLocationCount(PieceType.marquis, space) > 0) {
       int die = rollD8();
+      logLine('>|Effect|Value|');
+      logLine('>|:---|:---:|');
+      logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
-      logLine('> ${enemyUnit.desc}: $rating');
+      logLine('>|${enemyUnit.desc}|$rating|');
       if (die > rating) {
-        logLine('> Uprising in ${space.desc} is suppressed by Marquis.');
+        logLine('>Uprising in ${space.desc} is suppressed by Marquis.');
         _state.setPieceLocation(enemyUnit, Location.poolDead);
       } else {
-        logLine('> Uprising continues in defiance of the Marquis.');
+        logLine('>Uprising continues in defiance of the Marquis.');
         _state.setPieceLocation(enemyUnit, space);
       }
       return;
@@ -2368,9 +2384,9 @@ class Game {
       return;
     }
     if (enemyUnitCount >= 1) {
-      logLine('> ${enemyUnit.desc} joins the uprising in ${space.desc}.');
+      logLine('>${enemyUnit.desc} joins the uprising in ${space.desc}.');
     } else {
-      logLine('> ${enemyUnit.desc} starts an uprising in ${space.desc}.');
+      logLine('>${enemyUnit.desc} starts an uprising in ${space.desc}.');
     }
     _state.setPieceLocation(enemyUnit, space);
   }
@@ -2378,13 +2394,13 @@ class Game {
   void reactionMoors(Piece moors) {
     logLine('### Moors');
     if (_state.pieceLocation(Piece.alAndalusTension) == Location.flipped) {
-      logLine('> Relationship with the Moors in al Andalus becomes tense.');
+      logLine('>Relationship with the Moors in al Andalus becomes tense.');
       _state.setPieceLocation(Piece.alAndalusTension, Location.boxAlAndalus);
     }
     for (final space in [Location.spanishMarch, Location.gascony, Location.bordeaux, Location.poitiers]) {
       final charlemagne = _state.pieceInLocation(PieceType.charlemagne, space);
       if (charlemagne != null) {
-        ambush(space);
+        //ambush(space); TODO
         return;
       }
       final marquis = _state.pieceInLocation(PieceType.marquis, space);
@@ -2393,7 +2409,7 @@ class Game {
         throw GameOverException(GameResult.defeatMoors, 0);
       }
       if (moorsCount == 0 || (marquis != null && moorsCount == 1)) {
-        logLine('> Moors move to ${space.desc}');
+        logLine('>Moors move to ${space.desc}');
         _state.setPieceLocation(moors, space);
         return;
       }
@@ -2404,7 +2420,7 @@ class Game {
     logLine('### Vikings');
     final region = _state.piecesInLocationCount(PieceType.viking, Location.boxRegionPurple) < 2 ? Region.purple : Region.blue;
     final regionBox = _state.regionBox(region);
-    logLine('> Vikings terrorize ${regionBox.desc}.');
+    logLine('>Vikings terrorize ${regionBox.desc}.');
     _state.setPieceLocation(viking, regionBox);
     final pieceType = _state.regionEnemyUnitPieceType(region);
     for (final enemyUnit in pieceType.pieces) {
@@ -2417,12 +2433,12 @@ class Game {
   void reactionByzantium(Piece byzantium) {
     logLine('### Byzantium');
     if (_state.pieceLocation(Piece.byzantinePeace) == Location.boxByzantine) {
-      logLine('> Relationships with Byzantium become tense.');
+      logLine('>Relationships with Byzantium become tense.');
       _state.setPieceLocation(Piece.byzantineTension, Location.boxByzantine);
       _state.setPieceLocation(byzantium, Location.poolDead);
       return;
     }
-    logLine('> Tensions with Byzantium worsen.');
+    logLine('>Tensions with Byzantium worsen.');
     _state.setPieceLocation(byzantium, Location.poolDead);
     int moorsCount = 0;
     for (final space in [Location.spanishMarch, Location.gascony, Location.bordeaux, Location.poitiers]) {
@@ -2431,7 +2447,7 @@ class Game {
       }
     }
     if (moorsCount > 0) {
-      logLine('> Moors: -$moorsCount');
+      logLine('>Moors: -$moorsCount');
     }
     int leaderCount = 0;
     for (final region in Region.values) {
@@ -2440,10 +2456,10 @@ class Game {
       }
     }
     if (leaderCount > 0) {
-      logLine('> Regions with Enemy Leaders: -$leaderCount');
+      logLine('>Regions with Enemy Leaders: -$leaderCount');
     }
     int byzantiumCount = _state.piecesInLocationCount(PieceType.byzantium, Location.poolDead);
-    logLine('> Byzantium Tension: -$byzantiumCount');
+    logLine('>Byzantium Tension: -$byzantiumCount');
     int total = moorsCount + leaderCount + byzantiumCount;
     adjustVictoryPoints(-total);
   }
@@ -2468,7 +2484,7 @@ class Game {
     if (shortfall > 0) {
       throw GameOverException(GameResult.defeatIntrigue, 0);
     }
-    logLine('> Plot to overthrow Charlemagne is overcome.');
+    logLine('>Plot to overthrow Charlemagne is overcome.');
     _state.setPieceLocation(intrigue, Location.poolDead);
   }
 
@@ -2477,9 +2493,9 @@ class Game {
     _state.setPieceLocation(turnEnd, Location.poolDead);
     int count = _state.piecesInLocationCount(PieceType.turnEnd, Location.poolDead);
     if (count == 1) {
-      logLine('> 1 Turn End marker is in the Dead Pool.');
+      logLine('>1 Turn End marker is in the Dead Pool.');
     } else {
-      logLine('> $count Turn End markers are in the Dead Pool.');
+      logLine('>$count Turn End markers are in the Dead Pool.');
     }
   }
 
@@ -2605,7 +2621,7 @@ class Game {
       }
       final pieceType = checkChoice(Choice.purchaseInfantry) ? PieceType.infantry1 : PieceType.cavalry2;
       final piece = _state.piecesInLocation(pieceType, Location.offmap)[0];
-      logLine('> ${piece.desc} is added to the Reserve.');
+      logLine('>${piece.desc} is added to the Reserve.');
       if (pieceType == PieceType.infantry1) {
         adjustTreasury(-1);
         phaseState.purchaseInfantryCount += 1;
@@ -2636,12 +2652,12 @@ class Game {
     }
     if (checkChoiceAndClear(Choice.promoteInfantry1)) {
       final infantry1 = _state.piecesInLocation(PieceType.infantry1, Location.boxTacticalYourReserve)[0];
-      logLine('> Promote one Infantry from Level 1 to Level 2.');
+      logLine('>Promote one Infantry from Level 1 to Level 2.');
       final infantry2 = _state.pieceFlipSide(infantry1)!;
       _state.setPieceLocation(infantry2, Location.boxTacticalYourReserve);
     } else if (checkChoiceAndClear(Choice.promoteInfantry2)) {
       final infantry2 = _state.piecesInLocation(PieceType.infantry2, Location.boxTacticalYourReserve)[0];
-      logLine('> Promote one Infantry from Level 2 to Level 3.');
+      logLine('>Promote one Infantry from Level 2 to Level 3.');
       _state.setPieceLocation(infantry2, Location.offmap);
       final infantry3 = _state.piecesInLocation(PieceType.infantry3, Location.boxTacticalYourReserve)[0];
       _state.setPieceLocation(infantry3, Location.boxTacticalYourReserve);
@@ -2671,30 +2687,33 @@ class Game {
       logLine('### ${leader.desc} attempts to Suppress ${space.desc}');
       final enemyUnit = _state.spaceTopmostEnemyUnit(space)!;
       int die = rollD8();
+      logLine('>|Effect|Value|');
+      logLine('>|:---|:---:|');
+      logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
-      logLine('> ${enemyUnit.desc}: $rating');
+      logLine('>|${enemyUnit.desc}|$rating|');
       int modifiers = 0;
       final region = _state.spaceRegion(space);
       final leaderBonus = _state.regionLeaderBonus(region);
       if (leaderBonus > 0) {
-        logLine('> Leader: +$leaderBonus');
+        logLine('>|Leader|+$leaderBonus|');
         modifiers += leaderBonus;
       }
       int total = rating + modifiers;
-      logLine('> Total: $total');
+      logLine('>|Total|$total|');
       if (die > total) {
         final pieces = _state.piecesInLocation(PieceType.mapEnemyUnit, space);
         if (leader.isType(PieceType.charlemagne) || pieces.length == 1) {
-          logLine('> Resistance in ${space.desc} is suppressed.');
+          logLine('>Resistance in ${space.desc} is suppressed.');
           for (final piece in _state.piecesInLocation(PieceType.mapEnemyUnit, space)) {
             _state.setPieceLocation(piece, Location.poolDead);
           }
         } else {
-          logLine('> Resistance in ${space.desc} is reduced.');
+          logLine('>Resistance in ${space.desc} is reduced.');
           _state.setPieceLocation(enemyUnit, Location.poolDead);
         }
       } else {
-        logLine('> Resistance continues despite attempts to suppress it.');
+        logLine('>Resistance continues despite attempts to suppress it.');
       }
       cupAdjustment(Location.cupFriendly, Location.cupUnfriendly);
       _subStep = 1;
@@ -2711,7 +2730,7 @@ class Game {
       _subStep = 1;
     }
     if (_subStep == 1) {
-      battle(space);
+      // battle(space); TODO
       cupAdjustment(Location.cupFriendly, Location.cupUnfriendly);
       // TODO unfriendly->hostile
       _subStep == 2;

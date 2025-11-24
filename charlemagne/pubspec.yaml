@@ -190,6 +190,14 @@ flutter:
    - assets/images/marker_vp_1.png
    - assets/images/marker_vp_10.png
    - assets/images/turn_end.png
+   - assets/images/d8_white_1.png
+   - assets/images/d8_white_2.png
+   - assets/images/d8_white_3.png
+   - assets/images/d8_white_4.png
+   - assets/images/d8_white_5.png
+   - assets/images/d8_white_6.png
+   - assets/images/d8_white_7.png
+   - assets/images/d8_white_8.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

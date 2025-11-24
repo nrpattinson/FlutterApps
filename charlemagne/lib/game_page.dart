@@ -9,6 +9,8 @@ enum BoardArea {
   map,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -30,6 +32,9 @@ class GamePageState extends State<GamePage> {
   final _counters = <Piece,Image>{};
   final _mapImage = Image.asset('assets/images/map.png', key: UniqueKey(), width: _mapWidth, height: _mapHeight);
   final _mapStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
 
   final _logScrollController = ScrollController();
 
@@ -389,17 +394,34 @@ class GamePageState extends State<GamePage> {
       borderWidth += 1.0;
     }
 
+    GestureTapCallback? onTap;
     if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.chosePiece(piece);
-          },
-          child: widget,
-        ),
-      );
+      onTap = () {
+        appState.chosePiece(piece);
+      };
     }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -497,6 +519,21 @@ class GamePageState extends State<GamePage> {
     return coordinates[location]!;
   }
 
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 62.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -62.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
   void layoutSpace(MyAppState appState, Location box) {
     final state = appState.gameState!;
 
@@ -508,31 +545,30 @@ class GamePageState extends State<GamePage> {
       addBoxToMap(appState, box, xBox, yBox);
     }
 
-    if (!_emptyMap) {
-      int pieceCount = 0;
+    final pieces = <Piece>[];
 
-      final enemies = state.piecesInLocation(PieceType.mapEnemyUnit, box);
-      for (int depth = 0; depth < enemies.length; ++depth) {
-        for (int i = 0; i < enemies.length; ++i) {
-          final tribe = enemies[i];
-          if (state.enemyStackDepth(tribe) == depth) {
-            addPieceToBoard(appState, tribe, BoardArea.map, xBox + 4.0 * pieceCount, yBox + 4.0 * pieceCount);
-            pieceCount += 1;
-          }
+    final enemies = state.piecesInLocation(PieceType.mapEnemyUnit, box);
+    for (int depth = 0; depth < enemies.length; ++depth) {
+      for (int i = 0; i < enemies.length; ++i) {
+        final tribe = enemies[i];
+        if (state.enemyStackDepth(tribe) == depth) {
+          pieces.add(tribe);
         }
       }
-      final leader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
-      if (leader != null) {
-        addPieceToBoard(appState, leader, BoardArea.map, xBox + 4.0 * pieceCount, yBox + 4.0 * pieceCount);
-        pieceCount += 1;
-      }
-      final charlemagne = state.pieceInLocation(PieceType.charlemagne, box);
-      if (charlemagne != null) {
-        addPieceToBoard(appState, charlemagne, BoardArea.map, xBox + 4.0 * pieceCount, yBox + 4.0 * pieceCount);
-        pieceCount += 1;
-      }
     }
- 
+    final leader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
+    if (leader != null) {
+      pieces.add(leader);
+    }
+    final charlemagne = state.pieceInLocation(PieceType.charlemagne, box);
+    if (charlemagne != null) {
+      pieces.add(charlemagne);
+    }
+
+    if (pieces.isNotEmpty) {
+      layoutStack(appState, (box, 0), pieces, BoardArea.map, xBox, yBox, 4.0, 4.0);
+    }
+
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
       addBoxToMap(appState, box, xBox, yBox);
     }
@@ -664,12 +700,14 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutSpaces(appState);
-      layoutBoxes(appState);
-      layoutTurnTrack(appState);
-      layoutVictoryPointTrack(appState);
-      layoutEvpTrack(appState);
-      layoutTreasuryTrack(appState);
+      if (!_emptyMap) {
+        layoutSpaces(appState);
+        layoutBoxes(appState);
+        layoutTurnTrack(appState);
+        layoutVictoryPointTrack(appState);
+        layoutEvpTrack(appState);
+        layoutTreasuryTrack(appState);
+      }
 
       const choiceTexts = {
         Choice.purchaseInfantry: 'Infantry',
