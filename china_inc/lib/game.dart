@@ -5717,7 +5717,7 @@ class Game {
     int d0 = rolls.$1;
     int d1 = rolls.$2;
     int omensModifier = rolls.$3;
-    logLine('>| ${whiteDieFace(d0)} ${whiteDieFace(d1)} | ${d0 + d1}');
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)}|${d0 + d1}|');
     if (omensModifier == 1) {
       logLine('>|Bad Omens|+1|');
     } else if (omensModifier == -1) {

@@ -232,6 +232,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -404,33 +408,31 @@ class GamePageState extends State<GamePage> {
   ];
 
   void layoutFront(MyAppState appState, Location location, double x, double y, List<Piece> pieces) {
-    if (!_emptyMap) {
-      GameState state = appState.gameState!;
-      var defenders = <Piece>[];
-      var others = <Piece>[];
-      for (final piece in pieces) {
-        if (state.pieceLocation(piece) == location) {
-          if (piece.isType(PieceType.army) || piece.isType(PieceType.overTheTop) || piece.isType(PieceType.forts) || piece.isType(PieceType.trenches)) {
-            defenders.add(piece);
-          } else {
-            others.add(piece);
-          }
+    GameState state = appState.gameState!;
+    var defenders = <Piece>[];
+    var others = <Piece>[];
+    for (final piece in pieces) {
+      if (state.pieceLocation(piece) == location) {
+        if (piece.isType(PieceType.army) || piece.isType(PieceType.overTheTop) || piece.isType(PieceType.forts) || piece.isType(PieceType.trenches)) {
+          defenders.add(piece);
+        } else {
+          others.add(piece);
         }
       }
-      for (int i = 0; i < defenders.length; ++i) {
-        int col = i % 3;
-        int row = i ~/ 3;
-        double xC = x + col * 62.0;
-        double yC = y + row * 62.0;
-        addPieceToBoard(appState, defenders[i], BoardArea.map, xC, yC);
-      }
-      for (int i = 0; i < others.length; ++i) {
-        int col = others.length == 1 && defenders.length <= 6 ? 1 : 2 - (i % 3);
-        int row = others.length == 1 && defenders.length <= 3 ? 1 : 2 + i ~/ 3;
-        double xC = x + col * 62.0;
-        double yC = y + row * 62.0;
-        addPieceToBoard(appState, others[i], BoardArea.map, xC, yC);
-      }
+    }
+    for (int i = 0; i < defenders.length; ++i) {
+      int col = i % 3;
+      int row = i ~/ 3;
+      double xC = x + col * 62.0;
+      double yC = y + row * 62.0;
+      addPieceToBoard(appState, defenders[i], BoardArea.map, xC, yC);
+    }
+    for (int i = 0; i < others.length; ++i) {
+      int col = others.length == 1 && defenders.length <= 6 ? 1 : 2 - (i % 3);
+      int row = others.length == 1 && defenders.length <= 3 ? 1 : 2 + i ~/ 3;
+      double xC = x + col * 62.0;
+      double yC = y + row * 62.0;
+      addPieceToBoard(appState, others[i], BoardArea.map, xC, yC);
     }
   }
 
@@ -464,35 +466,33 @@ class GamePageState extends State<GamePage> {
  ];
 
   void layoutOttomanBox(MyAppState appState, Location location, double x, double y, List<Piece> pieces) {
-    if (!_emptyMap) {
-      final state = appState.gameState!;
-      var armies = <Piece>[];
-      var nonArmies = <Piece>[];
-      for (final piece in pieces) {
-        if (state.pieceLocation(piece) == location) {
-          if (piece == Piece.armyArabInactive) {
-            addPieceToBoard(appState, piece, BoardArea.map, x + 30.0, y + 75.0);
-          } else if (piece.isType(PieceType.army) || piece.isType(PieceType.askari)) {
-            armies.add(piece);
-          } else {
-            nonArmies.add(piece);
-          }
+    final state = appState.gameState!;
+    var armies = <Piece>[];
+    var nonArmies = <Piece>[];
+    for (final piece in pieces) {
+      if (state.pieceLocation(piece) == location) {
+        if (piece == Piece.armyArabInactive) {
+          addPieceToBoard(appState, piece, BoardArea.map, x + 30.0, y + 75.0);
+        } else if (piece.isType(PieceType.army) || piece.isType(PieceType.askari)) {
+          armies.add(piece);
+        } else {
+          nonArmies.add(piece);
         }
       }
-      for (int i = 0; i < armies.length; ++i) {
-        int col = i % 2;
-        int row = i ~/ 2;
-        double xC = x + col * 62.0;
-        double yC = y + row * 62.0;
-        addPieceToBoard(appState, armies[i], BoardArea.map, xC, yC);
-      }
-      for (int i = 0; i < nonArmies.length; ++i) {
-        int col = i % 2;
-        int row = 2 + i ~/ 2;
-        double xC = x + col * 62.0;
-        double yC = y + row * 62.0;
-        addPieceToBoard(appState, nonArmies[i], BoardArea.map, xC, yC);
-      }
+    }
+    for (int i = 0; i < armies.length; ++i) {
+      int col = i % 2;
+      int row = i ~/ 2;
+      double xC = x + col * 62.0;
+      double yC = y + row * 62.0;
+      addPieceToBoard(appState, armies[i], BoardArea.map, xC, yC);
+    }
+    for (int i = 0; i < nonArmies.length; ++i) {
+      int col = i % 2;
+      int row = 2 + i ~/ 2;
+      double xC = x + col * 62.0;
+      double yC = y + row * 62.0;
+      addPieceToBoard(appState, nonArmies[i], BoardArea.map, xC, yC);
     }
   }
 
