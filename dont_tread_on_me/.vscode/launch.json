@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "stilicho",
+            "name": "dont_tread_on_me",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "stilicho (profile mode)",
+            "name": "dont_tread_on_me (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "stilicho (release mode)",
+            "name": "dont_tread_on_me (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

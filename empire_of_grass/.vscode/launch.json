@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "stilicho",
+            "name": "empire_of_grass",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "stilicho (profile mode)",
+            "name": "empire_of_grass (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "stilicho (release mode)",
+            "name": "empire_of_grass (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

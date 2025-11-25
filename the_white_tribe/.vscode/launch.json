@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "stilicho",
+            "name": "the_white_tribe",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "stilicho (profile mode)",
+            "name": "the_white_tribe (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "stilicho (release mode)",
+            "name": "the_white_tribe (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "agricola",
+            "name": "aurelian",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "agricola (profile mode)",
+            "name": "aurelian (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "agricola (release mode)",
+            "name": "aurelian (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

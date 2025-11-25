@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "stilicho",
+            "name": "black_skin_black_shirt",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "stilicho (profile mode)",
+            "name": "black_skin_black_shirt (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "stilicho (release mode)",
+            "name": "black_skin_black_shirt (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

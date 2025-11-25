@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "agricola",
+            "name": "the_wars_of_marcus_aurelius",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "agricola (profile mode)",
+            "name": "the_wars_of_marcus_aurelius (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "agricola (release mode)",
+            "name": "the_wars_of_marcus_aurelius (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

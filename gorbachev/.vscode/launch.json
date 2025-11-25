@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "stilicho",
+            "name": "gorbachev",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "stilicho (profile mode)",
+            "name": "gorbachev (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "stilicho (release mode)",
+            "name": "gorbachev (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"

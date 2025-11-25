@@ -5,19 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "kaiserkrieg",
+            "name": "the_napoleonic_wars",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug"
         },
         {
-            "name": "kaiserkrieg (profile mode)",
+            "name": "the_napoleonic_wars (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "kaiserkrieg (release mode)",
+            "name": "the_napoleonic_wars (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
