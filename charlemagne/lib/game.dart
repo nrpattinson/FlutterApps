@@ -605,13 +605,13 @@ enum PieceType {
   mapEnemyUnitBrown,
   mapEnemyUnitPurple,
   mapEnemyLeader,
-  viking,
-  moor,
-  carolingianLeader,
-  charlemagne,
-  marquis,
-  marquisNoCrown,
-  marquisCrown,
+  mapViking,
+  mapMoor,
+  mapCarolingianLeader,
+  mapCharlemagne,
+  mapMarquis,
+  mapMarquisNoCrown,
+  mapMarquisCrown,
   enemyBattleFull,
   infantry,
   infantry1,
@@ -640,13 +640,13 @@ extension PieceTypeExtension on PieceType {
     PieceType.mapEnemyUnitBrown: [Piece.saxonsI0, Piece.veleti3],
     PieceType.mapEnemyUnitPurple: [Piece.paris0, Piece.breton3],
     PieceType.mapEnemyLeader: [Piece.leaderPoitiers0, Piece.leaderBreton3],
-    PieceType.viking: [Piece.viking0, Piece.viking5],
-    PieceType.moor: [Piece.moor0, Piece.moor5],
-    PieceType.carolingianLeader: [Piece.charlemagneOlder, Piece.marquisCrown3],
-    PieceType.charlemagne: [Piece.charlemagneYounger, Piece.charlemagneOlder],
-    PieceType.marquis: [Piece.marquisNoCrown0, Piece.marquisCrown3],
-    PieceType.marquisNoCrown: [Piece.marquisNoCrown0, Piece.marquisNoCrown3],
-    PieceType.marquisCrown: [Piece.marquisCrown0, Piece.marquisCrown3],
+    PieceType.mapViking: [Piece.viking0, Piece.viking5],
+    PieceType.mapMoor: [Piece.moor0, Piece.moor5],
+    PieceType.mapCarolingianLeader: [Piece.charlemagneOlder, Piece.marquisCrown3],
+    PieceType.mapCharlemagne: [Piece.charlemagneYounger, Piece.charlemagneOlder],
+    PieceType.mapMarquis: [Piece.marquisNoCrown0, Piece.marquisCrown3],
+    PieceType.mapMarquisNoCrown: [Piece.marquisNoCrown0, Piece.marquisNoCrown3],
+    PieceType.mapMarquisCrown: [Piece.marquisCrown0, Piece.marquisCrown3],
     PieceType.enemyBattleFull: [Piece.enemyBattleFull0, Piece.enemyBattleFull15],
     PieceType.infantry: [Piece.infantry1_0, Piece.infantry4_7],
     PieceType.infantry1: [Piece.infantry1_0, Piece.infantry1_7],
@@ -1160,7 +1160,7 @@ class GameState {
   }
 
   bool regionHasRoadsAndBridges(Region region) {
-    for (final marquis in PieceType.marquisCrown.pieces) {
+    for (final marquis in PieceType.mapMarquisCrown.pieces) {
       final location = pieceLocation(marquis);
       if (location.isType(LocationType.space)) {
         if (spaceRegion(location) == region) {
@@ -1461,7 +1461,7 @@ class GameState {
     for (final space in spaceAndAdjacentSpaces(leaderLocation)) {
       if (!range.contains(space)) {
         final otherRegion = spaceRegion(space);
-        if (leader.isType(PieceType.charlemagne) || otherRegion == leaderRegion) {
+        if (leader.isType(PieceType.mapCharlemagne) || otherRegion == leaderRegion) {
           range.add(space);
           if (otherRegion != leaderRegion && regionHasRoadsAndBridges(otherRegion)) {
             final otherLocationType = regionLocationType(otherRegion);
@@ -1669,8 +1669,8 @@ class GameState {
     state.setupPieceTypes([
       (PieceType.mapEnemyUnitBlue, Location.cupFriendly),
       (PieceType.intrigue, Location.cupFriendly),
-      (PieceType.viking, Location.cupFriendly),
-      (PieceType.moor, Location.cupFriendly),
+      (PieceType.mapViking, Location.cupFriendly),
+      (PieceType.mapMoor, Location.cupFriendly),
       (PieceType.byzantium, Location.cupFriendly),
       (PieceType.enemyBattleFull, Location.cupBattle),
       (PieceType.infantry1, Location.poolForce),
@@ -2211,7 +2211,7 @@ class Game {
 
   int get levyLimitCount {
     int limit = 1;
-    for (final marquis in PieceType.marquis.pieces) {
+    for (final marquis in PieceType.mapMarquis.pieces) {
       final location = _state.pieceLocation(marquis);
       if (location != Location.flipped && location != Location.offmap) {
         limit += 1;
@@ -2241,7 +2241,7 @@ class Game {
 
   List<Location> candidateLeaderBattleLocations(Piece leader) {
     final candidates = <Location>[];
-    if (leader.isType(PieceType.charlemagne)) {
+    if (leader.isType(PieceType.mapCharlemagne)) {
       for (final space in _state.carolingianLeaderRange(leader)) {
         final enemyUnitCount = _state.piecesInLocationCount(PieceType.mapEnemyUnit, space);
         if (enemyUnitCount >= 2) {
@@ -2258,13 +2258,13 @@ class Game {
     for (final space in _state.carolingianLeaderRange(leader)) {
       if (space != originalLocation) {
         final enemyUnitCount = _state.piecesInLocationCount(PieceType.mapEnemyUnit, space);
-        final moorsCount = _state.piecesInLocationCount(PieceType.moor, space);
+        final moorsCount = _state.piecesInLocationCount(PieceType.mapMoor, space);
         if (enemyUnitCount == 0 && moorsCount == 0) {
           if (!candidates.contains(space)) {
             candidates.add(space);
             for (final otherSpace in _state.actionAdjacentLocations(leader, space)) {
               final enemyUnitCount = _state.piecesInLocationCount(PieceType.mapEnemyUnit, otherSpace);
-              final moorsCount = _state.piecesInLocationCount(PieceType.moor, otherSpace);
+              final moorsCount = _state.piecesInLocationCount(PieceType.mapMoor, otherSpace);
               if (enemyUnitCount == 0 && moorsCount == 0) {
                 if (!candidates.contains(otherSpace)) {
                   candidates.add(otherSpace);
@@ -2303,9 +2303,9 @@ class Game {
 
   List<Location> candidateLeaderMarquisLocations(Piece leader) {
     final candidates = <Location>[];
-    if (leader.isType(PieceType.charlemagne)) {
-      final marquisOffMapCount = _state.piecesInLocationCount(PieceType.marquisNoCrown, Location.offmap);
-      final marquisOnMapCount = PieceType.marquisNoCrown.count - marquisOffMapCount;
+    if (leader.isType(PieceType.mapCharlemagne)) {
+      final marquisOffMapCount = _state.piecesInLocationCount(PieceType.mapMarquisNoCrown, Location.offmap);
+      final marquisOnMapCount = PieceType.mapMarquisNoCrown.count - marquisOffMapCount;
       if (marquisOffMapCount > 0 && marquisOnMapCount < _state.churchFinishedCount + 2) {
         for (final space in _state.carolingianLeaderRange(leader)) {
           final enemyCount = _state.piecesInLocationCount(PieceType.mapEnemyUnit, space);
@@ -2349,7 +2349,7 @@ class Game {
   void reactionEnemyUnit(Piece enemyUnit) {
     logLine('### ${enemyUnit.desc} becomes Hostile.');
     final space = _state.enemyHome(enemyUnit);
-    if (_state.piecesInLocationCount(PieceType.moor, space) > 0) {
+    if (_state.piecesInLocationCount(PieceType.mapMoor, space) > 0) {
       logLine('>Uprising in ${space.desc} is suppressed by the Moors.');
       _state.setPieceLocation(enemyUnit, Location.poolDead);
       return;
@@ -2359,7 +2359,7 @@ class Game {
       _state.setPieceLocation(enemyUnit, Location.poolDead);
       return;
     }
-    if (_state.piecesInLocationCount(PieceType.marquis, space) > 0) {
+    if (_state.piecesInLocationCount(PieceType.mapMarquis, space) > 0) {
       int die = rollD8();
       logLine('>|Effect|Value|');
       logLine('>|:---|:---:|');
@@ -2398,13 +2398,13 @@ class Game {
       _state.setPieceLocation(Piece.alAndalusTension, Location.boxAlAndalus);
     }
     for (final space in [Location.spanishMarch, Location.gascony, Location.bordeaux, Location.poitiers]) {
-      final charlemagne = _state.pieceInLocation(PieceType.charlemagne, space);
+      final charlemagne = _state.pieceInLocation(PieceType.mapCharlemagne, space);
       if (charlemagne != null) {
         //ambush(space); TODO
         return;
       }
-      final marquis = _state.pieceInLocation(PieceType.marquis, space);
-      int moorsCount = _state.piecesInLocationCount(PieceType.moor, space);
+      final marquis = _state.pieceInLocation(PieceType.mapMarquis, space);
+      int moorsCount = _state.piecesInLocationCount(PieceType.mapMoor, space);
       if (moorsCount == 1 && space == Location.poitiers) {
         throw GameOverException(GameResult.defeatMoors, 0);
       }
@@ -2418,7 +2418,7 @@ class Game {
 
   void reactionViking(Piece viking) {
     logLine('### Vikings');
-    final region = _state.piecesInLocationCount(PieceType.viking, Location.boxRegionPurple) < 2 ? Region.purple : Region.blue;
+    final region = _state.piecesInLocationCount(PieceType.mapViking, Location.boxRegionPurple) < 2 ? Region.purple : Region.blue;
     final regionBox = _state.regionBox(region);
     logLine('>Vikings terrorize ${regionBox.desc}.');
     _state.setPieceLocation(viking, regionBox);
@@ -2442,7 +2442,7 @@ class Game {
     _state.setPieceLocation(byzantium, Location.poolDead);
     int moorsCount = 0;
     for (final space in [Location.spanishMarch, Location.gascony, Location.bordeaux, Location.poitiers]) {
-      if (_state.piecesInLocationCount(PieceType.moor, space) > 0) {
+      if (_state.piecesInLocationCount(PieceType.mapMoor, space) > 0) {
         moorsCount += 1;
       }
     }
@@ -2504,9 +2504,9 @@ class Game {
     final piece = randPiece(_state.piecesInLocation(PieceType.all, Location.cupHostile))!;
     if (piece.isType(PieceType.mapEnemyUnit)) {
       reactionEnemyUnit(piece);
-    } else if (piece.isType(PieceType.moor)) {
+    } else if (piece.isType(PieceType.mapMoor)) {
       reactionMoors(piece);
-    } else if (piece.isType(PieceType.viking)) {
+    } else if (piece.isType(PieceType.mapViking)) {
       reactionViking(piece);
     } else if (piece.isType(PieceType.byzantium)) {
       reactionByzantium(piece);
@@ -2527,7 +2527,7 @@ class Game {
   // Sequence of Play
 
   void setupMarquis() {
-    if (_state.currentTurn != 0) {
+    if (_state.currentTurn != 1) {
       return;
     }
     if (choicesEmpty()) {
@@ -2538,10 +2538,11 @@ class Game {
     }
     final location = selectedLocation()!;
     _state.setPieceLocation(Piece.marquisNoCrown0, location);
+    clearChoices();
   }
 
   void completeSetup() {
-    if (_state.currentTurn != 0) {
+    if (_state.currentTurn != 1) {
       return;
     }
 
@@ -2703,7 +2704,7 @@ class Game {
       logLine('>|Total|$total|');
       if (die > total) {
         final pieces = _state.piecesInLocation(PieceType.mapEnemyUnit, space);
-        if (leader.isType(PieceType.charlemagne) || pieces.length == 1) {
+        if (leader.isType(PieceType.mapCharlemagne) || pieces.length == 1) {
           logLine('>Resistance in ${space.desc} is suppressed.');
           for (final piece in _state.piecesInLocation(PieceType.mapEnemyUnit, space)) {
             _state.setPieceLocation(piece, Location.poolDead);
@@ -2777,7 +2778,7 @@ class Game {
       }
       if (choicesEmpty()) {
         setPrompt('Select Leader to perform Action');
-        for (final leader in PieceType.carolingianLeader.pieces) {
+        for (final leader in PieceType.mapCarolingianLeader.pieces) {
           if (_state.pieceLocation(leader).isType(LocationType.map)) {
             pieceChoosable(leader);
           }

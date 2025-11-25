@@ -77,9 +77,9 @@ class GamePageState extends State<GamePage> {
       Piece.swabia0: 'map_unit_swabia_3',
       Piece.swabia1: 'map_unit_swabia_3',
       Piece.swabia2: 'map_unit_swabia_4',
-      Piece.provence0: 'map_unit_province_3',
-      Piece.provence1: 'map_unit_province_4',
-      Piece.provence2: 'map_unit_province_4',
+      Piece.provence0: 'map_unit_provence_3',
+      Piece.provence1: 'map_unit_provence_4',
+      Piece.provence2: 'map_unit_provence_4',
       Piece.burgundy0: 'map_unit_burgundy_3',
       Piece.burgundy1: 'map_unit_burgundy_3',
       Piece.burgundy2: 'map_unit_burgundy_4',
@@ -445,17 +445,20 @@ class GamePageState extends State<GamePage> {
       return;
     }
 
-    Widget widget = const SizedBox(
-      height: 130.0,
-      width: 130.0,
+    double halfSize = 44.0;
+
+    Widget widget = SizedBox(
+      height: 2.0 * halfSize,
+      width: 2.0 * halfSize,
     );
 
     final boxDecoration = BoxDecoration(
       shape: BoxShape.rectangle,
       color: Colors.transparent,
       border: Border.all(color: choosable ? Colors.red : Colors.green, width: 5.0),
-      borderRadius: BorderRadius.circular(10.0),
+      borderRadius: BorderRadius.circular(1.0),
     );
+    halfSize += 5.0;
 
     widget = Container(
       decoration: boxDecoration,
@@ -475,8 +478,8 @@ class GamePageState extends State<GamePage> {
     }
 
     widget = Positioned(
-      left: x - 72.0,
-      top: y - 72.0,
+      left: x - halfSize,
+      top: y - halfSize,
       child: widget,
     );
 
@@ -485,29 +488,29 @@ class GamePageState extends State<GamePage> {
 
   (BoardArea, double, double) locationCoordinates(Location location) {
     const coordinates = {
-      Location.aachen: (BoardArea.map, 1286.0, 338.0),
-      Location.burgundy: (BoardArea.map, 0.0, 0.0),
-      Location.fulda: (BoardArea.map, 0.0, 0.0),
-      Location.provence: (BoardArea.map, 0.0, 0.0),
-      Location.swabia: (BoardArea.map, 0.0, 0.0),
-      Location.paris: (BoardArea.map, 1016.0, 521.0),
-      Location.reims: (BoardArea.map, 1132.0, 437.0),
-      Location.bretonMarch: (BoardArea.map, 697.0, 468.0),
-      Location.bordeaux: (BoardArea.map, 842.0, 857.0),
-      Location.gascony: (BoardArea.map, 921.0, 987.0),
-      Location.poitiers: (BoardArea.map, 960.0, 710.0),
-      Location.spanishMarch: (BoardArea.map, 0.0, 0.0),
-      Location.bavaria: (BoardArea.map, 1659.0, 579.0),
-      Location.friuli: (BoardArea.map, 1658.0, 796.0),
-      Location.lombardy: (BoardArea.map, 1496.0, 878.0),
+      Location.aachen: (BoardArea.map, 1316.0, 368.0),
+      Location.burgundy: (BoardArea.map, 1309.0, 736.0),
+      Location.fulda: (BoardArea.map, 1545.0, 380.0),
+      Location.provence: (BoardArea.map, 1313.0, 979.0),
+      Location.swabia: (BoardArea.map, 1406.0, 603.0),
+      Location.paris: (BoardArea.map, 1046.0, 551.0),
+      Location.reims: (BoardArea.map, 1162.0, 467.0),
+      Location.bretonMarch: (BoardArea.map, 727.0, 499.0),
+      Location.bordeaux: (BoardArea.map, 872.0, 887.0),
+      Location.gascony: (BoardArea.map, 951.0, 1017.0),
+      Location.poitiers: (BoardArea.map, 990.0, 740.0),
+      Location.spanishMarch: (BoardArea.map, 1011.5, 1167.0),
+      Location.bavaria: (BoardArea.map, 1689.0, 609.0),
+      Location.friuli: (BoardArea.map, 1688.0, 826.0),
+      Location.lombardy: (BoardArea.map, 1526.0, 908.0),
       Location.rome: (BoardArea.map, 0.0, 0.0),
-      Location.avars: (BoardArea.map, 1993.0, 631.0),
-      Location.carinthia: (BoardArea.map, 1808.0, 677.0),
-      Location.croats: (BoardArea.map, 1957.0, 890.0),
-      Location.moravians: (BoardArea.map, 1935.0, 435.0),
-      Location.saxons1: (BoardArea.map, 1392.0, 149.0),
-      Location.saxons2: (BoardArea.map, 1537.0, 146.0),
-      Location.veleti: (BoardArea.map, 1673.0, 176.0),
+      Location.avars: (BoardArea.map, 2023.0, 661.0),
+      Location.carinthia: (BoardArea.map, 1838.0, 707.0),
+      Location.croats: (BoardArea.map, 1987.0, 920.0),
+      Location.moravians: (BoardArea.map, 1965.0, 465.0),
+      Location.saxons1: (BoardArea.map, 1422.0, 179.0),
+      Location.saxons2: (BoardArea.map, 1567.0, 176.0),
+      Location.veleti: (BoardArea.map, 1703.0, 206.0),
       Location.victory0: (BoardArea.map, 66.0, 220.0),
       Location.turn1: (BoardArea.map, 78.0, 92.0),
       Location.treasury0: (BoardArea.map, 64.0, 465.0),
@@ -545,8 +548,15 @@ class GamePageState extends State<GamePage> {
       addBoxToMap(appState, box, xBox, yBox);
     }
 
+    final xStack = xBox - 30.0;
+    final yStack = yBox - 30.0;
+
     final pieces = <Piece>[];
 
+    final carolingianLeader = state.pieceInLocation(PieceType.mapCarolingianLeader, box);
+    if (carolingianLeader != null) {
+      pieces.add(carolingianLeader);
+    }
     final enemies = state.piecesInLocation(PieceType.mapEnemyUnit, box);
     for (int depth = 0; depth < enemies.length; ++depth) {
       for (int i = 0; i < enemies.length; ++i) {
@@ -556,17 +566,13 @@ class GamePageState extends State<GamePage> {
         }
       }
     }
-    final leader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
-    if (leader != null) {
-      pieces.add(leader);
-    }
-    final charlemagne = state.pieceInLocation(PieceType.charlemagne, box);
-    if (charlemagne != null) {
-      pieces.add(charlemagne);
+    final enemyLeader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
+    if (enemyLeader != null) {
+      pieces.add(enemyLeader);
     }
 
     if (pieces.isNotEmpty) {
-      layoutStack(appState, (box, 0), pieces, BoardArea.map, xBox, yBox, 4.0, 4.0);
+      layoutStack(appState, (box, 0), pieces, BoardArea.map, xStack, yStack, 6.0, 6.0);
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
