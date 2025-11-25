@@ -1186,6 +1186,8 @@ class Game {
     return pieceName(piece);
   }
 
+  // Randomness
+
   String dieFace(int die) {
     return '![](resource:assets/images/d6_$die.png)';
   }

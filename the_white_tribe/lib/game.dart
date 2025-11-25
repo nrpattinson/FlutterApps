@@ -1176,44 +1176,49 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
   }
 
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1337,31 +1342,31 @@ class Game {
   void adjustTreasury(int delta) {
     _state.adjustTreasury(delta);
     if (delta > 0) {
-      logLine('> Treasury: +$delta → ${_state.treasury}');
+      logLine('>Treasury: +$delta → ${_state.treasury}');
     } else if (delta < 0) {
-      logLine('> Treasury: $delta → ${_state.treasury}');
+      logLine('>Treasury: $delta → ${_state.treasury}');
     }
   }
 
   void adjustPopulation(int delta) {
     _state.adjustPopulation(delta);
     if (delta > 0) {
-      logLine('> Population: +$delta → ${_state.population}');
+      logLine('>Population: +$delta → ${_state.population}');
     } else if (delta < 0) {
-      logLine('> Population: $delta → ${_state.population}');
+      logLine('>Population: $delta → ${_state.population}');
     }
   }
 
   void populationUp() {
     if (!_state.populationUp) {
-      logLine('> Population starts to increase.');
+      logLine('>Population starts to increase.');
       _state.flipPiece(_state.populationMarker);
     }
   }
 
   void populationDown() {
     if (_state.populationUp) {
-      logLine('> Population starts to decline.');
+      logLine('>Population starts to decline.');
       _state.flipPiece(_state.populationMarker);
     }
   }
@@ -1369,9 +1374,9 @@ class Game {
   void adjustTerror(int delta) {
     bool overflow = _state.adjustTerror(delta);
     if (delta > 0) {
-      logLine('> Terror Level: +$delta => ${_state.terror}');
+      logLine('>Terror Level: +$delta => ${_state.terror}');
     } else {
-      logLine('> Terror Level: $delta => ${_state.terror}');
+      logLine('>Terror Level: $delta => ${_state.terror}');
     }
     if (overflow) {
       deployTerrorists(1);
@@ -1381,9 +1386,9 @@ class Game {
   void adjustRFPopularity(int delta) {
     _state.adjustRFPopularity(delta);
     if (delta > 0) {
-      logLine('> RF Popularity: +$delta => ${_state.rfPopularity}');
+      logLine('>RF Popularity: +$delta => ${_state.rfPopularity}');
     } else {
-      logLine('> RF Popularity: $delta => ${_state.rfPopularity}');
+      logLine('>RF Popularity: $delta => ${_state.rfPopularity}');
     }
   }
 
@@ -1412,6 +1417,7 @@ class Game {
         return;
       }
       int die = rollD6();
+      logD6(die);
       Location? region;
       PieceType pieceType = PieceType.terrZanuUnused;
       switch (die) {
@@ -1438,7 +1444,7 @@ class Game {
         }
       }
       final terr = _state.piecesInLocation(pieceType, region!)[0];
-      logLine('> ${terr.desc} deploys in ${region.desc}.');
+      logLine('>${terr.desc} deploys in ${region.desc}.');
       _state.setPieceLocation(terr, region);
     }
   }
@@ -1446,76 +1452,78 @@ class Game {
   void britishElection() {
     _state.setPieceLocation(Piece.markerBritishElection, _state.futureTurnBox(5));
     int die = rollD6();
+    logD6(die);
     final oldGovernment = _state.pieceInLocation(PieceType.foreignBritain, Location.boxUKGovernment);
     if (die <= 3) {
       if (oldGovernment == Piece.foreignBritainAnti) {
-        logLine('> Labour remains in power.');
+        logLine('>Labour remains in power.');
       } else {
-        logLine('> Conservative party wins the election.');
+        logLine('>Conservative party wins the election.');
         adjustTerror(-1);
       }
     } else {
       if (oldGovernment == Piece.foreignBritainPro) {
-        logLine('> Tories remain in power.');
+        logLine('>Tories remain in power.');
       } else {
-        logLine('> Labour party wins the election.');
+        logLine('>Labour party wins the election.');
         adjustTerror(1);
       }
     }
   }
 
   void lancasterHouse() {
-    logLine('> Peace conferences is held in Lancaster House in London.');
+    logLine('>Peace conferences is held in Lancaster House in London.');
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
     int total = 0;
     int handshakeCount = 5 - _state.fistCount;
-    logLine('> Handshake markers: +$handshakeCount');
+    logLine('>|Handshake markers|+$handshakeCount|');
     total += handshakeCount;
     if (_state.rfPopularity > 0) {
-      logLine('> RF popularity: +${_state.rfPopularity}');
+      logLine('>|RF popularity|+${_state.rfPopularity}|');
     } else {
-      logLine('> RF popularity: ${_state.rfPopularity}');
+      logLine('>|RF popularity|${_state.rfPopularity}|');
     }
     total += _state.rfPopularity;
     if (_state.populationUp) {
-      logLine('> Population rising: +2');
+      logLine('>|Population rising|+2|');
       total += 2;
     } else {
-      logLine('> Population falling: -2');
+      logLine('>|Population falling|-2|');
       total -= 2;
     }
     if (_state.pieceLocation(Piece.politicianZambiaKaunda) == Location.frontLineZambia) {
-      logLine('> Kaunda in Zambia: +1');
+      logLine('>|Kaunda controls Zambia|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignPortugalMocambique) == Location.frontLineMocambique) {
-      logLine('> Portual in Moçambique: +1');
+      logLine('>|Portugal controls Moçambique|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignPortugalTete) == Location.frontLineTete) {
-      logLine('> Portugal in Tete: +1');
+      logLine('>|Portugal controls Tete|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.politicianUsReagan) == Location.boxUSPresident) {
-      logLine('> President Reagan: +1');
+      logLine('>|President Reagan|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignSouthAfricaPro) == Location.boxSouthAfricaGovernment) {
-      logLine('> Friendly South African government: +1');
+      logLine('>|Sympathetic South African government|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.politicianTanzaniaCoup) == Location.frontLineTanzania) {
-      logLine('> Nyerere ousted from Tanzania: +1');
+      logLine('>|Nyerere ousted from Tanzania|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignBritainPro) == Location.boxUKGovernment) {
-      logLine('> Conservative UK government: +1');
+      logLine('>|Sympathetic UK government|+1|');
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignUSAPro) == Location.boxUSAGovernment) {
-      logLine('> Republican US government: +1');
+      logLine('>|Sympathetic US government|+1|');
       total += 1;
     }
-    
 
   }
   void gameOver(GameOutcome outcome) {
@@ -1528,19 +1536,20 @@ class Game {
 
   void event4DollarGift() {
     logLine('### \$4 Gift');
-    logLine('> Foreign anti‐communists pour cash into Rhodesia’s treasury.');
+    logLine('>Foreign anti‐communists pour cash into Rhodesia’s treasury.');
     adjustTreasury(4);
   }
 
   void eventAirRhodesia() {
     logLine('### Air Rhodesia');
-    logLine('> Smugglers buy jumbo jets on the black market.');
+    logLine('>Smugglers buy jumbo jets on the black market.');
     adjustRFPopularity(3);
   }
 
   void eventAtrocity() {
     logLine('### Atrocity');
     final results = roll2D6();
+    log2D6(results);
     int dh = max(results.$1, results.$2);
     int dl = min(results.$1, results.$2);
     if (dh == dl) {
@@ -1560,25 +1569,25 @@ class Game {
       }
       final location = _state.pieceLocation(_state.politician(politicianFront!));
       if ([Location.boxWhaWhaPrison, Location.discarded].contains(location)) {
-        logLine('> Assassination plot is abandoned.');
+        logLine('>Assassination plot is abandoned.');
       } else {
-        logLine('> ${politicianFront.desc} is assassinated.');
+        logLine('>${politicianFront.desc} is assassinated.');
         _state.setPieceLocation(politicianFront, Location.discarded);
       }
     } else {
       switch (dh) {
       case 2:
-        logLine('> Terrorists massacre Church Group.');
+        logLine('>Terrorists massacre Church Group.');
       case 3:
-        logLine('> Urban bombing in Salisbury.');
+        logLine('>Urban bombing in Salisbury.');
       case 4:
-        logLine('> Civilian plane shot down.');
+        logLine('>Civilian plane shot down.');
         adjustPopulation(-_state.fistCount);
       case 5:
-        logLine('> Black schoolchildren kidnapped.');
+        logLine('>Black schoolchildren kidnapped.');
         adjustTerror(1);
       case 6:
-        logLine('> White farmers targeted.');
+        logLine('>White farmers targeted.');
         adjustPopulation(-1);
       }
       Piece? politicianFront;
@@ -1598,7 +1607,7 @@ class Game {
         politicianFront = null;
       }
       if (politicianFront != null) {
-        logLine('> ${politicianFront.desc} is held responsible.');
+        logLine('>${politicianFront.desc} is held responsible.');
         if (politicianFront == Piece.politicianBlackMugabe) {
           adjustTerror(1);
         } else if (location == Location.boxCollaborators) {
@@ -1617,12 +1626,13 @@ class Game {
     }
     logLine('### Beira Airstrike?');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> British Labour Government bombs the Portuguese harbor at Beira, resulting in a diplomatic débâcle');
+      logLine('>British Labour Government bombs the Portuguese harbor at Beira, resulting in a diplomatic débâcle');
       _state.flipPiece(Piece.foreignBritainAnti);
       adjustTerror(-1);
     } else {
-      logLine('> British Labour Government takes no action.');
+      logLine('>British Labour Government takes no action.');
     }
   }
 
@@ -1632,34 +1642,35 @@ class Game {
     }
     logLine('### Brazilian Troops to Angola?');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> Brazil sends troops to Angola to fight communism.');
+      logLine('>Brazil sends troops to Angola to fight communism.');
       adjustTerror(-1);
     } else {
-      logLine('> Brazil decides not to send troops.');
+      logLine('>Brazil decides not to send troops.');
     }
   }
 
   void eventBritishElection() {
     logLine('### British Election');
-    logLine('> A snap election is called.');
+    logLine('>A snap election is called.');
     britishElection();
   }
 
   void eventCaboraBassaDam() {
     logLine('### Cabora Bassa Dam');
     if (_state.pieceLocation(Piece.foreignPortugalTete) == Location.regionTete) {
-      logLine('> Guerillas take control of strategic dam.');
+      logLine('>Guerillas take control of strategic dam.');
       _state.setPieceLocation(Piece.foreignPortugalTete, Location.discarded);
     } else {
-      logLine('> Portuguese wrest control of strategic dam from guerrillas.');
+      logLine('>Portuguese wrest control of strategic dam from guerrillas.');
       _state.setPieceLocation(Piece.foreignPortugalTete, Location.regionTete);
     }
   }
 
   void eventChurchStateFriction() {
     logLine('### Church–State Friction');
-    logLine('> GOvernment cracks down on liberal Christian activists.');
+    logLine('>Government cracks down on liberal Christian activists.');
     adjustRFPopularity(-1);
   }
 
@@ -1669,18 +1680,19 @@ class Game {
     }
     logLine('### Commonwealth Conference');
     int die = rollD6();
+    logD6(die);
     if (die >= 5) {
-      logLine('> Tories are blackmailed by Third World countries in the British Commonwealth.');
+      logLine('>Tories are blackmailed by Third World countries in the British Commonwealth.');
       _state.setPieceLocation(Piece.foreignBritainAnti, Location.boxUKGovernment);
       adjustTerror(1);
     } else {
-      logLine('> Lobbying by Third World countries in the British Commonwealth is ignored.');
+      logLine('>Lobbying by Third World countries in the British Commonwealth is ignored.');
     }
   }
 
   void eventCommunistSubversion() {
     logLine('### Communist Subversion');
-    logLine('> Arms and advisors flow in from Russia and China.');
+    logLine('>Arms and advisors flow in from Russia and China.');
     adjustTerror(1);
   }
 
@@ -1689,7 +1701,7 @@ class Game {
       return;
     }
     logLine('### Coup/Fico!');
-    logLine('> Right‐wing White settlers seize power in Moçambique.');
+    logLine('>Right‐wing White settlers seize power in Moçambique.');
     _state.setPieceLocation(Piece.troopieRenamo1, Location.poolForce);
     _state.setPieceLocation(Piece.troopieRenamo2, Location.poolForce);
     adjustTerror(1);
@@ -1704,7 +1716,7 @@ class Game {
       return;
     }
     logLine('### Coup in Portugal!');
-    logLine('> Portuguese leave Africa after a 500‐year occupatin.');
+    logLine('>Portuguese leave Africa after a 500‐year occupatin.');
     _state.setPieceLocation(Piece.troopieRenamo1, Location.poolForce);
     _state.setPieceLocation(Piece.troopieRenamo2, Location.poolForce);
     adjustTerror(1);
@@ -1716,18 +1728,19 @@ class Game {
   void eventCoupRumoursInTanzania() {
     logLine('### Coup Rumors in Tanzania');
     final results = roll2D6();
+    log2D6(results);
     if (results.$3 == 12) {
       final piece = _state.pieceInLocation(PieceType.politicianTananzia, Location.frontLineTanzania)!;
       if (piece == Piece.politicianTanzaniaNyerere) {
-        logLine('> Coup ousts Nyerere in Tanzania.');
+        logLine('>Coup ousts Nyerere in Tanzania.');
         adjustTerror(-1);
       } else {
-        logLine('> Coup restores Nyerere in Tanzania.');
+        logLine('>Coup restores Nyerere in Tanzania.');
         adjustTerror(1);
       }
       _state.flipPiece(piece);
     } else {
-      logLine('> Rumors unfounded.');
+      logLine('>Rumors unfounded.');
     }
   }
 
@@ -1736,7 +1749,7 @@ class Game {
       return;
     }
     logLine('### Drought');
-    logLine('> Farmers flee.');
+    logLine('>Farmers flee.');
     populationDown();
     adjustPopulation(-_state.fistCount);
   }
@@ -1776,7 +1789,7 @@ class Game {
         }
         final unit = selectedPiece()!;
         final location = _state.pieceLocation(unit);
-        logLine('> ZAPU unit in ${location.desc} is eliminated.');
+        logLine('>ZAPU unit in ${location.desc} is eliminated.');
         _state.setPieceLocation(unit, Location.poolForce);
         phaseState.remainingCount = phaseState.remainingCount! - 1;
       }
@@ -1797,11 +1810,11 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.yes)) {
-        logLine('> Rhodesia sends aid.');
+        logLine('>Rhodesia sends token aid.');
         adjustTreasury(-2);
         adjustTerror(-1);
       } else {
-        logLine('> Rhodesia does not send aid.');
+        logLine('>Rhodesia does not send aid.');
       }
       clearChoices();
     }
@@ -1816,8 +1829,9 @@ class Game {
     }
     logLine('### Jesse Helms');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> Hard‐line Southern senators end US sanctions.');
+      logLine('>Hard‐line Southern senators end US sanctions.');
       _state.setPieceLocation(Piece.markerSanctions, Location.discarded);
     }
   }
@@ -1847,17 +1861,17 @@ class Game {
       return;
     }
     logLine('### Outrage');
-    logLine('> Rhodesian ground troops are caught conducting cross-border raids.');
+    logLine('>Rhodesian ground troops are caught conducting cross-border raids.');
     int count = 0;
     for (final piece in [Piece.foreignBritainPro, Piece.foreignSouthAfricaPro, Piece.foreignUSAPro]) {
       if (_state.pieceLocation(piece) != Location.flipped) {
         switch (piece) {
         case Piece.foreignBritainPro:
-          logLine('> British Government turns against the Rhodesian regime.');
+          logLine('>British Government turns against the Rhodesian regime.');
         case Piece.foreignSouthAfricaPro:
-          logLine('> South African Government turns against the Rhodesian regime.');
+          logLine('>South African Government turns against the Rhodesian regime.');
         case Piece.foreignUSAPro:
-          logLine('> US Government turns against the Rhodesian regime.');
+          logLine('>US Government turns against the Rhodesian regime.');
         default:
         }
         _state.flipPiece(piece);
@@ -1890,7 +1904,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final troopie = selectedPiece()!;
-      logLine('> ${troopie.desc} deploys to Salisbury.');
+      logLine('>${troopie.desc} deploys to Salisbury.');
       clearChoices();
     }
   }
@@ -1909,13 +1923,13 @@ class Game {
 
   void eventSinoSovietSplit() {
     logLine('### Sino–Soviet Split');
-    logLine('> IDeological feuds draw resources away from Africa.');
+    logLine('>Ideological feuds draw resources away from Africa.');
     adjustTerror(-1);
   }
 
   void eventSoldierOfFortune() {
     logLine('### Soldier of Fortune');
-    logLine('> Vietnam vets flock to Rhodesia.');
+    logLine('>Vietnam vets flock to Rhodesia.');
     final handshakeCount = _state.piecesInLocationCount(PieceType.blackAttitudeFist, Location.flipped);
     adjustPopulation(handshakeCount + 3);
     if (_state.pieceLocation(Piece.markerPopulationUp) == Location.flipped) {
@@ -1927,20 +1941,21 @@ class Game {
     logLine('### South Africa Shake‐Up');
     final piece = _state.pieceInLocation(PieceType.foreignSouthAfrica, Location.boxSouthAfricaGovernment)!;
     int die = rollD6();
+    logD6(die);
     if (die <= 3) {
       if (piece == Piece.foreignSouthAfricaAnti) {
-        logLine('> New South African government is pro‐Rhodesia.');
+        logLine('>New South African government is pro‐Rhodesia.');
         adjustTerror(-1);
       } else {
-        logLine('> New South African government is anti‐Rhodesia.');
+        logLine('>New South African government is anti‐Rhodesia.');
         adjustTerror(1);
       }
       _state.flipPiece(piece);
     } else {
       if (piece == Piece.foreignSouthAfricaAnti) {
-        logLine('> New South African government remains anti‐Rhodesia.');
+        logLine('>New South African government remains anti‐Rhodesia.');
       } else {
-        logLine('> New South African government remains pro‐Rhodesia.');
+        logLine('>New South African government remains pro‐Rhodesia.');
       }
     }
   }
@@ -1961,7 +1976,7 @@ class Game {
     }
     if (_subStep == 0) {
       logLine('### Special Branch');
-      logLine('> Rhodesian spies plant evidence to make Terr leaders look like informants.');
+      logLine('>Rhodesian spies plant evidence to make Terr leaders look like informants.');
       _subStep = 1;
     }
     if (_subStep == 1) {
@@ -1975,7 +1990,7 @@ class Game {
       final terr = selectedPiece()!;
       final location = _state.pieceLocation(terr);
       adjustTreasury(-1);
-      logLine('> ${terr.desc} in ${location.desc} is eliminated.');
+      logLine('>${terr.desc} in ${location.desc} is eliminated.');
       _state.setPieceLocation(terr, Location.poolForce);
     }
   }
@@ -2007,6 +2022,7 @@ class Game {
       int count = 2;
       if (_state.pieceLocation(Piece.politicianBlackMugabeZanu) != Location.boxZanuLeadership) {
         count = rollD6();
+        logD6(count);
       }
       phaseState.remainingCount = count;
       _subStep = 1;
@@ -2032,7 +2048,7 @@ class Game {
         }
         final unit = selectedPiece()!;
         final location = _state.pieceLocation(unit);
-        logLine('> ZANU unit in ${location.desc} is eliminated.');
+        logLine('>ZANU unit in ${location.desc} is eliminated.');
         _state.setPieceLocation(unit, Location.poolForce);
         phaseState.remainingCount = phaseState.remainingCount! - 1;
       }
@@ -2062,10 +2078,14 @@ class Game {
 
   void rhodesiaHeraldPhaseRoll() {
     final phaseState = _phaseState as PhaseStateRhodesiaHerald;
-    logLine('> Rhodesia Herald');
+    logLine('>Rhodesia Herald');
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
     int die = rollD6();
+    logD6InTable(die);
+    logLine('>|Turn|${_state.currentTurn}|');
     int total = _state.currentTurn + die;
-    logLine('> Result: $total');
+    logLine('>|Total|$total|');
     phaseState.result = total;
   }
 

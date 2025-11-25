@@ -12,6 +12,8 @@ enum BoardArea {
   track,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -37,6 +39,10 @@ class GamePageState extends State<GamePage> {
   final _trackImage = Image.asset('assets/images/track.png', key: UniqueKey(), width: _trackWidth, height: _trackHeight);
   final _mapStackChildren = <Widget>[];
   final _trackStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -216,6 +222,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -258,17 +268,34 @@ class GamePageState extends State<GamePage> {
       borderWidth += 1.0;
     }
 
+    GestureTapCallback? onTap;
     if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.chosePiece(piece);
-          },
-          child: widget,
-        ),
-      );
+      onTap = () {
+        appState.chosePiece(piece);
+      };
     }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -353,7 +380,7 @@ class GamePageState extends State<GamePage> {
       Location.frontLineTete: (BoardArea.map, 1268.0, 34.0),
       Location.frontLineMocambique: (BoardArea.map, 1167.0, 808.0),
       Location.frontLineBotswana: (BoardArea.map, 85.0, 552.0),
-      Location.frontLineTanzania: (BoardArea.map, 1350.0, 285.0),
+      Location.frontLineTanzania: (BoardArea.map, 1350.0, 282.0),
       Location.boxZambianTrade: (BoardArea.map, 440.0, 60.0),
       Location.boxGlobalTrade: (BoardArea.map, 0.0, 0.0),
       Location.boxUKGovernment: (BoardArea.map, 1350.0, 400.0),
@@ -368,7 +395,43 @@ class GamePageState extends State<GamePage> {
     return coordinates[location]!;
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int row = 0; row < rowCount; ++row) {
+      for (int col = 0; col < colCount; ++col) {
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+          stackPieces.add(pieces[pieceIndex]);
+        }
+        if (stackPieces.isNotEmpty) {
+          final sk = (box, stackIndex);
+          if (_expandedStacks.contains(sk) == (pass == 1)) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.provinceMidlands: (2, 1, 15.0, 0.0),
       Location.provinceMatabeleland: (2, 1, 15.0, 0.0),
@@ -407,19 +470,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-
-      if (!_emptyMap) {
-        final pieces = state.piecesInLocation(PieceType.all, box);
-        int cells = cols * rows;
-        for (int i = 0; i < pieces.length; ++i) {
-          int col = i % cols;
-          int row = (i % cells) ~/ cols;
-          int depth = i ~/ cells;
-          double x = xBox + col * (60.0 + xGap) + depth * 4.0;
-          double y = yBox + row * (60.0 + yGap) + depth * 4.0;
-          addPieceToBoard(appState, pieces[i], boardArea, x, y);
-        }
-      }
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
     }
   }
 
@@ -511,11 +562,12 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutBoxes(appState);
       layoutTerrorTrack(appState);
       layoutTurnTrack(appState);
       layoutHouseOfAssembly(appState);
       layoutPopularity(appState);
+      layoutBoxes(appState, 0);
+      layoutBoxes(appState, 1);
 
       const choiceTexts = {
         Choice.yes: 'Yes',
