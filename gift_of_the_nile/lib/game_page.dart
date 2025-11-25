@@ -542,7 +542,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxStacks(MyAppState appState, Location box, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
     int stackCount = rowCount * colCount;
     for (int row = 0; row < rowCount; ++row) {
       for (int col = 0; col < colCount; ++col) {
@@ -552,15 +552,18 @@ class GamePageState extends State<GamePage> {
           stackPieces.add(pieces[pieceIndex]);
         }
         if (stackPieces.isNotEmpty) {
-          double xStack = x + col * dxStack;
-          double yStack = y + row * dyStack;
-          layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          final sk = (box, stackIndex);
+          if (_expandedStacks.contains(sk) == (pass == 1)) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
         }
       }
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.boxPromisedLand: (1, 1, 0.0, 0.0),
       Location.boxWilderness: (1, 1, 0.0, 0.0),
@@ -609,7 +612,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
     }
   }
 
@@ -835,11 +838,12 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutBoxes(appState);
       layoutGranary(appState);
       layoutLiteracy(appState);
       layoutDynastyTrack(appState);
       layoutMenNefer(appState);
+      layoutBoxes(appState, 0);
+      layoutBoxes(appState, 1);
       layoutLands(appState, 0);
       layoutLands(appState, 1);
 

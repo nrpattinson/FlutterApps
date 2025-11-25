@@ -1227,15 +1227,28 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
+  }
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   // Randomness
 
-  int rollD8() {
-    int die = _random.nextInt(8) + 1;
-    logLine('> Roll: $die');
+  int rollD6() {
+    int die = _random.nextInt(6) + 1;
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -1533,15 +1546,15 @@ class Game {
       final oldLocation = _state.pieceLocation(piece);
       if (piece.isType(PieceType.legion)) {
         if (oldLocation == Location.recovery) {
-          logLine('> ${piece.desc} is deployed to ${location.desc}.');
+          logLine('>${piece.desc} is deployed to ${location.desc}.');
         } else {
-          logLine('> ${piece.desc} transfers from ${oldLocation.desc} to ${location.desc}.');
+          logLine('>${piece.desc} transfers from ${oldLocation.desc} to ${location.desc}.');
         }
       } else {
         if (oldLocation == Location.recovery) {
-          logLine('> ${piece.desc} is assigned to ${location.desc}.');
+          logLine('>${piece.desc} is assigned to ${location.desc}.');
         } else {
-          logLine('> ${piece.desc} is reassigned from ${oldLocation.desc} to ${location.desc}.');
+          logLine('>${piece.desc} is reassigned from ${oldLocation.desc} to ${location.desc}.');
         }
         _state.setPieceLocation(piece, location);
       }
@@ -1584,7 +1597,7 @@ class Game {
       return;
     }
     if (marcomanni == Piece.barbarianMarcomanniDemoralized) {
-      logLine('> Marcomanni are Emboldened.');
+      logLine('>Marcomanni are Emboldened.');
       _state.flipPiece(marcomanni);
       return;
     }
