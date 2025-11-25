@@ -1503,44 +1503,54 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
+  }
+
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
   }
 
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1560,6 +1570,7 @@ class Game {
 
   Location randWildProvince() {
     int die = rollD6();
+    logD6(die);
     switch (die) {
     case 1:
       return Location.nord;
@@ -1862,7 +1873,7 @@ class Game {
     String civilizedDesc = civilized ? 'Civilized' : 'Uncivilized';
     String barbariansDesc = count > 1 ? 'Barbarians' : 'Barbarian';
     String moveDesc = count > 1 ? 'move' : 'moves';
-    logLine('> $count $civilizedDesc $barbariansDesc $moveDesc ${pathDesc}to ${path[path.length - 1].desc}.');
+    logLine('>$count $civilizedDesc $barbariansDesc $moveDesc ${pathDesc}to ${path[path.length - 1].desc}.');
   }
 
   void emperorLost() {
@@ -1870,7 +1881,7 @@ class Game {
       final legions = _state.piecesInLocation(PieceType.legion, province);
       int lossCount = legions.length ~/ 2;
       if (lossCount > 0) {
-        logLine('> $lossCount Legions are lost from ${province.desc}.');
+        logLine('>$lossCount Legions are lost from ${province.desc}.');
         for (int i = 0; i < lossCount; ++i) {
           _state.setPieceLocation(legions[i], Location.offmap);
         }
@@ -1882,14 +1893,14 @@ class Game {
     _outcome = outcome;
     logLine('### Game Ends');
     if (outcome.result == GameResult.eliminated) {
-      logLine('> Roman Empire is eliminated in ${_state.turnName(outcome.turn)}.');
+      logLine('>Roman Empire is eliminated in ${_state.turnName(outcome.turn)}.');
     } else if (_scenario == Scenario.campaign) {
-      logLine('> Roman Empire still exists in 1500 AD.');
+      logLine('>Roman Empire still exists in 1500 AD.');
     }
     if (_scenario == Scenario.justiniansReconquest) {
-      logLine('> Province Score: ${outcome.score}');
+      logLine('>Province Score: ${outcome.score}');
     } else {
-      logLine('> Victory Score: ${outcome.score}');
+      logLine('>Victory Score: ${outcome.score}');
     }
     int level = 0;
     switch (_scenario) {
@@ -1932,15 +1943,15 @@ class Game {
     }
     switch (level) {
     case 0:
-      logLine('> Et tu Brute');
+      logLine('>Et tu Brute');
     case 1:
-      logLine('> Bad');
+      logLine('>Bad');
     case 2:
-      logLine('> Historical');
+      logLine('>Historical');
     case 3:
-      logLine('> Good');
+      logLine('>Good');
     case 4:
-      logLine('> Veni Vidi Vinci');
+      logLine('>Veni Vidi Vinci');
     }
   }
 
@@ -1987,7 +1998,7 @@ class Game {
       die = 6;
     }
     clearChoices();
-    logLine('> Skilled General changes roll from ${localState.d6!} to $die.');
+    logLine('>Skilled General changes roll from ${dieFace(localState.d6!)} to ${dieFace(die)}.');
     _state.setPieceLocation(Piece.skilledGeneral, Location.offmap);
     _skilledGeneralRerollState = null;
     return die;
@@ -2029,7 +2040,7 @@ class Game {
     final oldLocation = location;
     location = selectedLocation()!;
     clearChoices();
-    logLine('> Skilled General defends ${oldLocation.desc}, forcing Barbarians into ${location.desc}.');
+    logLine('>Skilled General defends ${oldLocation.desc}, forcing Barbarians into ${location.desc}.');
     _state.setPieceLocation(Piece.skilledGeneral, Location.offmap);
     _skilledGeneralRelocateState = null;
     return location;
@@ -2119,9 +2130,9 @@ class Game {
     int index = (d2 - 1) * 6 + d1 - 1;
     final province = randomCities[index];
     if (_state.pieceInLocation(PieceType.city, province) != null) {
-      logLine('> A City already exists in ${province.desc}.');
+      logLine('>A City already exists in ${province.desc}.');
     } else {
-      logLine('> A new City is founded in ${province.desc}.');
+      logLine('>A new City is founded in ${province.desc}.');
       final cities = _state.piecesInLocation(PieceType.city, Location.offmap);
       _state.setPieceLocation(cities[0], province);
     }
@@ -2133,11 +2144,12 @@ class Game {
     }
     logLine('### Skilled General');
     int die = rollD6();
+    logD6(die);
     if (die >= 5) {
-      logLine('> Rome has a Skilled General this turn.');
+      logLine('>Rome has a Skilled General this turn.');
       _state.setPieceLocation(Piece.skilledGeneral, _state.currentTurnBox);
     } else {
-      logLine('> No Skilled General is available this turn.');
+      logLine('>No Skilled General is available this turn.');
     }
   }
 
@@ -2154,7 +2166,7 @@ class Game {
       final romanControl = _state.pieceInLocation(PieceType.romanControl, Location.rome)!;
       _state.setPieceLocation(romanControl, Location.offmap);
     }
-    logLine('> Income: $talents Talents');
+    logLine('>Income: $talents Talents');
     _state.adjustTalents(talents);
   }
 
@@ -2320,15 +2332,15 @@ class Game {
           final city = _state.pieceInLocation(PieceType.city, toProvince);
           if (barbarian == null) {
             if (city == null) {
-              logLine('> Unoccupied');
+              logLine('>Unoccupied');
             } else {
-              logLine('> City');
+              logLine('>City');
             }
           } else {
             if (city == null) {
-              logLine('> Barbarian');
+              logLine('>Barbarian');
             } else {
-              logLine('> Barbarian and City');
+              logLine('>Barbarian and City');
             }
           }
         } else {
@@ -2355,27 +2367,31 @@ class Game {
         if (barbarian == null) {
           if (city == null) {
             int die = skilledGeneralRollD6();
+            logD6(die);
             failed = die >= 6;
           } else {
             int die = skilledGeneralRollD6();
+            logD6(die);
             failed = die >= 5;
             if (!failed) {
-              logLine('> City is captured.');
+              logLine('>City is captured.');
             }
           }
         } else {
           if (city == null) {
             int die = skilledGeneralRollD6();
+            logD6(die);
             failed = die >= 4;
             if (!failed) {
-              logLine('> Barbarian is eliminated.');
+              logLine('>Barbarian is eliminated.');
               _state.setPieceLocation(barbarian, Location.offmap);
             }
           } else {
             int die = skilledGeneralRollD6();
+            logD6(die);
             failed = die >= 4;
             if (!failed) {
-              logLine('> Barbarian is eliminated.');
+              logLine('>Barbarian is eliminated.');
               _state.setPieceLocation(barbarian, Location.offmap);
               _subStep = 7;
             }
@@ -2389,9 +2405,10 @@ class Game {
       }
       if (_subStep == 7) { // invade 2nd combat
         int die = skilledGeneralRollD6();
+        logD6(die);
         bool failed = die >= 5;
         if (!failed) {
-          logLine('> City is captured.');
+          logLine('>City is captured.');
         }
         if (failed) {
           _subStep = 8;
@@ -2402,14 +2419,14 @@ class Game {
       if (_subStep == 8) { // invasion failed
         final legion = phaseState.movingLegionOrEmperor!;
         final toProvince = phaseState.toProvince!;
-        logLine('> Legion is eliminated.');
+        logLine('>Legion is eliminated.');
         _state.setPieceLocation(legion, Location.offmap);
-        logLine('> ${toProvince.desc} remains Hostile.');
+        logLine('>${toProvince.desc} remains Hostile.');
         _subStep = 10;
       }
       if (_subStep == 9) { // invasion successful
         final toProvince = phaseState.toProvince!;
-        logLine('> ${toProvince.desc} becomes Friendly.');
+        logLine('>${toProvince.desc} becomes Friendly.');
         final control = _state.pieceInLocation(PieceType.romanControl, toProvince);
         if (control != null) {
           _state.setPieceLocation(control, Location.offmap);
@@ -2458,10 +2475,12 @@ class Game {
           [3, 1],
         ];
         int die = rollD6();
+        logD6(die);
         g1 = groupNumbers[die - 1][0];
         g2 = groupNumbers[die - 1][1];
       } else {
         final rolls = roll2D6();
+        log2D6(rolls);
         int d1 = rolls.$1;
         int d2 = rolls.$2;
         g1 = max(d1, d2);
@@ -2480,7 +2499,7 @@ class Game {
     }
     for (int i = 0; i < phaseState.groupInitialCounts.length; ++i) {
       String civilizedDesc = phaseState.groupCivilizeds[i] ? 'Civilized' : 'Uncivilized';
-      logLine('> ${phaseState.groupInitialCounts[i]} $civilizedDesc Barbarians issue forth from ${phaseState.groupInitialProvinces[i].desc}.');
+      logLine('>${phaseState.groupInitialCounts[i]} $civilizedDesc Barbarians issue forth from ${phaseState.groupInitialProvinces[i].desc}.');
     }
   }
 
@@ -2523,7 +2542,7 @@ class Game {
         final fromProvince = phaseState.currentGroupProvince!;
         if (_state.provinceType(fromProvince) != ProvinceType.wild && _state.pieceInLocation(PieceType.barbarian, fromProvince) == null) {
           barbarians.removeLast();
-          logLine('> Barbarians occupy ${fromProvince.desc}');
+          logLine('>Barbarians occupy ${fromProvince.desc}');
           phaseState.currentGroupCount = barbarians.length;
         }
         if (barbarians.isEmpty) {
@@ -2572,7 +2591,7 @@ class Game {
             _state.setPieceLocation(barbarian, nextProvince);
           }
           barbarians.removeLast();
-          logLine('> Barbarians occupy ${nextProvince.desc}');
+          logLine('>Barbarians occupy ${nextProvince.desc}');
           phaseState.currentGroupCount = barbarians.length;
           _subStep = 10;
         }
@@ -2581,9 +2600,9 @@ class Game {
         final nextProvince = phaseState.currentGroupNextProvince!;
         final legions = _state.piecesInLocation(PieceType.legion, nextProvince);
         if (legions.isNotEmpty) {
-          logLine('> Legion defense.');
+          logLine('>Legion defense.');
         } else {
-          logLine('> Emperor defense.');
+          logLine('>Emperor defense.');
         }
         _subStep = 5;
       }
@@ -2599,9 +2618,13 @@ class Game {
         int emperorRetreatCount = phaseState.emperorRetreatCount!;
         while (barbarians.length > barbarianLossCount && (legions.length > legionLossCount || emperorCount > emperorLossCount + emperorRetreatCount)) {
           int die = skilledGeneralRollD6();
+          logTableHeader();
+          logD6InTable(die);
           if (seaConnection) {
+            logLine('>|Sea|-1');
             die -= 1;
           }
+          logLine('>|Total|$die|');
           if (die <= 3) {
             barbarianLossCount += 1;
           } else if (legionLossCount < legions.length) {
@@ -2619,7 +2642,7 @@ class Game {
           phaseState.emperorRetreatCount = emperorRetreatCount;
         }
         if (legionLossCount > 0) {
-          logLine('> $legionLossCount Legions are lost defending ${nextProvince.desc}.');
+          logLine('>$legionLossCount Legions are lost defending ${nextProvince.desc}.');
           for (int i = 0; i < legionLossCount; ++i) {
             _state.setPieceLocation(legions.removeLast(), Location.offmap);
           }
@@ -2632,7 +2655,7 @@ class Game {
           }
         }
         if (emperorLossCount > 0) {
-          logLine('> Emperor is lost defending ${nextProvince.desc}.');
+          logLine('>Emperor is lost defending ${nextProvince.desc}.');
           _state.setPieceLocation(Piece.emperor, Location.offmap);
           emperorLost();
         }
@@ -2659,7 +2682,7 @@ class Game {
           throw PlayerChoiceException();
         }
         final retreatProvince = selectedLocation()!;
-        logLine('> Emperor retreats to ${retreatProvince.desc}.');
+        logLine('>Emperor retreats to ${retreatProvince.desc}.');
         _state.setPieceLocation(Piece.emperor, retreatProvince);
         _subStep = 7;
       }
@@ -2668,7 +2691,7 @@ class Game {
         int barbarianLossCount = phaseState.barbarianLossCount!;
         final city = _state.pieceInLocation(PieceType.city, nextProvince);
         if (barbarians.length > barbarianLossCount && city != null) {
-          logLine('> City defense.');
+          logLine('>City defense.');
         }
         _subStep = 8;
       }
@@ -2682,14 +2705,18 @@ class Game {
         if (barbarians.length > barbarianLossCount && city != null) {
           while (barbarians.length > barbarianLossCount && cityLossCount == 0) {
             int die = skilledGeneralRollD6();
+            logTableHeader();
+            logD6InTable(die);
             if (seaConnection) {
+              logLine('>|Sea|-1|');
               die -= 1;
             }
+            logLine('>|Total|$die|');
             if (die == 1) {
               barbarianLossCount += 1;
             } else {
               cityLossCount += 1;
-              logLine('> City in ${nextProvince.desc} falls to the Barbarians.');
+              logLine('>City in ${nextProvince.desc} falls to the Barbarians.');
             }
             phaseState.barbarianLossCount = barbarianLossCount;
             phaseState.cityLossCount = cityLossCount;
@@ -2704,31 +2731,30 @@ class Game {
         final city = _state.pieceInLocation(PieceType.city, nextProvince);
         int barbarianLossCount = phaseState.barbarianLossCount!;
         if (barbarianLossCount > 0) {
-          logLine('> $barbarianLossCount Barbarians are lost attacking ${nextProvince.desc}.');
+          logLine('>$barbarianLossCount Barbarians are lost attacking ${nextProvince.desc}.');
           for (int i = 0; i < barbarianLossCount; ++i) {
             _state.setPieceLocation(barbarians.removeLast(), Location.offmap);
           }
         }
         if (barbarians.isEmpty) {
-          logLine('> ${nextProvince.desc} withstands the Barbarian attack.');
+          logLine('>${nextProvince.desc} withstands the Barbarian attack.');
         } else {
-          logLine('> ${nextProvince.desc} falls to the Barbarians.');
+          logLine('>${nextProvince.desc} falls to the Barbarians.');
           final control = _state.pieceInLocation(PieceType.romanControl, nextProvince);
           if (control != null) {
             _state.setPieceLocation(control, Location.offmap);
           }
           if (city != null && barbarianPieceType == PieceType.barbarianUncivilized) {
-            logLine('> City in ${nextProvince.desc} is abandoned.');
+            logLine('>City in ${nextProvince.desc} is abandoned.');
             _state.setPieceLocation(city, Location.offmap);
           }
           for (final barbarian in barbarians) {
             _state.setPieceLocation(barbarian, nextProvince);
           }
           barbarians.removeLast();
-          logLine('> Barbarians occupy ${nextProvince.desc}');
+          logLine('>Barbarians occupy ${nextProvince.desc}');
         }
         _subStep = 10;
-        logLine('>');
         phaseState.barbarianLossCount = null;
         phaseState.legionLossCount = null;
         phaseState.emperorLossCount = null;
@@ -2785,10 +2811,11 @@ class Game {
     logLine('### Turn Score');
     int count = 0;
     if (_scenario != Scenario.justiniansReconquest) {
+      logLine('>Cities');
       for (final city in PieceType.city.pieces) {
         final location = _state.pieceLocation(city);
         if (location.isType(LocationType.province) && _state.provinceFriendly(location)) {
-          logLine('> ${location.desc}');
+          logLine('>- ${location.desc}');
           count += 1;
         }
       }
@@ -2817,14 +2844,15 @@ class Game {
         Location.rhaetia,
         Location.britain,
       ];
+      logLine('>Provinces');
       for (final province in scoringProvinces) {
         if (_state.provinceFriendly(province)) {
-          logLine('> ${province.desc}');
+          logLine('> -${province.desc}');
           count += 1;
         }
       }
     }
-    logLine('> Score: $count');
+    logLine('>Score: $count');
     adjustVictoryPoints(count);
   }
 
