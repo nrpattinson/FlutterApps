@@ -3111,44 +3111,54 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
+  }
+
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
   }
 
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   (int,int,int,int) roll3D6() {
@@ -3161,8 +3171,23 @@ class Game {
     d0 += 1;
     d1 += 1;
     d2 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
     return (d0, d1, d2, d0 + d1 + d2);
+  }
+
+  void log3D6((int,int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    int d2 = results.$3;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}');
+    logLine('>');
+  }
+
+  void lod3D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}|${d0 + d1 + d2}');
   }
 
   int randInt(int max) {
@@ -3326,18 +3351,18 @@ class Game {
   void adjustSolidi(int delta) {
     _state.adjustSolidi(delta);
     if (delta > 0) {
-      logLine('> Solidi: +$delta => ${_state.solidi}');
+      logLine('>Solidi: +$delta => ${_state.solidi}');
     } else if (delta < 0) {
-      logLine('> Solidi: $delta => ${_state.solidi}');
+      logLine('>Solidi: $delta => ${_state.solidi}');
     }
   }
 
   void adjustDarkAges(int delta) {
     _state.adjustDarkAges(delta);
     if (delta > 0) {
-      logLine('> Dark Ages: +$delta => ${_state.darkAges}');
+      logLine('>Dark Ages: +$delta => ${_state.darkAges}');
     } else if (delta < 0) {
-      logLine('> Dark Ages: $delta => ${_state.darkAges}');
+      logLine('>Dark Ages: $delta => ${_state.darkAges}');
     }
   }
 
@@ -3771,23 +3796,25 @@ class Game {
 
   bool conversionAttempt(Piece field) {
     final land = _state.pieceLocation(field);
-    logLine('> Conversion attempt on ${field.desc} in ${land.desc}.');
+    logLine('>Conversion attempt on ${field.desc} in ${land.desc}.');
+    logTableHeader();
     int die = rollD6();
+    logD6InTable(die);
     int modifiers = 0;
     for (final pieceType in [PieceType.apostle, PieceType.bishop, PieceType.archbishop, PieceType.pope]) {
       final piece = _state.pieceInLocation(pieceType, land);
       if (piece != null) {
-        logLine('> ${piece.desc}: +1');
+        logLine('>|${piece.desc}|+1|');
         modifiers += 1;
       }
     }
     final persia = _state.pieceInLocation(PieceType.persianEmpire, land);
     if (persia != null) {
       if (persia == Piece.persianEmpireP1) {
-        logLine('> Tolerant Persian Satrap: +1');
+        logLine('>|Tolerant Persian Satrap|+1|');
         modifiers += 1;
       } else if (persia == Piece.persianEmpireN1) {
-        logLine('> Fundamentalist Persian Satrap: -1');
+        logLine('>|Fundamentalist Persian Satrap|-1|');
         modifiers -= 1;
       }
     }
@@ -3795,12 +3822,14 @@ class Game {
     if (die > 1) {
       total += modifiers;
     }
-    logLine('> Total: $total');
-    if (total <= _state.fieldValue(field)) {
-      logLine('> Conversion attempt is unsuccessful.');
+    logLine('>|Total|$total|');
+    int value = _state.fieldValue(field);
+    logLine('>|${field.desc}|$value|');
+    if (total <= value) {
+      logLine('>Conversion attempt is unsuccessful.');
       return false;
     }
-    logLine('> ${field.desc} in ${land.desc} are Converted to Christianity.');
+    logLine('>${field.desc} in ${land.desc} are Converted to Christianity.');
     _state.flipPiece(field);
     return true;
   }
@@ -3810,6 +3839,7 @@ class Game {
     final precedingLand = _state.pathPrecedingLand(path, land)!;
     final succeedingLand = _state.pathSucceedingLand(path, land)!;
     int die = rollD6();
+    logD6(die);
     bool seatChristian = _state.landChristian(land);
     bool christianBorder = false;
     bool paganBorder = false;
@@ -3896,14 +3926,14 @@ class Game {
       path = _state.landPath(fromLand)!;
     }
     if (localState.subStep == 0) {
-      logLine('> ${primaryInvader.desc} invade ${toLand.desc}.');
+      logLine('>${primaryInvader.desc} invade ${toLand.desc}.');
       localState.subStep = 1;
     }
     if (localState.subStep == 1) {
       if (_state.currentTurn == 17) { // Justinian
         if (primaryInvader.isType(PieceType.horde)) {
           if (_state.pieceInLocation(PieceType.romanControl, toLand) != null) {
-            logLine('> Justinian’s forces repel ${primaryInvader.desc} at the border.');
+            logLine('>Justinian’s forces repel ${primaryInvader.desc} at the border.');
             _invadeState = null;
             return;
           }
@@ -3915,25 +3945,31 @@ class Game {
         int attackerStrength = _state.advanceForceStrength(primaryInvader);
         for (final army in armies) {
           logLine('> ${army.desc} defends.');
+          logTableHeader();
           int die = rollD6();
+          logD6InTable(die);
+          logLine('>|${primaryInvader.desc}|$attackerStrength|');
           if (die > attackerStrength) {
-            logLine('> ${primaryInvader.desc} are repelled.');
+            logLine('>${primaryInvader.desc} are repelled.');
             _invadeState = null;
             return;
           }
-          logLine('> ${army.desc} is defeated.');
+          logLine('>${army.desc} is defeated.');
         }
       } else {
         for (final army in armies) {
-          logLine('> ${army.desc} defends.');
+          logLine('>${army.desc} defends.');
+          logTableHeader();
           int die = rollD6();
+          logD6InTable(die);
           int defenderStrength = _state.advanceForceStrength(army);
+          logLine('>${army.desc}|$defenderStrength|');
           if (die <= defenderStrength) {
-            logLine('> ${primaryInvader.desc} are repelled.');
+            logLine('>${primaryInvader.desc} are repelled.');
             _invadeState = null;
             return;
           }
-          logLine('> ${army.desc} is defeated.');
+          logLine('>${army.desc} is defeated.');
         }
       }
       for (final army in armies) {
@@ -3954,7 +3990,7 @@ class Game {
                 if (nextLand != Location.landJerusalem || _state.pieceArab(army)) {
                   if (!army.isType(PieceType.romanControl) || toLand.index < fromLand.index) {
                     retreated = true;
-                    logLine('> ${army.desc} retreats to ${nextLand.desc}.');
+                    logLine('>${army.desc} retreats to ${nextLand.desc}.');
                     _state.setPieceLocation(army, nextLand);
                   }
                 }
@@ -3962,7 +3998,7 @@ class Game {
             }
             if (!retreated) {
               if (_state.pieceLocation(army) == toLand) {
-                logLine('> ${army.desc} is eliminated.');
+                logLine('>${army.desc} is eliminated.');
                 if (army == Piece.romanArmy) {
                   _state.setPieceLocation(Piece.romanArmy, Location.boxDamagedArmies);
                 } else {
@@ -3971,7 +4007,7 @@ class Game {
               }
             }
           case ArmyType.vulnerableForce:
-            logLine('> ${army.desc} is eliminated.');
+            logLine('>${army.desc} is eliminated.');
             if (army.isType(PieceType.persianEmpire)) {
               _state.setPieceLocation(army, Location.discarded);
             } else if (army.isType(PieceType.king)) {
@@ -3986,7 +4022,7 @@ class Game {
         }
       }
       if (!attackUsingIntrinsicStrength) {
-        logLine('> ${primaryInvader.desc} seize control of ${toLand.desc}.');
+        logLine('>${primaryInvader.desc} seize control of ${toLand.desc}.');
         for (final invader in invaders) {
           _state.setPieceLocation(invader, toLand);
         }
@@ -3995,27 +4031,27 @@ class Game {
       if (primaryInvader == _state.pathActiveJihad(path)) {
         switch (toLand) {
         case Location.landAntioch:
-          logLine('> Roman Control is eliminated from ${path.desc}.');
+          logLine('>Roman Control is eliminated from ${path.desc}.');
           _state.setPieceLocation(Piece.romanControlPaganCaucasus, Location.discarded);
         case Location.landAlexandria:
-          logLine('> Roman Control is eliminated from ${path.desc}.');
+          logLine('>Roman Control is eliminated from ${path.desc}.');
           _state.setPieceLocation(Piece.romanControlPaganEastAfrica, Location.discarded);
         case Location.landSufetula:
-          logLine('> ${Piece.hordeVandalsArian.desc} are replaced by ${Piece.hordeBerbersMuslim.desc}.');
+          logLine('>${Piece.hordeVandalsArian.desc} are replaced by ${Piece.hordeBerbersMuslim.desc}.');
           _state.setPieceLocation(Piece.hordeBerbersMuslim, _state.pieceLocation(Piece.hordeVandalsArian));
         case Location.landTingitana:
           {
-            logLine('> Arabs conquer Spain.');
+            logLine('>Arabs conquer Spain.');
             _state.setPieceLocation(Piece.occupiedSpain, Location.landSpain);
             final horde = _state.pathActiveHorde(path);
             final hordeLocation = _state.pieceLocation(horde);
             if (hordeLocation.index <= Location.landSpain.index) {
-              logLine('> ${horde.desc} retreats to ${Location.landGaul.desc}.');
+              logLine('>${horde.desc} retreats to ${Location.landGaul.desc}.');
               _state.setPieceLocation(horde, Location.landGaul);
             }
             var ruler = _state.pathActiveRuler(path);
             if (ruler != null && _state.pieceLocation(ruler) == Location.landSpain) {
-              logLine('> ${ruler.desc} is eliminated.');
+              logLine('>${ruler.desc} is eliminated.');
               if (ruler.isType(PieceType.tyrant)) {
                 ruler = _state.pieceFlipSide(ruler)!;
               }
@@ -4024,7 +4060,7 @@ class Game {
             final romanControl = _state.pathActiveRomanControl(path);
             if (romanControl != null) {
               if (romanControl.index >= Location.landSpain.index) {
-                logLine('> ${romanControl.desc} retreats to ${Location.landMilan.desc}.');
+                logLine('>${romanControl.desc} retreats to ${Location.landMilan.desc}.');
                 _state.setPieceLocation(romanControl, Location.landMilan);
               }
             }
@@ -4049,15 +4085,17 @@ class Game {
       int amount = box.index - Location.boxTrack0.index;
       if (amount > 0) {
         logLine('### Baqt');
-        logLine('> Baqt bribe: $amount');
         adjustSolidi(-amount);
+        logTableHeader();
         int die = rollD6();
+        logD6InTable(die);
+        logLine('>|Bribe|$amount|');
         if (die <= amount) {
-          logLine('> Bribe is successful, Baqt is established.');
+          logLine('>Bribe is successful, Baqt is established.');
           _state.setPieceLocation(Piece.abbasidEastAfrica, Location.landThebes);
           _state.setPieceLocation(Piece.baqt, Location.landThebes);
         } else {
-          logLine('> Bribe is unsuccessful, no Baqt is agreed.');
+          logLine('>Bribe is unsuccessful, no Baqt is agreed.');
         }
       }
       localState.subStep = 3;
@@ -4109,13 +4147,13 @@ class Game {
     for (final apostle in PieceType.apostle.pieces) {
       var location = _state.pieceLocation(apostle);
       if (location != Location.flipped) {
-        logLine('> ${apostle.desc} dies in ${location.desc}.');
-        logLine('> Relics are created in ${location.desc}.');
+        logLine('>${apostle.desc} dies in ${location.desc}.');
+        logLine('>Relics are created in ${location.desc}.');
         _state.flipPiece(apostle);
         final path = _state.missionaryPath(apostle);
         if (path != null) {
           final bishop = _state.pathBishop(path);
-          logLine('> ${bishop.desc} is appointed in ${location.desc}.');
+          logLine('>${bishop.desc} is appointed in ${location.desc}.');
           _state.setPieceLocation(bishop, location);
         }
       }
@@ -4123,12 +4161,12 @@ class Game {
     for (final path in Path.values) {
       final pope = _state.pathPope(path);
       final city = _state.pathBigCity(path);
-      logLine('> ${pope.desc} is appointed in ${city.desc}.');
+      logLine('>${pope.desc} is appointed in ${city.desc}.');
       _state.setPieceLocation(pope, city);
       if (_state.pieceInLocation(PieceType.field, city) == null) {
         final heresy = randHeresy();
         if (heresy != null) {
-          logLine('> ${heresy.desc} takes hold in ${city.desc}.');
+          logLine('>${heresy.desc} takes hold in ${city.desc}.');
           _state.setPieceLocation(heresy, city);
         }
       }
@@ -4137,7 +4175,7 @@ class Game {
 
   void newEraAgeOfConstantine() {
     logLine('# The Age of Constantine');
-    logLine('> Roman Empire adopts Christianity');
+    logLine('>Roman Empire adopts Christianity');
     _state.setPieceLocation(Piece.romanCapitalChristian, _state.pieceLocation(Piece.romanCapitalPagan));
     for (final romanControl in PieceType.romanControlPagan.pieces) {
       _state.flipPiece(romanControl);
@@ -4147,14 +4185,14 @@ class Game {
     _state.setPieceLocation(Piece.faithCatholic, Location.boxFaithWestEurope);
     _state.setPieceLocation(Piece.faithOrthodoxEagle, Location.boxFaithEastEurope);
     logLine('### Council of Nicaea');
-    logLine('> ${Path.westEurope.desc} adopts the ${Piece.faithCatholic.desc} Faith.');
-    logLine('> ${Path.eastEurope.desc} adopts the ${Piece.faithOrthodoxEagle.desc} Faith.');
+    logLine('>${Path.westEurope.desc} adopts the ${Piece.faithCatholic.desc} Faith.');
+    logLine('>${Path.eastEurope.desc} adopts the ${Piece.faithOrthodoxEagle.desc} Faith.');
   }
 
   void newEraFallOfRome() {
     if (_subStep == 0) {
       logLine('# Fall of Rome');
-      logLine('> Western Empire falls.');
+      logLine('>Western Empire falls.');
       _state.setPieceLocation(Piece.romanControlChristianWestEurope, Location.trayRoman);
       _state.setPieceLocation(Piece.papalStates, Location.landRome);
       _subStep = 1;
@@ -4172,7 +4210,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final capitalLand = selectedLocation()!;
-      logLine('> Roman Capital relocates to ${capitalLand.desc}.');
+      logLine('>Roman Capital relocates to ${capitalLand.desc}.');
       _state.setPieceLocation(Piece.romanCapitalChristian, capitalLand);
       for (final goldCoin in PieceType.waferCoinGold.pieces) {
         _state.setPieceLocation(goldCoin, Location.cupWafer);
@@ -4183,7 +4221,7 @@ class Game {
       _state.setPieceLocation(Piece.hordeTurksPagan, Location.homelandTurks);
       _state.setPieceLocation(Piece.hordeHimyarClans, Location.homelandHimyar);
       _state.setPieceLocation(Piece.hordeVandalsArian, Location.homelandVandals);
-      logLine('> Nubia');
+      logLine('>Nubia');
       int nubianCount = 0;
       for (final land in [Location.landNobadia, Location.landMakouria, Location.landAlodia]) {
         if (_state.landChristian(land)) {
@@ -4191,11 +4229,12 @@ class Game {
         }
       }
       int die = rollD6();
+      logD6(die);
       if (die <= 2 * nubianCount) {
-        logLine('> Christian Nubia is established.');
+        logLine('>Christian Nubia is established.');
         _state.setPieceLocation(Piece.nubia, Location.landAlodia);
       } else {
-        logLine('> Christian Nubia is not established.');
+        logLine('>Christian Nubia is not established.');
       }
       for (final knight in PieceType.knight.pieces) {
         _state.setPieceLocation(knight, Location.boxDamagedArmies);
@@ -4205,7 +4244,7 @@ class Game {
 
   void newEraRiseOfIslam() {
     logLine('# Rise of Islam');
-    logLine('> Umayyad Caliphate occupies Jerusalem.');
+    logLine('>Umayyad Caliphate occupies Jerusalem.');
     _state.setPieceLocation(Piece.occupiedJerusalem, Location.landJerusalem);
     for (final jihad in PieceType.jihad.pieces) {
       _state.setPieceLocation(jihad, Location.landJerusalem);
@@ -4217,13 +4256,13 @@ class Game {
 
   bool newEraEarlyMiddleAges() {
     logLine('# Early Middle Ages');
-    logLine('> Abbasid Caliphate overthrows the Umayyads.');
+    logLine('>Abbasid Caliphate overthrows the Umayyads.');
     for (final jihad in PieceType.jihad.pieces) {
       _state.flipPiece(jihad);
     }
     final sufetulaControl = _state.landControl(Location.landSufetula);
     if (sufetulaControl != null && sufetulaControl.isType(PieceType.romanControl)) {
-      logLine('> Vandal Kingdom collapses.');
+      logLine('>Vandal Kingdom collapses.');
       _state.setPieceLocation(Piece.hordeVandalsArian, Location.trayHorde);
     }
     return true;
@@ -4251,7 +4290,7 @@ class Game {
     adjustSolidi(-1);
     _state.setPieceLocation(oldField, Location.cupField);
     final newField = randPiece(_state.piecesInLocation(PieceType.fieldPagan, Location.cupField))!;
-    logLine('> ${newField.desc} is placed in ${land.desc}.');
+    logLine('>${newField.desc} is placed in ${land.desc}.');
     _state.setPieceLocation(newField, land);
     clearChoices();
   }
@@ -4304,7 +4343,7 @@ class Game {
       }
       final heresy = selectedPiece()!;
       final land = _state.pieceLocation(heresy);
-      logLine('> ${heresy.desc} is eradicated from ${land.desc}.');
+      logLine('>${heresy.desc} is eradicated from ${land.desc}.');
       _state.setPieceLocation(heresy, Location.discarded);
       adjustDarkAges(1);
       clearChoices();
@@ -4351,7 +4390,7 @@ class Game {
     final heresies = _state.piecesInLocation(PieceType.heresy, actsBox);
     if (heresies.isNotEmpty) {
       logLine('### Heresies');
-      logLine('> ${heresies[0].desc} enters the Heresy Cup.');
+      logLine('>${heresies[0].desc} enters the Heresy Cup.');
       for (final heresy in heresies) {
         _state.setPieceLocation(heresy, Location.cupHeresy);
       }
@@ -4362,7 +4401,7 @@ class Game {
     final greatTheologian = _state.turnGreatTheologian(_state.currentTurn);
     if (greatTheologian != null) {
       logLine('### Great Theologian');
-      logLine('> Theologian ${greatTheologian.desc} is active.');
+      logLine('>Theologian ${greatTheologian.desc} is active.');
       _state.setPieceLocation(Piece.greatTheologian, greatTheologian);
     }
   }
@@ -4384,16 +4423,17 @@ class Game {
       if (faithlessPaths.isNotEmpty) {
         final path = randPath(faithlessPaths)!;
         final faith = randFaith();
-        logLine('> ${path.desc} adopts the ${faith.desc} Faith.');
+        logLine('>${path.desc} adopts the ${faith.desc} Faith.');
         _state.setPieceLocation(faith, _state.pathFaithBox(path));
         int die = rollD6();
+        logD6(die);
         if (die > _state.faithValue(faith)) {
-          logLine('> The Church votes to excommunicate followers of the ${faith.desc} Faith.');
+          logLine('>The Church votes to excommunicate followers of the ${faith.desc} Faith.');
           final pope = _state.pathPope(path);
-          logLine('> ${path.desc} is in Schism.');
+          logLine('>${path.desc} is in Schism.');
           _state.flipPiece(pope);
         } else {
-          logLine('> It remains in communion with the Church.');
+          logLine('>It remains in communion with the Church.');
         }
         return;
       }
@@ -4436,7 +4476,7 @@ class Game {
       final schism = selectedPiece()!;
       final land = _state.pieceLocation(schism);
       final path = _state.landPath(land)!;
-      logLine('> Emperor attempts to reconcile Schism on ${path.desc}.');
+      logLine('>Emperor attempts to reconcile Schism on ${path.desc}.');
       int hostileLandCount = 0;
       int melkiteCount = 0;
       for (final otherLand in _state.pathLocationType(path).locations) {
@@ -4448,13 +4488,16 @@ class Game {
         }
       }
       adjustSolidi(-hostileLandCount);
+      logTableHeader();
       int die = rollD6();
+      logD6InTable(die);
+      logLine('>|Melkites|$melkiteCount|');
       if (die > 1 && die <= melkiteCount) {
-        logLine('> ${path.desc} is reconciled with the Emperor.');
+        logLine('>${path.desc} is reconciled with the Emperor.');
         _state.flipPiece(schism);
       } else {
-        logLine('> Reconciliation attempt fails.');
-        logLine('> The Emperor is excommunicated.');
+        logLine('>Reconciliation attempt fails.');
+        logLine('>The Emperor is excommunicated.');
         _state.setPieceLocation(Piece.emperorHeretical, Location.boxRomanPolicy);
         for (final otherLand in _state.pathLocationType(path).locations) {
           for (final melkite in _state.piecesInLocation(PieceType.melkite, otherLand)) {
@@ -4468,15 +4511,15 @@ class Game {
   void historyPhaseJustinian() {
     if (_state.currentTurn == 17) {
       logLine('### Justinian');
-      logLine('> Eastern Empire recaptures Rome.');
+      logLine('>Eastern Empire recaptures Rome.');
       final piece = _state.pieceInLocation(PieceType.control, Location.landRome);
       if (piece != null) {
         if (piece.isType(PieceType.horde)) {
           const retreatLand = Location.landMilan;
-          logLine('> ${piece.desc} retreats to ${retreatLand.desc}.');
+          logLine('>${piece.desc} retreats to ${retreatLand.desc}.');
           _state.setPieceLocation(piece, retreatLand);
         } else {
-          logLine('> ${piece.desc} is eliminated.');
+          logLine('>${piece.desc} is eliminated.');
           _state.setPieceLocation(piece, Location.trayPope);
         }
       }
@@ -4489,7 +4532,7 @@ class Game {
       logLine('### Charlemagne');
       var location = _state.pieceLocation(Piece.hordeSaxonsChristian);
       if (location != Location.flipped) {
-        logLine('> Charlemagne establishes the Holy Roman Empire.');
+        logLine('>Charlemagne establishes the Holy Roman Empire.');
         if (location == Location.homelandSaxons) {
           location = Location.landIreland;
         }
@@ -4498,13 +4541,13 @@ class Game {
         for (Location? otherLand = _state.pathPrecedingLand(Path.westEurope, location); otherLand != null; otherLand = _state.pathPrecedingLand(Path.westEurope, otherLand)) {
           final ruler = _state.pieceInLocation(PieceType.ruler, otherLand);
           if (ruler != null) {
-            logLine('> ${ruler.desc} in ${otherLand.desc} is absorbed into the Holy Roman Empire.');
+            logLine('>${ruler.desc} in ${otherLand.desc} is absorbed into the Holy Roman Empire.');
             _state.setPieceLocation(ruler, Location.trayPope);
           }
         }
       } else {
         location = _state.pieceLocation(Piece.hordeSaxonsArian);
-        logLine('> Charlemagne establishes an Arian Empire.');
+        logLine('>Charlemagne establishes an Arian Empire.');
         _state.setPieceLocation(Piece.unholyArianEmpire, location);
       }
     }
@@ -4512,7 +4555,7 @@ class Game {
 
   void historyPhaseShewaSultanate() {
     if (_state.currentTurn == 26) {
-      logLine('> Shewa Sultanate is established.');
+      logLine('>Shewa Sultanate is established.');
       _state.flipPiece(Piece.hordeHimyarClans);
     }
   }
@@ -4521,21 +4564,22 @@ class Game {
     if (_state.currentTurn == 26) {
       logLine('### Turkish Conversion');
       final rolls = roll2D6();
+      log2D6(rolls);
       int die = min(rolls.$1, rolls.$2);
       final land = _state.pathLand(Path.centralAsia, die - 1);
       final control = _state.landControl(land);
       Piece? turksAfterConversion;
       if (control != null &&
           (control.isType(PieceType.jihad) || control.isType(PieceType.abbasid))) {
-        logLine('> Turks convert to Islam.');
+        logLine('>Turks convert to Islam.');
         turksAfterConversion = Piece.hordeTurksMuslim;
-        logLine('> Seljuk Turks seize power from the Abbasid Caliphate in Asia Minor.');
+        logLine('>Seljuk Turks seize power from the Abbasid Caliphate in Asia Minor.');
         _state.setPieceLocation(Piece.hordeSeljuksMuslim, _state.pieceLocation(Piece.abbasidEastEurope));
       } else if (_state.landChristian(land)) {
-        logLine('> Turks convert to Christianity.');
+        logLine('>Turks convert to Christianity.');
         turksAfterConversion = Piece.hordeTurksChristian;
       } else {
-        logLine('> Turks convert to Manichaeism.');
+        logLine('>Turks convert to Manichaeism.');
         turksAfterConversion = Piece.hordeTurksManichee;
       }
       _state.setPieceLocation(turksAfterConversion, _state.pieceLocation(Piece.hordeTurksPagan));
@@ -4560,7 +4604,7 @@ class Game {
     }
     final land = selectedLocation()!;
     if (land != _state.pieceLocation(Piece.romanArmy)) {
-      logLine('> Roman Army moves to ${land.desc}.');
+      logLine('>Roman Army moves to ${land.desc}.');
       _state.setPieceLocation(Piece.romanArmy, land);
     }
     clearChoices();
@@ -4587,10 +4631,11 @@ class Game {
 
   void secularPhaseEarnSolidi() {
     logLine('### Earn Solidi');
+    logTableHeader();
     int total = 0;
     final wafer = _state.pieceInLocation(PieceType.waferCoin, Location.boxWafer)!;
     int amount = _state.waferCoinValue(wafer);
-    logLine('> Wafer: $amount');
+    logLine('>|Wafer|$amount|');
     total += amount;
     for (final path in Path.values) {
       if (_state.pathInCommunion(path)) {
@@ -4602,11 +4647,12 @@ class Game {
           }
         }
         if (christianLandCount >= 3) {
-          logLine('> ${path.desc}: 1');
+          logLine('>|${path.desc}|+1|');
           total += 1;
         }
       }
     }
+    logLine('>|Total|$total|');
     adjustSolidi(total);
   }
 
@@ -4616,10 +4662,10 @@ class Game {
     final wafer = _state.pieceInLocation(PieceType.waferCoin, Location.boxWafer)!;
     if (_state.waferCoinChangeRomanPolicy(wafer)) {
       if (romanPolicy == Piece.romanaPax) {
-        logLine('> Roman Policy changes to Romana Lex.');
+        logLine('>Roman Policy changes to Romana Lex.');
         romanPolicy = Piece.romanaLex;
       } else if (romanPolicy == Piece.emperorChristian) {
-        logLine('> New Emperor is Heretical.');
+        logLine('>New Emperor is Heretical.');
         romanPolicy = Piece.emperorHeretical;
       }
       _state.setPieceLocation(romanPolicy, Location.boxRomanPolicy);
@@ -4696,7 +4742,7 @@ class Game {
           king = true;
         }
       }
-      logLine('> Ruler is established in ${land.desc}.');
+      logLine('>Ruler is established in ${land.desc}.');
       final path = _state.landPath(land)!;
       final precedingLand = _state.pathPrecedingLand(path, land)!;
       final succeedingLand = _state.pathSucceedingLand(path, land)!;
@@ -4707,14 +4753,14 @@ class Game {
         oldRulerLocation = _state.pieceLocation(oldRuler);
       }
       if (oldRulerLocation.isType(LocationType.land)) {
-        logLine('> ${oldRuler.desc} in ${oldRulerLocation.desc} is eliminated.');
+        logLine('>${oldRuler.desc} in ${oldRulerLocation.desc} is eliminated.');
       }
       if (controlPiece != null) {
         if (controlPiece.isType(PieceType.horde)) {
-          logLine('> ${controlPiece.desc} retreats to ${succeedingLand.desc}.');
+          logLine('>${controlPiece.desc} retreats to ${succeedingLand.desc}.');
           _state.setPieceLocation(controlPiece, succeedingLand);
         } else if (controlPiece.isType(PieceType.abbasid)) {
-          logLine('> ${controlPiece.desc} retreats to ${precedingLand.desc}.');
+          logLine('>${controlPiece.desc} retreats to ${precedingLand.desc}.');
           _state.setPieceLocation(controlPiece, precedingLand);
         }
       }
@@ -4723,10 +4769,10 @@ class Game {
         king = !tyrant;
       }
       if (king) {
-        logLine('> Ruler is a Christian King.');
+        logLine('>Ruler is a Christian King.');
         _state.setPieceLocation(_state.pathKing(path), land);
       } else {
-        logLine('> Ruler is a pagan Tyrant.');
+        logLine('>Ruler is a pagan Tyrant.');
         _state.setPieceLocation(_state.pathTyrant(path), land);
       }
       return;
@@ -4764,11 +4810,11 @@ class Game {
       if (!heresy.isType(PieceType.ebioniteHeresy)) {
         final land = randLand();
         if (_state.landControlArab(land)) {
-          logLine('> ${heresy.desc} in ${land.desc} is eradicated.');
+          logLine('>${heresy.desc} in ${land.desc} is eradicated.');
           _state.setPieceLocation(heresy, Location.discarded);
           return;
         }
-        logLine('> ${heresy.desc} takes hold in ${land.desc}.');
+        logLine('>${heresy.desc} takes hold in ${land.desc}.');
         _state.setPieceLocation(heresy, land);
         return;
       }
@@ -4793,7 +4839,7 @@ class Game {
     final heresy = randPiece(_state.piecesInLocation(PieceType.ebioniteHeresy, Location.cupHeresy))!;
     final field = selectedPiece()!;
     final land = _state.pieceLocation(field);
-    logLine('> ${heresy.desc} takes hold in ${land.desc}.');
+    logLine('>${heresy.desc} takes hold in ${land.desc}.');
     _state.setPieceLocation(heresy, land);
     clearChoices();
   }
@@ -4839,7 +4885,7 @@ class Game {
     } else {
       final land = selectedLocation()!;
       final hospitals = _state.piecesInLocation(PieceType.hospital, Location.trayInfrastructure);
-      logLine('> Hospital is built in ${land.desc}.');
+      logLine('>Hospital is built in ${land.desc}.');
       _state.setPieceLocation(hospitals[0], land);
     }
     clearChoices();
@@ -4955,7 +5001,7 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoiceAndClear(Choice.no)) {
-          logLine('> Allied ${horde.desc} does not Invade.');
+          logLine('>Allied ${horde.desc} does not Invade.');
           return;
         }
         clearChoices();
@@ -5010,11 +5056,12 @@ class Game {
     logLine('### Jihads in ${path.desc}');
     final jihad = _state.pathActiveJihad(path);
     if (jihad == null) {
-      logLine('> No Jihad occurs.');
+      logLine('>No Jihad occurs.');
       phaseState.jihadMoveCount = 0;
       return;
     }
     int die = rollD6();
+    logD6(die);
     phaseState.jihadMoveCount = die;
   }
 
@@ -5082,6 +5129,7 @@ class Game {
     }
     logLine('### Seljuks');
     int die = rollD6();
+    logD6(die);
     phaseState.jihadMoveCount = die;
   }
 
@@ -5237,7 +5285,7 @@ class Game {
           _subStep = 13;
         } else if (checkChoiceAndClear(Choice.evangelismComplete)) {
           final greatTheologian = _state.pieceLocation(Piece.greatTheologian);
-          logLine('> Evangelism of ${greatTheologian.desc} comes to an end.');
+          logLine('>Evangelism of ${greatTheologian.desc} comes to an end.');
           phaseState.evangelismPath = null;
           _state.setPieceLocation(Piece.greatTheologian, Location.trayMisc);
         } else if (checkChoiceAndClear(Choice.revivalism)) {
@@ -5261,9 +5309,8 @@ class Game {
           logLine('### Attempt Spanish Reconquista');
           adjustSolidi(-reconquistaCost);
           _state.limitedEventOccurred(LimitedEvent.reconquistaAttempted);
-          final rolls = roll2D6();
+          logLine('>Christian Lands');
           int christianLandCount = 0;
-          logLine('> Christian Lands');
           for (final land in LocationType.pathWestEurope.locations) {
             if (_state.landChristian(land)) {
               logLine('> - ${land.desc}');
@@ -5271,12 +5318,16 @@ class Game {
             }
           }
           logLine('');
+          logTableHeader();
+          final rolls = roll2D6();
+          log2D6InTable(rolls);
+          logLine('>|Christian Lands|$christianLandCount|');
           final total = rolls.$3;
           if (total <= christianLandCount) {
-            logLine('> Spanish Reconquista is successful.');
+            logLine('>Spanish Reconquista is successful.');
             _state.setPieceLocation(Piece.reconquista, Location.landSpain);
           } else {
-            logLine('> Spanish Reconquista fails.');
+            logLine('>Spanish Reconquista fails.');
           }
         } else if (checkChoiceAndClear(Choice.buildMelkite)) {
           _subStep = 22;
@@ -5356,13 +5407,13 @@ class Game {
         }
         final missionary = phaseState.moveMissionary!;
         final land = phaseState.moveMissionaryDestination!;
-        logLine('> ${missionary.desc} moves to ${land.desc}.');
+        logLine('>${missionary.desc} moves to ${land.desc}.');
         _state.setPieceLocation(missionary, land);
         if (_state.landIsHomeland(land)) {
           if (!missionary.isType(PieceType.archbishop)) {
             final path = _state.landPath(land)!;
             final archbishop = _state.pathArchbishop(path);
-            logLine('> ${missionary.desc} is promoted to Archbishop.');
+            logLine('>${missionary.desc} is promoted to Archbishop.');
             _state.setPieceLocation(missionary, Location.discarded);
             _state.setPieceLocation(archbishop, land);
           }
@@ -5377,29 +5428,30 @@ class Game {
         if (!_state.landIsHomeland(land)) {
           if (_state.pieceInLocation(PieceType.field, land) == null) {
             final field = drawFieldForLand(land);
-            logLine('> ${field.desc} are Discovered in ${land.desc}.');
+            logLine('>${field.desc} are Discovered in ${land.desc}.');
             _state.setPieceLocation(field, land);
             if (!_state.landIsBigCity(land) && missionary.isType(PieceType.bishop) && field.isType(PieceType.fieldPaganWomen)) {
-              logLine('> Bishop becomes flustered.');
+              logLine('>Bishop becomes flustered.');
               final precedingLand = _state.pathPrecedingLand(path, land)!;
-              logLine('> Bishop retreats to ${precedingLand.desc}.');
+              logLine('>Bishop retreats to ${precedingLand.desc}.');
               _state.setPieceLocation(missionary, precedingLand);
             }
           }
           if (phaseState.moveApostleFree) {
-            logLine('> Martyrdom');
+            logLine('>Martyrdom');
             int die = rollD6();
+            logD6(die);
             final locationType = _state.pathLocationType(path);
             final sequence = land.index - locationType.firstIndex + 1;
             if (die <= sequence) {
-              logLine('> ${missionary.desc} is Martyred.');
+              logLine('>${missionary.desc} is Martyred.');
               final relics = _state.pieceFlipSide(missionary)!;
-              logLine('> Relics and Bishop are created in ${land.desc}.');
+              logLine('>Relics and Bishop are created in ${land.desc}.');
               _state.setPieceLocation(relics, land);
               final bishop = _state.pathBishop(path);
               _state.setPieceLocation(bishop, land);
             } else {
-              logLine('> ${missionary.desc} is welcomed in ${land.desc}.');
+              logLine('>${missionary.desc} is welcomed in ${land.desc}.');
             }
           }
         }
@@ -5564,39 +5616,41 @@ class Game {
           adjustSolidi(-1);
         } else if (bible) {
           final unusedBible = _state.pathUnusedBible(path);
-          logLine('> ${unusedBible.desc} is used.');
+          logLine('>${unusedBible.desc} is used.');
           _state.flipPiece(unusedBible);
         }
+        logTableHeader();
         int die = rollD6();
+        logD6InTable(die);
         int modifiers = 0;
         for (final pieceType in [PieceType.apostle, PieceType.bishop, PieceType.archbishop, PieceType.pope]) {
           final piece = _state.pieceInLocation(pieceType, land);
           if (piece != null) {
-            logLine('> ${piece.desc}: +1');
+            logLine('>|${piece.desc}|+1|');
             modifiers += 1;
           }
         }
         if (_state.landControlChristian(land)) {
-          logLine('> Christian Control: +1');
+          logLine('>|Christian Control|+1|');
           modifiers += 1;
         }
         int total = die;
         if (die > 1) {
           total += modifiers;
         }
-        logLine('> Total: $total');
+        logLine('>|Total|$total|');
         if (total > _state.heresyValue(heresy)) {
-          logLine('> ${heresy.desc} Heresy in ${land.desc} is suppressed.');
+          logLine('>${heresy.desc} Heresy in ${land.desc} is suppressed.');
           if (heresy.isType(PieceType.ebioniteHeresy)) {
             _state.setPieceLocation(heresy, Location.trayHeresy);
           } else {
             _state.setPieceLocation(_state.pieceFlipSide(heresy)!, Location.trayHeresy);
           }
         } else {
-          logLine('> Attempt to end ${heresy.desc} Heresy fails.');
+          logLine('>Attempt to end ${heresy.desc} Heresy fails.');
           if (evangelism) {
             final greatTheologian = _state.pieceLocation(Piece.greatTheologian);
-            logLine('> Evangelism of ${greatTheologian.desc} comes to an ignominious end.');
+            logLine('>Evangelism of ${greatTheologian.desc} comes to an ignominious end.');
             adjustDarkAges(1);
             _state.setPieceLocation(Piece.greatTheologian, Location.trayMisc);
             phaseState.evangelismPath = null;
@@ -5637,19 +5691,22 @@ class Game {
           if (_state.landControl(land) == horde) {
             if (_state.pieceInLocation(PieceType.fieldChristian, land) != null) {
               if (_state.piecesInLocationCount(PieceType.heresy, land) == 0) {
-                logLine('> ${land.desc} is Christian');
+                logLine('>${land.desc} is Christian');
                 christianCount += 1;
               }
             }
           }
         }
+        logTableHeader();
         int die = rollD6();
+        logD6(die);
+        logLine('>|Christian Lands|$christianCount|');
         if (die <= christianCount) {
           String religion = horde == Piece.hordeKhazarsPagan ? 'Judaism' : 'Christianity';
-          logLine('> ${horde.desc} convert to $religion.');
+          logLine('>${horde.desc} convert to $religion.');
           _state.flipPiece(horde);
         } else {
-          logLine('> Attempt to Convert ${horde.desc} fails.');
+          logLine('>Attempt to Convert ${horde.desc} fails.');
         }
         _subStep = 0;
       }
@@ -5673,10 +5730,10 @@ class Game {
         logLine('### Convert ${tyrant.desc}');
         adjustSolidi(-3);
         if (!rulerIsTyrant(land)) {
-          logLine('> ${tyrant.desc} converts to Christianity.');
+          logLine('>${tyrant.desc} converts to Christianity.');
           _state.flipPiece(tyrant);
         } else {
-          logLine('> Attempt to Convert ${tyrant.desc} fails.');
+          logLine('>Attempt to Convert ${tyrant.desc} fails.');
         }
         _subStep = 0;
       }
@@ -5749,7 +5806,7 @@ class Game {
         adjustSolidi(-1);
         final box = _state.pathFaithBox(path);
         final faith = _state.pieceInLocation(PieceType.faith, box)!;
-        logLine('> ${faith.desc} on ${path.desc} Submit.');
+        logLine('>${faith.desc} on ${path.desc} Submit.');
         _state.flipPiece(schism);
         _state.flipPiece(faith);
         clearChoices();
@@ -5816,7 +5873,7 @@ class Game {
         final relics = selectedPiece()!;
         logLine('### Sell Relics');
         final apostle = _state.pieceFlipSide(relics)!;
-        logLine('> Relics of ${apostle.desc} are sold to raise cash.');
+        logLine('>Relics of ${apostle.desc} are sold to raise cash.');
         _state.setPieceLocation(relics, Location.discarded);
         adjustSolidi(_state.currentTurn >= 25 ? 2 : 1);
         clearChoices();
@@ -5840,7 +5897,7 @@ class Game {
         final oldLand = _state.pieceLocation(Piece.romanCapitalChristian);
         int cost = _state.landControlHostile(oldLand) ? 2 : 1;
         logLine('### Move Roman Capital');
-        logLine('> Roman Capital is relocated from ${oldLand.desc} to ${newLand.desc}.');
+        logLine('>Roman Capital is relocated from ${oldLand.desc} to ${newLand.desc}.');
         adjustSolidi(-cost);
         _state.setPieceLocation(Piece.romanCapitalChristian, newLand);
         clearChoices();
@@ -5898,9 +5955,9 @@ class Game {
           logLine('### Peace Move');
         }
         if (oldLocation == Location.boxDamagedArmies) {
-          logLine('> Build ${piece.desc} in ${newLand.desc}.');
+          logLine('>Build ${piece.desc} in ${newLand.desc}.');
         } else {
-          logLine('> Move ${piece.desc} from ${oldLocation.desc} to ${newLand.desc}.');
+          logLine('>Move ${piece.desc} from ${oldLocation.desc} to ${newLand.desc}.');
         }
         adjustSolidi(-cost);
         _state.setPieceLocation(piece, newLand);
@@ -5987,22 +6044,22 @@ class Game {
           adjustSolidi(-1);
         } else if (bible) {
           final unusedBible = _state.pathUnusedBible(path);
-          logLine('> ${unusedBible.desc} is used.');
+          logLine('>${unusedBible.desc} is used.');
           _state.flipPiece(unusedBible);
         } else if (isis) {
           final cult = _state.pieceInLocation(PieceType.cultIsis, land)!;
-          logLine('> Cult of Isis is used.');
+          logLine('>Cult of Isis is used.');
           _state.setPieceLocation(cult, Location.discarded);
         } else if (james) {
-          logLine('> James the Just preaches to the Jews.');
+          logLine('>James the Just preaches to the Jews.');
         }
         if (!conversionAttempt(field)) {
           if (james) {
-            logLine('> ${Piece.apostleJerusalem.desc} is Martyred.');
+            logLine('>${Piece.apostleJerusalem.desc} is Martyred.');
             _state.flipPiece(Piece.apostleJerusalem);
           } else if (evangelism) {
             final greatTheologian = _state.pieceLocation(Piece.greatTheologian);
-            logLine('> Evangelism of ${greatTheologian.desc} comes to an ignominious end.');
+            logLine('>Evangelism of ${greatTheologian.desc} comes to an ignominious end.');
             adjustDarkAges(1);
             _state.setPieceLocation(Piece.greatTheologian, Location.trayMisc);
             phaseState.evangelismPath = null;
@@ -6057,10 +6114,10 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.yes)) {
-        logLine('> The Christian Church supports the Zoroastrian faith in Persia.');
+        logLine('>The Christian Church supports the Zoroastrian faith in Persia.');
         adjustSolidi(-5);
       } else {
-        logLine('> Persia converts to Islam.');
+        logLine('>Persia converts to Islam.');
         _state.flipPiece(Piece.persiaZoroastrian);
       }
       clearChoices();
@@ -6099,7 +6156,7 @@ class Game {
         break;
       }
       final land = selectedLocation()!;
-      logLine('> Apostasy is Prevented in ${land.desc}.');
+      logLine('>Apostasy is Prevented in ${land.desc}.');
       int cost = preventApostasyCostForLand(land);
       adjustSolidi(-cost);
       phaseState.preventApostasyLands.add(land);
@@ -6108,7 +6165,7 @@ class Game {
     if (_subStep == 2) {
       for (final land in apostasyLands) {
         if (!phaseState.preventApostasyLands.contains(land)) {
-          logLine('> ${land.desc} goes into Apostasy.');
+          logLine('>${land.desc} goes into Apostasy.');
           final field = _state.pieceInLocation(PieceType.fieldChristian, land)!;
           _state.flipPiece(field);
         }
@@ -6122,6 +6179,7 @@ class Game {
     }
     logLine('# The Crusades');
     _state.setPieceLocation(Piece.gameTurn, _state.actsBox(28));
+    logTableHeader();
     int score = 0;
     int christianLandValues = 0;
     int untouchedLandCount = 0;
@@ -6137,7 +6195,7 @@ class Game {
         }
       }
     }
-    logLine('> Christian Land Values: +$christianLandValues');
+    logLine('>|Christian Land Values|+$christianLandValues|');
     score += christianLandValues;
     for (final path in Path.values) {
       final locationType = _state.pathLocationType(path);
@@ -6151,17 +6209,17 @@ class Game {
         }
       }
       if (pathChristian) {
-        logLine('> ${path.desc} fully Christian: +5');
+        logLine('>|${path.desc} fully Christian|+5|');
         score += 5;
       }
     }
     if (_state.pieceLocation(Piece.reconquista) == Location.landSpain) {
-      logLine('> Spanish Reconquista: +5');
+      logLine('>|Spanish Reconquista|+5|');
       score += 5;
     }
     for (final land in [Location.landCtesiphon, Location.landPersia, Location.landMerv]) {
       if (_state.pieceInLocation(PieceType.persianEmpire, land) != null) {
-        logLine('> Persian Empire controls ${land.desc}: +5');
+        logLine('>|Persian Empire controls ${land.desc}|+5|');
         score += 5;
       }
     }
@@ -6169,19 +6227,19 @@ class Game {
       final location = _state.pieceLocation(pope);
       if (location.isType(LocationType.land)) {
         if (_state.piecesInLocationCount(PieceType.heresy, location) == 0) {
-          logLine('> ${pope.desc}: +3');
+          logLine('>|${pope.desc}|+3|');
           score += 3;
         }
       }
     }
     if (_state.solidi > 0) {
-      logLine('> Solidi: +${_state.solidi}');
+      logLine('>|Solidi|+${_state.solidi}|');
       score += _state.solidi;
     }
     for (final relics in PieceType.relics.pieces) {
       final location = _state.pieceLocation(relics);
       if (location.isType(LocationType.land)) {
-        logLine('> Relics in ${location.desc}: +3');
+        logLine('>|Relics in ${location.desc}|+3|');
         score += 3;
       }
     }
@@ -6189,42 +6247,42 @@ class Game {
       final location = _state.pieceLocation(infrastructure);
       if (location.isType(LocationType.land)) {
         int value = _state.landControlChristian(location) ? 4 : 3;
-        logLine('> ${infrastructure.desc} in ${location.desc}: +$value');
+        logLine('>|${infrastructure.desc} in ${location.desc}|+$value|');
         score += value;
       }
     }
     if (untouchedLandCount > 0) {
-      logLine('> Lands untouched by Christianity: -$untouchedLandCount');
+      logLine('>|Lands untouched by Christianity|-$untouchedLandCount|');
       score -= untouchedLandCount;
     }
     for (final heresy in PieceType.heresy.pieces) {
       final location = _state.pieceLocation(heresy);
       if (location.isType(LocationType.land)) {
-        logLine('> ${heresy.desc} in ${location.desc}: -5');
+        logLine('>|${heresy.desc} in ${location.desc}|-5|');
         score -= 5;
       }
     }
     for (final path in Path.values) {
       final faith = _state.pathFaith(path);
       if (faith != null && faith.isType(PieceType.faithSubmit)) {
-        logLine('> ${path.desc} Submit: -5');
+        logLine('>|${path.desc} Submit|-5|');
         score -= 5;
       }
     }
     final land = _state.pieceLocation(Piece.romanCapitalChristian);
     if (!_state.landControlChristian(land)) {
-      logLine('> Roman Capital in ${land.desc} not under Christian Control: -10');
+      logLine('>|Roman Capital in ${land.desc} not under Christian Control|-10|');
       score -= 10;
     }
     if (_state.darkAges > 0) {
-      logLine('> Dark Ages: -${_state.darkAges}');
+      logLine('>|Dark Ages|-${_state.darkAges}|');
       score -= _state.darkAges;
     }
     for (final bible in _state.piecesInLocation(PieceType.bible, Location.trayBible)) {
-      logLine('> ${bible.desc} not Translated: -5');
+      logLine('>|${bible.desc} not Translated|-5|');
       score -= 5;
     }
-    logLine('> Score: $score');
+    logLine('>|Score|$score|');
     throw GameOverException(GameResult.victory, score);
   }
 
@@ -6261,7 +6319,7 @@ class Game {
     }
     adjustSolidi(newSolidi - _state.solidi);
     if (newSolidi > 0) {
-      logLine('> Bank $newSolidi Solidi');
+      logLine('>|Bank $newSolidi Solidi');
     }
   }
 

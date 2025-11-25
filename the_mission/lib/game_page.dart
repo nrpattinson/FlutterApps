@@ -44,8 +44,10 @@ class GamePageState extends State<GamePage> {
   final _mapStackChildren = <Widget>[];
   final _actsTrackStackChildren = <Widget>[];
   final _counterTrayStackChildren = <Widget>[];
+
   final _pieceStackKeys = <Piece,StackKey>{};
   final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -393,6 +395,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -644,202 +650,253 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxStacks(MyAppState appState, Location box, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
     int stackCount = rowCount * colCount;
     for (int row = 0; row < rowCount; ++row) {
       for (int col = 0; col < colCount; ++col) {
         final stackPieces = <Piece>[];
         int stackIndex = row * colCount + col;
-        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
-          stackPieces.add(pieces[pieceIndex]);
-        }
-        if (stackPieces.isNotEmpty) {
-          double xStack = x + col * dxStack;
-          double yStack = y + row * dyStack;
-          layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
         }
       }
     }
   }
 
-  void layoutLand(MyAppState appState, Location land) {
+  int mapPieceZ(GameState state, Piece piece) {
+    int z = 100;
+    if (piece.isType(PieceType.horde) || piece == Piece.unholyArianEmpire) {
+      z = 0;
+    } else if (piece.isType(PieceType.romanControl) || piece == Piece.holyRomanEmpire || piece == Piece.nubia) {
+      z = 1;
+    } else if (piece.isType(PieceType.jihad) || piece.isType(PieceType.abbasid)) {
+      z = 2;
+    } else if (piece.isType(PieceType.king) || piece.isType(PieceType.tyrant)) {
+      z = 3;
+    } else if (piece.isType(PieceType.persianEmpire)) {
+      z = 4;
+    } else  if (piece.isType(PieceType.field)) {
+      z = 5;
+    } else if (piece.isType(PieceType.pope)) {
+      z = 6;
+    } else if (piece.isType(PieceType.archbishop)) {
+      z = 7;
+    } else if (piece.isType(PieceType.bishop)) {
+      z = 8;
+    } else if (piece.isType(PieceType.apostle)) {
+      z = 9;
+    } else if (piece == Piece.greatTheologian) {
+      z = 10;
+    } else if (piece.isType(PieceType.relics)) {
+      z = 11;
+    } else if (piece == Piece.occupiedJerusalem || piece == Piece.occupiedSpain || piece == Piece.reconquista) {
+      z = 12;
+    } else if (piece.isType(PieceType.melkite)) {
+      z = 13;
+    } else if (piece.isType(PieceType.romanCapital)) {
+      z = 14;
+    } else if (piece == Piece.papalStates) {
+      z = 15;
+    } else if (piece == Piece.baqt) {
+      z = 16;
+    } else if (piece.isType(PieceType.infrastructure)) {
+      z = 17;
+    } else if (piece.isType(PieceType.prayForPeace)) {
+      z = 18;
+    } else if (piece.isType(PieceType.knight)) {
+      z = 19;
+    } else if (piece == Piece.romanArmy) {
+      z = 20;
+    } else if (piece.isType(PieceType.cultIsis)) {
+      z = 21;
+    } else if (piece.isType(PieceType.heresy)) {
+      z = 22;
+    }
+    return z;
+  }
+
+  int mapPieceZOrder(GameState state, Piece a, Piece b) {
+    int aZ = mapPieceZ(state, a);
+    int bZ = mapPieceZ(state, b);
+    if (aZ != bZ) {
+      return aZ.compareTo(bZ);
+    }
+    return -a.index.compareTo(b.index);
+  }
+
+  void layoutLand(MyAppState appState, Location land, int pass) {
     final state = appState.gameState!;
 
     final coordinates = locationCoordinates(land);
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
 
-    if (appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(land)) {
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(land)) {
       addLandToMap(appState, land, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = <Piece>[];
-      final positions = <int>[];  // UL, UR, LL, LR, C
-      final positionCounts = <int>[0, 0, 0, 0, 0];
-      final zs = <int>[];
-      for (final piece in state.piecesInLocation(PieceType.all, land)) {
-        int pos = 0;
-        int z = 0;
-        if (piece.isType(PieceType.horde) || piece == Piece.unholyArianEmpire) {
-          if (state.landIsHomeland(land)) {
-            pos = 4;
-          } else {
-            pos = 1;
-          }
-          z = 1;
-        } else if (piece.isType(PieceType.romanControl) || piece == Piece.holyRomanEmpire || piece == Piece.nubia) {
-          pos = 1;
-          z = 1;
-        } else if (piece.isType(PieceType.jihad) || piece.isType(PieceType.abbasid)) {
-          pos = 1;
-          z = 1;
-        } else if (piece.isType(PieceType.king) || piece.isType(PieceType.tyrant)) {
-          pos = 1;
-          z = 1;
-        } else if (piece.isType(PieceType.persianEmpire)) {
-          pos = 1;
-          z = 1;
-        } else  if (piece.isType(PieceType.field)) {
-          pos = 0;
-          z = 2;
-        } else if (piece.isType(PieceType.pope)) {
-          pos = 2;
-          z = 1;
-        } else if (piece.isType(PieceType.archbishop)) {
-          pos = 2;
-          z = 2;
-        } else if (piece.isType(PieceType.bishop)) {
-          pos = 2;
-          z = 3;
-        } else if (piece.isType(PieceType.apostle)) {
-          pos = 2;
-          z = 4;
-        } else if (piece == Piece.greatTheologian) {
-          pos = 2;
-          z = 5;
+    final ulPieces = <Piece>[];
+    final urPieces = <Piece>[];
+    final llPieces = <Piece>[];
+    final lrPieces = <Piece>[];
+    final cPieces = <Piece>[];
+
+    for (final piece in state.piecesInLocation(PieceType.all, land)) {
+      if (piece.isType(PieceType.horde) || piece == Piece.unholyArianEmpire) {
+        if (state.landIsHomeland(land)) {
+          cPieces.add(piece);
+        } else {
+          urPieces.add(piece);
+        }
+      } else if (piece.isType(PieceType.romanControl) || piece == Piece.holyRomanEmpire || piece == Piece.nubia) {
+        urPieces.add(piece);
+      } else if (piece.isType(PieceType.jihad) || piece.isType(PieceType.abbasid)) {
+        urPieces.add(piece);
+      } else if (piece.isType(PieceType.king) || piece.isType(PieceType.tyrant)) {
+        urPieces.add(piece);
+      } else if (piece.isType(PieceType.persianEmpire)) {
+        urPieces.add(piece);
+      } else  if (piece.isType(PieceType.field)) {
+        ulPieces.add(piece);
+      } else if (piece.isType(PieceType.pope)) {
+        llPieces.add(piece);
+      } else if (piece.isType(PieceType.archbishop)) {
+        llPieces.add(piece);
+      } else if (piece.isType(PieceType.bishop)) {
+        llPieces.add(piece);
+      } else if (piece.isType(PieceType.apostle)) {
+        llPieces.add(piece);
+      } else if (piece == Piece.greatTheologian) {
+        llPieces.add(piece);
+      } else if (piece.isType(PieceType.relics)) {
+        lrPieces.add(piece);
+      } else if (piece == Piece.occupiedJerusalem || piece == Piece.occupiedSpain || piece == Piece.reconquista) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.melkite)) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.romanCapital)) {
+        lrPieces.add(piece);
+      } else if (piece == Piece.papalStates) {
+        lrPieces.add(piece);
+      } else if (piece == Piece.baqt) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.infrastructure)) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.prayForPeace)) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.knight)) {
+        lrPieces.add(piece);
+      } else if (piece == Piece.romanArmy) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.cultIsis)) {
+        lrPieces.add(piece);
+      } else if (piece.isType(PieceType.heresy)) {
+        lrPieces.add(piece);
+      }
+      var sk = (land, 0);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        ulPieces.sort((a, b) => mapPieceZOrder(state, a, b));
+        layoutStack(appState, sk, ulPieces, BoardArea.map, xLand - 62.0, yLand - 62.0, -4.0, -4.0);
+      }
+      sk = (land, 1);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        urPieces.sort((a, b) => mapPieceZOrder(state, a, b));
+        layoutStack(appState, sk, urPieces, BoardArea.map, xLand + 2.0, yLand - 62.0, 4.0, -4.0);
+      }
+      sk = (land, 2);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        llPieces.sort((a, b) => mapPieceZOrder(state, a, b));
+        layoutStack(appState, sk, llPieces, BoardArea.map, xLand - 62.0, yLand + 2.0, -4.0, 4.0);
+      }
+      sk = (land, 3);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        lrPieces.sort((a, b) => mapPieceZOrder(state, a, b));
+        layoutStack(appState, sk, lrPieces, BoardArea.map, xLand + 2.0, yLand + 2.0, 4.0, 4.0);
+      }
+      sk = (land, 4);
+      if (_expandedStacks.contains(sk) == (pass == 1)) {
+        cPieces.sort((a, b) => mapPieceZOrder(state, a, b));
+        layoutStack(appState, sk, cPieces, BoardArea.map, xLand - 55.0, yLand, 4.0, 4.0);
+      }
+    }
+
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
+      addLandToMap(appState, land, xLand, yLand);
+    }
+  }
+
+  void layoutJerusalem(MyAppState appState, int pass) {
+    final state = appState.gameState!;
+
+    final coordinates = locationCoordinates(Location.landJerusalem);
+    final xLand = coordinates.$2;
+    final yLand = coordinates.$3;
+
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(Location.landJerusalem)) {
+      addLandToMap(appState, Location.landJerusalem, xLand, yLand);
+    }
+
+    if (pass == 0) {
+      final pieces = state.piecesInLocation(PieceType.all, Location.landJerusalem);
+      for (int i = 0; i < pieces.length; ++i) {
+        final piece = pieces[i];
+        int col = 0;
+        int row = 0;
+        if ([Piece.apostleWestEurope, Piece.jihadWestEurope, Piece.abbasidWestEurope].contains(piece)) {
+          col = 0;
+          row = 0;
+        } else if ([Piece.apostleEastEurope, Piece.jihadEastEurope, Piece.abbasidEastEurope].contains(piece)) {
+          col = 2;
+          row = 0;
+        } else if ([Piece.apostleCaucasus, Piece.jihadCaucasus, Piece.abbasidCaucasus].contains(piece)) {
+          col = 2;
+          row = 1;
+        } else if ([Piece.apostleCentralAsia, Piece.jihadCentralAsia, Piece.abbasidCentralAsia].contains(piece)) {
+          col = 2;
+          row = 2;
+        } else if ([Piece.apostleEastAfrica, Piece.jihadEastAfrica, Piece.abbasidEastAfrica].contains(piece)) {
+          col = 0;
+          row = 2;
+        } else if ([Piece.apostleNorthAfrica, Piece.jihadNorthAfrica, Piece.abbasidNorthAfrica].contains(piece)) {
+          col = 0;
+          row = 1;
+        } else if (piece == Piece.apostleJerusalem || piece == Piece.occupiedJerusalem) {
+          col = 1;
+          row = 1;
         } else if (piece.isType(PieceType.relics)) {
-          pos = 3;
-          z = 1;
-        } else if (piece == Piece.occupiedJerusalem || piece == Piece.occupiedSpain || piece == Piece.reconquista) {
-          pos = 3;
-          z = 2;
-        } else if (piece.isType(PieceType.melkite)) {
-          pos = 3;
-          z = 3;
-        } else if (piece.isType(PieceType.romanCapital)) {
-          pos = 3;
-          z = 4;
-        } else if (piece == Piece.papalStates) {
-          pos = 3;
-          z = 5;
-        } else if (piece == Piece.baqt) {
-          pos = 3;
-          z = 6;
-        } else if (piece.isType(PieceType.infrastructure)) {
-          pos = 3;
-          z = 7;
-        } else if (piece.isType(PieceType.prayForPeace)) {
-          pos = 3;
-          z = 8;
-        } else if (piece.isType(PieceType.knight)) {
-          pos = 3;
-          z = 9;
-        } else if (piece == Piece.romanArmy) {
-          pos = 3;
-          z = 10;
-        } else if (piece.isType(PieceType.cultIsis)) {
-          pos = 3;
-          z = 11;
-        } else if (piece.isType(PieceType.heresy)) {
-          pos = 3;
-          z = 12;
+          col = 1;
+          row = 2;
         }
-        pieces.add(piece);
-        positions.add(pos);
-        positionCounts[pos] += 1;
-        zs.add(z);
-      }
-
-      if (land == Location.landJerusalem) {
-        for (int i = 0; i < pieces.length; ++i) {
-          final piece = pieces[i];
-          int col = 0;
-          int row = 0;
-          if ([Piece.apostleWestEurope, Piece.jihadWestEurope, Piece.abbasidWestEurope].contains(piece)) {
-            col = 0;
-            row = 0;
-          } else if ([Piece.apostleEastEurope, Piece.jihadEastEurope, Piece.abbasidEastEurope].contains(piece)) {
-            col = 2;
-            row = 0;
-          } else if ([Piece.apostleCaucasus, Piece.jihadCaucasus, Piece.abbasidCaucasus].contains(piece)) {
-            col = 2;
-            row = 1;
-          } else if ([Piece.apostleCentralAsia, Piece.jihadCentralAsia, Piece.abbasidCentralAsia].contains(piece)) {
-            col = 2;
-            row = 2;
-          } else if ([Piece.apostleEastAfrica, Piece.jihadEastAfrica, Piece.abbasidEastAfrica].contains(piece)) {
-            col = 0;
-            row = 2;
-          } else if ([Piece.apostleNorthAfrica, Piece.jihadNorthAfrica, Piece.abbasidNorthAfrica].contains(piece)) {
-            col = 0;
-            row = 1;
-          } else if (piece == Piece.apostleJerusalem || piece == Piece.occupiedJerusalem) {
-            col = 1;
-            row = 1;
-          } else if (piece.isType(PieceType.relics)) {
-            col = 1;
-            row = 2;
-          }
-          double x = xLand - 90.0 + 64.0 * col;
-          double y = yLand - 90.0 + 64.0 * row; 
-          addPieceToBoard(appState, piece, BoardArea.map, x, y);
-        }
-      } else {
-        for (int position = 0; position < positionCounts.length; ++position) {
-          double xPos = xLand;
-          double yPos = yLand;
-          int col = 1;
-          int row = 1;
-          if (position < 4) {
-            col = position % 2;
-            row = position ~/ 2;
-            xPos = xLand - 62.0 + col * 64.0;
-            yPos = yLand - 62.0 + row * 64.0;
-          } else {
-            xPos -= 55.0;
-            yPos += 0.0;
-          }
-          int count = positionCounts[position];
-          int order = 1;
-          for (int z = 0; z <= 12; ++z) {
-            for (int i = 0; i < pieces.length; ++i) {
-              if (positions[i] == position && zs[i] == z) {
-                double xDelta = col == 0 ? -4.0 : 4.0;
-                double yDelta = row == 0 ? -4.0 : 4.0;
-                double x = xPos + (count - order) * xDelta;
-                double y = yPos + (count - order) * yDelta;
-                addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
-                order += 1;
-              }
-            }
-          }
-        }
+        double x = xLand - 90.0 + 64.0 * col;
+        double y = yLand - 90.0 + 64.0 * row; 
+        addPieceToBoard(appState, piece, BoardArea.map, x, y);
       }
     }
 
-    if (appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
-      addLandToMap(appState, land, xLand, yLand);
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(Location.landJerusalem)) {
+      addLandToMap(appState, Location.landJerusalem, xLand, yLand);
     }
   }
 
-  void layoutLands(MyAppState appState) {
+  void layoutLands(MyAppState appState, int pass) {
     for (final land in LocationType.land.locations) {
-      layoutLand(appState, land);
+      if (land == Location.landJerusalem) {
+        layoutJerusalem(appState, pass);
+      } else {
+        layoutLand(appState, land, pass);
+      }
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.boxRomanPolicy: (1, 1, 2.0, 2.0),
       Location.boxPersianReligion: (1, 1, 2.0, 2.0),
@@ -880,7 +937,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
     }
   }
 
@@ -996,11 +1053,13 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutLands(appState);
-      layoutBoxes(appState);
       layoutTrack(appState);
       layoutActsTrack(appState);
       layoutGreatTheologians(appState);
+      layoutBoxes(appState, 0);
+      layoutLands(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutLands(appState, 1);
 
       const choiceTexts = {
         Choice.moveMissionary: 'Move Missionary',

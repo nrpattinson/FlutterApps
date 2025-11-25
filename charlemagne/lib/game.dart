@@ -2037,11 +2037,16 @@ class Game {
     _log += '$line\n';
   }
 
-  String dieFace(int die) {
-    return '![](resource:assets/images/d8_$die.png)';
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
   }
 
   // Randomness
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d8_$die.png)';
+  }
 
   int rollD8() {
     int die = _random.nextInt(8) + 1;
@@ -2361,8 +2366,7 @@ class Game {
     }
     if (_state.piecesInLocationCount(PieceType.mapMarquis, space) > 0) {
       int die = rollD8();
-      logLine('>|Effect|Value|');
-      logLine('>|:---|:---:|');
+      logTableHeader();
       logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
       logLine('>|${enemyUnit.desc}|$rating|');
@@ -2688,8 +2692,7 @@ class Game {
       logLine('### ${leader.desc} attempts to Suppress ${space.desc}');
       final enemyUnit = _state.spaceTopmostEnemyUnit(space)!;
       int die = rollD8();
-      logLine('>|Effect|Value|');
-      logLine('>|:---|:---:|');
+      logTableHeader();
       logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
       logLine('>|${enemyUnit.desc}|$rating|');

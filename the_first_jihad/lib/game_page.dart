@@ -467,19 +467,22 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxStacks(MyAppState appState, Location box, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
     int stackCount = rowCount * colCount;
     for (int row = 0; row < rowCount; ++row) {
       for (int col = 0; col < colCount; ++col) {
         final stackPieces = <Piece>[];
         int stackIndex = row * colCount + col;
-        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
-          stackPieces.add(pieces[pieceIndex]);
-        }
-        if (stackPieces.isNotEmpty) {
-          double xStack = x + col * dxStack;
-          double yStack = y + row * dyStack;
-          layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
         }
       }
     }
@@ -528,21 +531,22 @@ class GamePageState extends State<GamePage> {
     return -a.index.compareTo(b.index);
   }
 
-  void layoutLand(MyAppState appState, Location land) {
-    final state = appState.gameState!;
+  void layoutLand(MyAppState appState, Location land, int pass) {
+    final sk = (land, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      final state = appState.gameState!;
 
-    final coordinates = locationCoordinates(land);
-    final xLand = coordinates.$2;
-    final yLand = coordinates.$3;
+      final coordinates = locationCoordinates(land);
+      final xLand = coordinates.$2;
+      final yLand = coordinates.$3;
 
-    if (!_emptyMap) {
       final pieces = state.piecesInLocation(PieceType.mapPiece, land);
       pieces.sort((a, b) => mapPieceZOrder(state, a, b));
       layoutStack(appState, (land, 0), pieces, BoardArea.map, xLand, yLand, 4.0, 4.0);
     }
   }
 
-  void layoutMecca(MyAppState appState)
+  void layoutMecca(MyAppState appState, int pass)
   {
     final state = appState.gameState!;
 
@@ -550,49 +554,47 @@ class GamePageState extends State<GamePage> {
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
 
-    if (!_emptyMap) {
-      for (final piece in state.piecesInLocation(PieceType.mapPiece, Location.landMecca)) {
-        double xOffset = 0.0;
-        double yOffset = 0.0;
-        if (piece.isType(PieceType.kaaba)) {
-        } else if (piece.isType(PieceType.islam)) {
-          switch (piece) {
-          case Piece.islamGreek:
-            xOffset = -5.0;
-            yOffset = -88.0;
-          case Piece.islamMediterranean:
-            xOffset = -110.0;
-            yOffset = -88.0;
-          case Piece.islamAfrican:
-            xOffset = -100.0;
-            yOffset = -20.0;
-          case Piece.islamIndian:
-            xOffset = 110.0;
-            yOffset = -10.0;
-          case Piece.islamParthian:
-            xOffset = 140.0;
-            yOffset = -74.0;
-          case Piece.islamCaucasian:
-            xOffset = 70.0;
-            yOffset = -74.0;
-          default:
-          }
-        } else if (piece.isType(PieceType.mecca)) {
-          yOffset = 65.0;
-        } else if (piece.isType(PieceType.mujahideen)) {
-        } else if (piece == Piece.arabStop) {
+    for (final piece in state.piecesInLocation(PieceType.mapPiece, Location.landMecca)) {
+      double xOffset = 0.0;
+      double yOffset = 0.0;
+      if (piece.isType(PieceType.kaaba)) {
+      } else if (piece.isType(PieceType.islam)) {
+        switch (piece) {
+        case Piece.islamGreek:
+          xOffset = -5.0;
+          yOffset = -88.0;
+        case Piece.islamMediterranean:
+          xOffset = -110.0;
+          yOffset = -88.0;
+        case Piece.islamAfrican:
+          xOffset = -100.0;
+          yOffset = -20.0;
+        case Piece.islamIndian:
+          xOffset = 110.0;
+          yOffset = -10.0;
+        case Piece.islamParthian:
+          xOffset = 140.0;
+          yOffset = -74.0;
+        case Piece.islamCaucasian:
+          xOffset = 70.0;
+          yOffset = -74.0;
+        default:
         }
-        addPieceToBoard(appState, piece, BoardArea.map, xLand + xOffset, yLand + yOffset);
+      } else if (piece.isType(PieceType.mecca)) {
+        yOffset = 65.0;
+      } else if (piece.isType(PieceType.mujahideen)) {
+      } else if (piece == Piece.arabStop) {
       }
+      addPieceToBoard(appState, piece, BoardArea.map, xLand + xOffset, yLand + yOffset);
     }
   }
 
-  void layoutLands(MyAppState appState) {
+  void layoutLands(MyAppState appState, int pass) {
     for (final land in LocationType.land.locations) {
       if (land == Location.landMecca) {
-        layoutMecca(appState);
+        layoutMecca(appState, pass);
       } else {
-        layoutLand(appState, land);
+        layoutLand(appState, land, pass);
       }
     }
   }
@@ -631,7 +633,7 @@ class GamePageState extends State<GamePage> {
     return boxInfos[box]!;
   }
 
-  void layoutBox(MyAppState appState, Location box) {
+  void layoutBox(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(box);
     final boardArea = coordinates.$1;
@@ -642,12 +644,12 @@ class GamePageState extends State<GamePage> {
     double yGap = info.$2;
     int cols = info.$3;
     int rows = info.$4;
-    layoutBoxStacks(appState, box, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 3.0, 3.0);
+    layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 3.0, 3.0);
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     for (final box in boxInfos.keys) {
-      layoutBox(appState, box);
+      layoutBox(appState, box, pass);
     }
   }
 
@@ -675,8 +677,12 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutLands(appState);
-      layoutBoxes(appState);
+      if (!_emptyMap) {
+        layoutBoxes(appState, 0);
+        layoutBoxes(appState, 1);
+        layoutLands(appState, 0);
+        layoutLands(appState, 1);
+      }
 
       const choiceTexts = {
         Choice.reduceEmperorSkill: 'Reduce Emperor’s Skill',

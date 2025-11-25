@@ -5673,6 +5673,13 @@ class Game {
     _log += '$line\n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  // Randomness
+
   String redDieFace(int die) {
     return '![](resource:assets/images/d6_red_$die.png)';
   }
@@ -6208,8 +6215,7 @@ class Game {
 
     final ruler = _state.rulingCommand;
 
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
 
     final rolls = roll3D6();
     int omens = rolls.$4;
@@ -6445,8 +6451,7 @@ class Game {
 
   bool failMortalityRoll(String name, int? age) {
     logLine('### Mortality Check for $name');
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
     bool hasSavingRoll = _options.finiteLifetimes && age != null && age <= 3;
     final rolls = rollD6D2(hasSavingRoll);
     int die = rolls.$1;
@@ -6505,8 +6510,7 @@ class Game {
     logLine('>');
     logLine('>$name');
 
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
 
     final rolls = roll2D6();
     log2D6InTable(rolls);
@@ -6654,8 +6658,7 @@ class Game {
 
     logLine('>');
     logLine('>${war.desc} Pillage');
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
     final die = rollD6();
     logD6InTable(die);
     int modifiers = 0;
@@ -7043,8 +7046,7 @@ class Game {
       return 0;
     }
     logLine('### Revolt Check for ${province.desc}');
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
     int die = rollD6();
     logD6InTable(die);
     modifiers = calculateProvinceRevoltModifier(province, false, true);
@@ -7224,8 +7226,7 @@ class Game {
     } else if (stalemate) {
       logLine('>Campaign against $warDesc results in a Stalemate.');
     } else {
-      logLine('>|Effect|Value|');
-      logLine('>|:---|:---:|');
+      logTableHeader();
       log3D6WithRedInTable(rolls);
 
       int nonMatchingForeignProvinceCount = 0;
@@ -7543,8 +7544,7 @@ class Game {
 
     logLine('### ${_state.commanderName(ruler)} vs. ${_state.commanderName(rebelCommand)}');
 
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
 
     final rolls = roll3D6();
     log3D6WithRedInTable(rolls);
@@ -8149,8 +8149,7 @@ class Game {
         logLine('### ${_state.commanderName(assassinCommand)} attempts to Assassinate ${_state.adornedStatesmanName(targetStatesman!)}');
       }
       int modifiers = 0;
-      logLine('>|Effect|Value|');
-      logLine('>|:---|:---:|');
+      logTableHeader();
       int die = rollD6();
       logD6InTable(die);
       int modifier = 0;
@@ -8919,8 +8918,7 @@ class Game {
   void eventPhaseEventRoll() {
     final phaseState = _phaseState as PhaseStateEvent;
     logLine('### Events Roll');
-    logLine('>|Effect|Value|');
-    logLine('>|:---|:---:|');
+    logTableHeader();
     int die = rollD6();
     logD6InTable(die);
 		int eventCount = die;
@@ -9224,8 +9222,7 @@ class Game {
 
       if (_subStep == 1) { // Extra Taxes
         logLine('### Extra Cash');
-        logLine('>|Effect|Value|');
-        logLine('>|:---|:---:|');
+        logTableHeader();
         final rolls = roll2D6();
         log2D6InTable(rolls);
         int total = rolls.$4;
@@ -9273,8 +9270,7 @@ class Game {
       phaseState.warsRemainingCount = poolCount;
     } else {
       logLine('### Draw New Wars');
-      logLine('>|Effect|Value|');
-      logLine('>|:---|:---:|');
+      logTableHeader();
       int die = rollD6();
       logD6InTable(die);
       logLine('>|Scenario|-1|');
@@ -9457,8 +9453,7 @@ class Game {
       if (_state.turn % 10 == 9) {
         drawCount = poolPieces.length;
       } else {
-        logLine('>|Effect|Value|');
-        logLine('>|:---|:---:|');
+        logTableHeader();
         int die = rollD2();
         logD2InTable(die);
         int modifiers = 0;

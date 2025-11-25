@@ -315,6 +315,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -716,25 +720,28 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxStacks(MyAppState appState, Location box, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
     int stackCount = rowCount * colCount;
     for (int row = 0; row < rowCount; ++row) {
       for (int col = 0; col < colCount; ++col) {
         final stackPieces = <Piece>[];
         int stackIndex = row * colCount + col;
-        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
-          stackPieces.add(pieces[pieceIndex]);
-        }
-        if (stackPieces.isNotEmpty) {
-          double xStack = x + col * dxStack;
-          double yStack = y + row * dyStack;
-          layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, sk, stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
         }
       }
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.southTribeBox: (1, 1, 0.0, 0.0),
       Location.westTribeBox: (1, 1, 0.0, 0.0),
@@ -802,39 +809,37 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
     }
   }
 
-  void layoutConstantinople(MyAppState appState) {
+  void layoutConstantinople(MyAppState appState, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(Location.constantinople);
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
 
-    if (!_emptyMap) {
-      final factions = <Piece>[];
-      final riots = <Piece>[];
-      Piece? theodosianWalls;
-      Piece? basileus;
-      Piece? magisterMilitum;
-      Piece? university;
-      for (final piece in state.piecesInLocation(PieceType.all, Location.constantinople)) {
-        if (piece.isType(PieceType.faction)) {
-          if (piece == Piece.factionTheodosianWalls) {
-            theodosianWalls = piece;
-          } else {
-            factions.add(piece);
-          }
-        } else if (piece.isType(PieceType.riots) || piece.isType(PieceType.latins)) {
-          riots.add(piece);
-        } else if (piece == Piece.basileus || piece == Piece.plague) {
-          basileus = piece;
-        } else if (piece == Piece.magisterMilitum) {
-          magisterMilitum = piece;
-        } else if (piece == Piece.university) {
-          university = piece;
+    final factions = <Piece>[];
+    final riots = <Piece>[];
+    Piece? theodosianWalls;
+    Piece? basileus;
+    Piece? magisterMilitum;
+    Piece? university;
+    for (final piece in state.piecesInLocation(PieceType.all, Location.constantinople)) {
+      if (piece.isType(PieceType.faction)) {
+        if (piece == Piece.factionTheodosianWalls) {
+          theodosianWalls = piece;
+        } else {
+          factions.add(piece);
         }
+      } else if (piece.isType(PieceType.riots) || piece.isType(PieceType.latins)) {
+        riots.add(piece);
+      } else if (piece == Piece.basileus || piece == Piece.plague) {
+        basileus = piece;
+      } else if (piece == Piece.magisterMilitum) {
+        magisterMilitum = piece;
+      } else if (piece == Piece.university) {
+        university = piece;
       }
       for (int i = factions.length - 1; i >= 0; --i) {
         int col = i % 5;
@@ -885,7 +890,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutZone(MyAppState appState, Location zone) {
+  void layoutZone(MyAppState appState, Location zone, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(zone);
     final xLand = coordinates.$2;
@@ -895,28 +900,26 @@ class GamePageState extends State<GamePage> {
       addZoneToMap(appState, zone, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, zone);
-      Piece? modifier;
-      Piece? geography;
-      Piece? monastery;
-      Piece? social;
-      Piece? ruler;
-      final others = <Piece>[];
-      for (final piece in pieces) {
-        if (piece.isType(PieceType.geography)) {
-          geography = piece;
-        } else if (piece.isType(PieceType.monastery)) {
-          monastery = piece;
-        } else if (piece.isType(PieceType.social)) {
-          social = piece;
-        } else if (piece.isType(PieceType.ruler)) {
-          ruler = piece;
-        } else if ([Piece.ravenna, Piece.holyRomanEmpire, Piece.bulgarianTheme].contains(piece)) {
-          modifier = piece;
-        } else if (piece != Piece.stolos) {
-          others.add(piece);
-        }
+    final pieces = state.piecesInLocation(PieceType.all, zone);
+    Piece? modifier;
+    Piece? geography;
+    Piece? monastery;
+    Piece? social;
+    Piece? ruler;
+    final others = <Piece>[];
+    for (final piece in pieces) {
+      if (piece.isType(PieceType.geography)) {
+        geography = piece;
+      } else if (piece.isType(PieceType.monastery)) {
+        monastery = piece;
+      } else if (piece.isType(PieceType.social)) {
+        social = piece;
+      } else if (piece.isType(PieceType.ruler)) {
+        ruler = piece;
+      } else if ([Piece.ravenna, Piece.holyRomanEmpire, Piece.bulgarianTheme].contains(piece)) {
+        modifier = piece;
+      } else if (piece != Piece.stolos) {
+        others.add(piece);
       }
       for (int i = others.length - 1; i >= 0; --i) {
         int col = i % 3;
@@ -970,7 +973,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutTheme(MyAppState appState, Location theme) {
+  void layoutTheme(MyAppState appState, Location theme, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(theme);
     final xLand = coordinates.$2;
@@ -980,19 +983,17 @@ class GamePageState extends State<GamePage> {
       addThemeToMap(appState, theme, xLand, yLand);
     }
 
-    if (_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, theme);
-      for (int i = pieces.length - 1; i >= 0; --i) {
-        if (pieces[i] == Piece.stolos) {
-          continue;
-        }
-        double x = xLand + i * 4.0;
-        double y = yLand + i * 4.0;
-        if (pieces[i] == state.stolosArmy) {
-          addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
-        }
-        addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
+    final pieces = state.piecesInLocation(PieceType.all, theme);
+    for (int i = pieces.length - 1; i >= 0; --i) {
+      if (pieces[i] == Piece.stolos) {
+        continue;
       }
+      double x = xLand + i * 4.0;
+      double y = yLand + i * 4.0;
+      if (pieces[i] == state.stolosArmy) {
+        addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
+      }
+      addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(theme)) {
@@ -1000,7 +1001,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutHomeland(MyAppState appState, Location homeland) {
+  void layoutHomeland(MyAppState appState, Location homeland, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(homeland);
     final xLand = coordinates.$2;
@@ -1010,23 +1011,21 @@ class GamePageState extends State<GamePage> {
       addHomelandToMap(appState, homeland, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = <Piece>[];
-      for (final piece in state.piecesInLocation(PieceType.all, homeland)) {
-        if (piece != Piece.stolos) {
-          pieces.add(piece);
-        }
+    final pieces = <Piece>[];
+    for (final piece in state.piecesInLocation(PieceType.all, homeland)) {
+      if (piece != Piece.stolos) {
+        pieces.add(piece);
       }
-      for (int i = pieces.length - 1; i >= 0; --i) {
-        int col = 2 - i % 3;
-        int depth = i ~/ 3;
-        double x = xLand + col * 72.0 + depth * 4.0;
-        double y = yLand + depth * 4.0;
-        if (pieces[i] == state.stolosArmy) {
-          addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
-        }
-        addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
+    }
+    for (int i = pieces.length - 1; i >= 0; --i) {
+      int col = 2 - i % 3;
+      int depth = i ~/ 3;
+      double x = xLand + col * 72.0 + depth * 4.0;
+      double y = yLand + depth * 4.0;
+      if (pieces[i] == state.stolosArmy) {
+        addPieceToBoard(appState, Piece.stolos, BoardArea.map, x, y + 20.0);        
       }
+      addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
     }
 
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(homeland)) {
@@ -1034,16 +1033,16 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutLands(MyAppState appState) {
+  void layoutLands(MyAppState appState, int pass) {
     for (final land in LocationType.land.locations) {
       if (land == Location.constantinople) {
-        layoutConstantinople(appState);
+        layoutConstantinople(appState, pass);
       } else if (land.isType(LocationType.zone)) {
-        layoutZone(appState, land);
+        layoutZone(appState, land, pass);
       } else if ([Location.homelandIberia, Location.homelandPersia, Location.homelandSyria].contains(land)) {
-        layoutHomeland(appState, land);
+        layoutHomeland(appState, land, pass);
       } else {
-        layoutTheme(appState, land);
+        layoutTheme(appState, land, pass);
       }
     }
   }
@@ -1151,11 +1150,13 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutLands(appState);
-      layoutBoxes(appState);
       layoutOmnibus(appState);
       layoutStrategikon(appState);
       layoutChronographia(appState);
+      layoutBoxes(appState, 0);
+      layoutLands(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutLands(appState, 1);
 
       const choiceTexts = {
         Choice.blockMagyarSacrifice: 'Sacrifice Magyar Army',
