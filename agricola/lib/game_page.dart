@@ -10,6 +10,8 @@ enum BoardArea {
   display,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -35,6 +37,10 @@ class GamePageState extends State<GamePage> {
   final _displayImage = Image.asset('assets/images/display.png', key: UniqueKey(), width: _displayWidth, height: _displayHeight);
   final _mapStackChildren = <Widget>[];
   final _displayStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -203,6 +209,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -245,17 +255,34 @@ class GamePageState extends State<GamePage> {
       borderWidth += 1.0;
     }
 
+    GestureTapCallback? onTap;
     if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.chosePiece(piece);
-          },
-          child: widget,
-        ),
-      );
+      onTap = () {
+        appState.chosePiece(piece);
+      };
     }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -362,7 +389,43 @@ class GamePageState extends State<GamePage> {
     addBoxToBoard(appState, box, BoardArea.map, xBox - 72.0, yBox - 72.0, 130.0, 130.0);
   }
 
-  void layoutTribe(MyAppState appState, Location box) {
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int row = 0; row < rowCount; ++row) {
+      for (int col = 0; col < colCount; ++col) {
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+          stackPieces.add(pieces[pieceIndex]);
+        }
+        if (stackPieces.isNotEmpty) {
+          final sk = (box, stackIndex);
+          if (_expandedStacks.contains(sk) == (pass == 1)) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutTribe(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
 
     final coordinates = locationCoordinates(box);
@@ -373,30 +436,34 @@ class GamePageState extends State<GamePage> {
       addTribeToMap(appState, box, xBox, yBox);
     }
 
-    if (!_emptyMap) {
+    final sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      final pieces = <Piece>[];
+
       final tribes = state.piecesInLocation(PieceType.mapTribe, box);
       for (int depth = 0; depth < tribes.length; ++depth) {
         for (int i = 0; i < tribes.length; ++i) {
           final tribe = tribes[i];
           if (state.tribeStackDepth(tribe) == depth) {
-            addPieceToBoard(appState, tribe, BoardArea.map, xBox + 4.0 * depth, yBox + 4.0 * depth);
+            pieces.add(tribe);
           }
         }
       }
-      final leader = state.pieceInLocation(PieceType.mapLeader, box);
-      if (leader != null) {
-        addPieceToBoard(appState, leader, BoardArea.map, xBox + 4.0 * tribes.length, yBox + 4.0 * tribes.length);
+      final enemyLeader = state.pieceInLocation(PieceType.mapLeader, box);
+      if (enemyLeader != null) {
+        pieces.add(enemyLeader);
       }
+      layoutStack(appState, sk, pieces, BoardArea.map, xBox, yBox, 4.0, 4.0);
     }
- 
+
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
       addTribeToMap(appState, box, xBox, yBox);
     }
   }
 
-  void layoutTribes(MyAppState appState) {
+  void layoutTribes(MyAppState appState, int pass) {
     for (final box in LocationType.tribe.locations) {
-      layoutTribe(appState, box);
+      layoutTribe(appState, box, pass);
     }
   }
 
@@ -404,7 +471,7 @@ class GamePageState extends State<GamePage> {
     addBoxToBoard(appState, box, BoardArea.map, xBox - 72.0, yBox - 72.0, 130.0, 130.0);
   }
 
-  void layoutLegionaryCamp(MyAppState appState, Location box) {
+  void layoutLegionaryCamp(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
 
     final coordinates = locationCoordinates(box);
@@ -415,10 +482,9 @@ class GamePageState extends State<GamePage> {
       addLegionaryCampToMap(appState, box, xBox, yBox);
     }
 
-    if (!_emptyMap) {
-      for (final piece in state.piecesInLocation(PieceType.map, box)) {
-        addPieceToBoard(appState, piece, BoardArea.map, xBox, yBox);
-      }
+    final sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, state.piecesInLocation(PieceType.map, box), BoardArea.map, xBox, yBox, 4.0, 4.0);
     }
  
     if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
@@ -426,9 +492,9 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutLegionaryCamps(MyAppState appState) {
+  void layoutLegionaryCamps(MyAppState appState, int pass) {
     for (final box in LocationType.legionaryCamp.locations) {
-      layoutLegionaryCamp(appState, box);
+      layoutLegionaryCamp(appState, box, pass);
     }
   }
 
@@ -471,7 +537,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, pass) {
     const boxesInfo = {
       Location.poolForce: (3, 5, 3.0, 3.0),
       Location.poolDead: (1, 1, 0.0, 0.0),
@@ -488,16 +554,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      final pieces = state.piecesInLocation(PieceType.all, box);
-      int cells = cols * rows;
-      for (int i = 0; i < pieces.length; ++i) {
-        int col = i % cols;
-        int row = (i % cells) ~/ cols;
-        int depth = i ~/ cells;
-        double x = xBox + col * (60.0 + xGap) + depth * 4.0;
-        double y = yBox + row * (60.0 + yGap) + depth * 4.0;
-        addPieceToBoard(appState, pieces[i], boardArea, x, y);
-      }
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
     }
   }
 
@@ -592,14 +649,17 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutTribes(appState);
-      layoutLegionaryCamps(appState);
-      layoutBoxes(appState);
       layoutLegionHoldingBoxes(appState);
       layoutLegionActionsTrack(appState);
       layoutIncomeTrack(appState);
       layoutVictoryTrack(appState);
       layoutGameTurnTrack(appState);
+      layoutBoxes(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutLegionaryCamps(appState, 0);
+      layoutLegionaryCamps(appState, 1);
+      layoutTribes(appState, 0);
+      layoutTribes(appState, 1);
 
       const choiceTexts = {
         Choice.actionLeaderAttachLeader: 'Attach Leader',

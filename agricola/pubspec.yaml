@@ -139,6 +139,14 @@ flutter:
    - assets/images/marker_income.png
    - assets/images/marker_legion_actions.png
    - assets/images/marker_treasury.png
+   - assets/images/d8_1.png
+   - assets/images/d8_2.png
+   - assets/images/d8_3.png
+   - assets/images/d8_4.png
+   - assets/images/d8_5.png
+   - assets/images/d8_6.png
+   - assets/images/d8_7.png
+   - assets/images/d8_8.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

@@ -42,8 +42,10 @@ class GamePageState extends State<GamePage> {
   final _mapStackChildren = <Widget>[];
   final _bookOfTheDeadStackChildren = <Widget>[];
   final _counterTrayStackChildren = <Widget>[];
+
   final _pieceStackKeys = <Piece,StackKey>{};
   final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -217,6 +219,9 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -622,28 +627,26 @@ class GamePageState extends State<GamePage> {
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
 
-    if (!_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, Location.landMenNefer);
-      Piece? pharaoh;
-      final others = <Piece>[];
-      for (final piece in pieces) {
-        if (piece == Piece.pharaoh) {
-          pharaoh = piece;
-        } else {
-          others.add(piece);
-        }
+    final pieces = state.piecesInLocation(PieceType.all, Location.landMenNefer);
+    Piece? pharaoh;
+    final others = <Piece>[];
+    for (final piece in pieces) {
+      if (piece == Piece.pharaoh) {
+        pharaoh = piece;
+      } else {
+        others.add(piece);
       }
+    }
 
-      double xStack = xLand;
-      if (pharaoh == null) {
-        xStack -= 30.0;
-      }
-      layoutStack(appState, (Location.landMenNefer, 0), others, BoardArea.map, xStack, yLand, 4.0, 4.0);
+    double xStack = xLand;
+    if (pharaoh == null) {
+      xStack -= 30.0;
+    }
+    layoutStack(appState, (Location.landMenNefer, 0), others, BoardArea.map, xStack, yLand, 4.0, 4.0);
 
-      if (pharaoh != null) {
-        double x = others.isEmpty ? xLand - 30.0 : xLand - 60.0;
-        addPieceToBoard(appState, pharaoh, BoardArea.map, x, yLand);
-      }
+    if (pharaoh != null) {
+      double x = others.isEmpty ? xLand - 30.0 : xLand - 60.0;
+      addPieceToBoard(appState, pharaoh, BoardArea.map, x, yLand);
     }
   }
 
@@ -657,41 +660,39 @@ class GamePageState extends State<GamePage> {
       addLandToMap(appState, land, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, land);
+    final pieces = state.piecesInLocation(PieceType.all, land);
 
-      Piece? sepat;
-      Piece? troops;
-      Piece? army;
-      final others = <Piece>[];
-      for (int i = pieces.length - 1; i >= 0; --i) {
-        final piece = pieces[i];
-        if (piece.isType(PieceType.sepat)) {
-          sepat = piece;
-        } else if (piece.isType(PieceType.medjaiTroops)) {
-          troops = piece;
-        } else if (piece.isType(PieceType.khasti)) {
-          army = piece;
-        } else if (piece.isType(PieceType.rivalDynasty)) {
-          army = piece;
-        } else {
-          others.add(piece);
-        }
+    Piece? sepat;
+    Piece? troops;
+    Piece? army;
+    final others = <Piece>[];
+    for (int i = pieces.length - 1; i >= 0; --i) {
+      final piece = pieces[i];
+      if (piece.isType(PieceType.sepat)) {
+        sepat = piece;
+      } else if (piece.isType(PieceType.medjaiTroops)) {
+        troops = piece;
+      } else if (piece.isType(PieceType.khasti)) {
+        army = piece;
+      } else if (piece.isType(PieceType.rivalDynasty)) {
+        army = piece;
+      } else {
+        others.add(piece);
       }
+    }
 
-      var sk = (land, 0);
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        layoutStack(appState, sk, others, BoardArea.map, xLand + 24.0, yLand + 2.0, 4.0, 4.0);
-      }
-      if (troops != null) {
-        addPieceToBoard(appState, troops, BoardArea.map, xLand + 24.0, yLand + 2.0);
-      }
-      if (sepat != null) {
-        addPieceToBoard(appState, sepat, BoardArea.map, xLand + 2.0, yLand + 24.0);
-      }
-      if (army != null) {
-        addPieceToBoard(appState, army, BoardArea.map, xLand + 24.0, yLand + 2.0);
-      }
+    var sk = (land, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, others, BoardArea.map, xLand + 24.0, yLand + 2.0, 4.0, 4.0);
+    }
+    if (troops != null) {
+      addPieceToBoard(appState, troops, BoardArea.map, xLand + 24.0, yLand + 2.0);
+    }
+    if (sepat != null) {
+      addPieceToBoard(appState, sepat, BoardArea.map, xLand + 2.0, yLand + 24.0);
+    }
+    if (army != null) {
+      addPieceToBoard(appState, army, BoardArea.map, xLand + 24.0, yLand + 2.0);
     }
 
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
@@ -709,28 +710,26 @@ class GamePageState extends State<GamePage> {
       addCountryToMap(appState, country, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, country);
+    final pieces = state.piecesInLocation(PieceType.all, country);
 
-      Piece? khasti;
-      final others = <Piece>[];
-      for (int i = pieces.length - 1; i >= 0; --i) {
-        final piece = pieces[i];
-        if (piece.isType(PieceType.khasti)) {
-          khasti = piece;
-        } else {
-          others.add(piece);
-        }
+    Piece? khasti;
+    final others = <Piece>[];
+    for (int i = pieces.length - 1; i >= 0; --i) {
+      final piece = pieces[i];
+      if (piece.isType(PieceType.khasti)) {
+        khasti = piece;
+      } else {
+        others.add(piece);
       }
+    }
 
-      var sk = (country, 0);
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        layoutStack(appState, sk, others, BoardArea.map, xLand + 75.0, yLand + 25.0, 4.0, 4.0);
-      }
+    var sk = (country, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, others, BoardArea.map, xLand + 75.0, yLand + 25.0, 4.0, 4.0);
+    }
 
-      if (khasti != null) {
-        addPieceToBoard(appState, khasti, BoardArea.map, xLand + 2.0, yLand + 25.0);
-      }
+    if (khasti != null) {
+      addPieceToBoard(appState, khasti, BoardArea.map, xLand + 2.0, yLand + 25.0);
     }
 
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(country)) {

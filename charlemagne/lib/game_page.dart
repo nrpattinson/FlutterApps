@@ -352,6 +352,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -706,14 +710,12 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      if (!_emptyMap) {
-        layoutSpaces(appState);
-        layoutBoxes(appState);
-        layoutTurnTrack(appState);
-        layoutVictoryPointTrack(appState);
-        layoutEvpTrack(appState);
-        layoutTreasuryTrack(appState);
-      }
+      layoutSpaces(appState);
+      layoutBoxes(appState);
+      layoutTurnTrack(appState);
+      layoutVictoryPointTrack(appState);
+      layoutEvpTrack(appState);
+      layoutTreasuryTrack(appState);
 
       const choiceTexts = {
         Choice.purchaseInfantry: 'Infantry',

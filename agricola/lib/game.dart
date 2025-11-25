@@ -1329,15 +1329,28 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
+  }
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d8_$die.png)';
   }
 
   // Randomness
 
   int rollD8() {
     int die = _random.nextInt(8) + 1;
-    logLine('> Roll: $die');
     return die;
+  }
+
+  void logD8(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD8InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -1764,7 +1777,7 @@ class Game {
         }
         final legion = selectedPiece()!;
         logLine('### Attach Leader');
-        logLine('> Agricola is Attached to ${legion.desc}.');
+        logLine('>Agricola is Attached to ${legion.desc}.');
         _state.agricolaLegion = legion;
         clearChoices();
         _subStep = 0;
