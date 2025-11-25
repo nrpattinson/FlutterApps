@@ -1055,44 +1055,83 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
+  }
+
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
   }
 
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
+    return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
+  }
+
+  (int,int,int,int) roll3D6() {
+    int value = _random.nextInt(216);
+    int d0 = value ~/ 36;
+    value -= d0 * 36;
+    int d1 = value ~/ 6;
+    value -= d1 * 6;
+    int d2 = value;
     d0 += 1;
     d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    return (d0, d1, d0 + d1);
+    d2 += 1;
+    return (d0, d1, d2, d0 + d1 + d2);
+  }
+
+  void log3D6((int,int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    int d2 = results.$3;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}');
+    logLine('>');
+  }
+
+  void lod3D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}|${d0 + d1 + d2}');
   }
 
   int randInt(int max) {
@@ -1313,7 +1352,7 @@ class Game {
     int dice = roll2D6().$3;
     int rowIndex = dice - 2;
     final weatherLocation = weatherTable[tableIndex][rowIndex];
-    logLine('> Weather is ${weatherLocation.desc}.');
+    logLine('>Weather is ${weatherLocation.desc}.');
     if ([Location.weatherFog, Location.weatherSqualls].contains(weatherLocation)) {
       _state.setPieceLocation(Piece.markerWeatherNoAir, weatherLocation);
     } else {
@@ -1376,26 +1415,29 @@ class Game {
       }
       int savingThrowDieCount = 1;
       if (checkChoiceAndClear(Choice.sasRaidOperationMikado)) {
-        logLine('> Operation Mikado: SAS raid Argentina’s mainland stock of Exocets');
+        logLine('>Operation Mikado: SAS raid Argentina’s mainland stock of Exocets');
         int die = rollD6();
+        logD6(die);
         if (die == 1) {
-          logLine('> Mission is successful.');
+          logLine('>Mission is successful.');
           int lossDie = rollD6();
           adjustExocetCount(-lossDie);
+        } else {
+          logLine('>Mission is unsuccessful.');
         }
         _state.setLimitedEventOccurred(LimitedEvent.operationMikado);
         savingThrowDieCount = 2;
       } else if (checkChoiceAndClear(Choice.sasRaidSpoofing)) {
-        logLine('> SAS raid attempts to misdirect the Argentine Air Force.');
+        logLine('>SAS raid attempts to misdirect the Argentine Air Force.');
         int die = rollD6();
         final seaZone = Location.values[LocationType.seaZone.firstIndex + die - 1];
         if (_state.piecesInLocationCount(PieceType.navalArgGrupo, seaZone) > 0) {
-          logLine('> Argentine Air Force units in ${seaZone.desc} are diverted.');
+          logLine('>Argentine Air Force units in ${seaZone.desc} are diverted.');
           for (final grupo in _state.piecesInLocation(PieceType.navalArgGrupo, seaZone)) {
             _state.flipPiece(grupo);
           }
         } else {
-          logLine('> Argentine Air Force units remain focused on British naval activity.');
+          logLine('>Argentine Air Force units remain focused on British naval activity.');
         }
       } else {
         final piece = selectedPiece();
@@ -1403,29 +1445,31 @@ class Game {
         if (piece != null) {
           if (piece.isType(PieceType.groundArgPucara)) {
             final airstrip = _state.pieceLocation(piece);
-            logLine('> SAS raid ${airstrip.desc}.');
+            logLine('>SAS raid ${airstrip.desc}.');
             final pucara = _state.pieceInLocation(PieceType.groundArgPucara, airstrip)!;
             int die = rollD6();
+            logD6(die);
             if (die <= 4) {
-              logLine('> Raid destroys ${pucara.desc}.');
+              logLine('>Raid destroys ${pucara.desc}.');
               _state.setPieceLocation(pucara, Location.offmap);
             } else {
-              logLine('> Raid fails, ${pucara.desc} is unscathed.');
+              logLine('>Raid fails, ${pucara.desc} is unscathed.');
             }
           } else {
             final camp = _state.pieceLocation(piece);
-            logLine('> SAS recce in ${camp.desc}.');
+            logLine('>SAS recce in ${camp.desc}.');
             int die = rollD6();
+            logD6(die);
             if (die <= 4) {
               final pieceFront = _state.pieceFlipSide(piece)!;
-              logLine('> Recce detects ${pieceFront.desc} in ${camp.desc}.');
+              logLine('>Recce detects ${pieceFront.desc} in ${camp.desc}.');
               _state.flipPiece(piece);
             } else {
-              logLine('> Recce produces no results.');
+              logLine('>Recce produces no results.');
             }
           }
         } else {
-          logLine('> SAS is committed to combat role in ${location!.desc}.');
+          logLine('>SAS is committed to combat role in ${location!.desc}.');
           _state.setPieceLocation(Piece.groundGbrSAS, location);
           savingThrowDieCount = 0;
         }
@@ -1433,19 +1477,21 @@ class Game {
       }
       int dice = 0;
       if (savingThrowDieCount == 1) {
-        logLine('> Saving Throw');
+        logLine('>Saving Throw');
         dice = rollD6();
+        logD6(dice);
       } else if (savingThrowDieCount == 2) {
-        logLine('> Saving Throw');
+        logLine('>Saving Throw');
         final rolls = roll2D6();
+        log2D6(rolls);
         dice = rolls.$3;
       }
       if (savingThrowDieCount > 0) {
         final turnBox = _state.turnBox(_state.currentTurn + dice);
         if (turnBox.isType(LocationType.turn)) {
-          logLine('> ${Piece.groundGbrSAS.desc} is out of action until ${_state.turnName(turnBox.index - LocationType.turn.firstIndex)}.');
+          logLine('>${Piece.groundGbrSAS.desc} is out of action until ${_state.turnName(turnBox.index - LocationType.turn.firstIndex)}.');
         } else {
-          logLine('> ${Piece.groundGbrSAS.desc} is out of action for the duration.');
+          logLine('>${Piece.groundGbrSAS.desc} is out of action for the duration.');
         }
         _state.setPieceLocation(Piece.groundGbrSAS, turnBox);
       }
@@ -1458,32 +1504,34 @@ class Game {
     }
     if (_subStep == 0) {
       logLine('### Ships Taken Up From Trade');
+      logTableHeader();
       int die = rollD6();
+      logD6InTable(die);
       int modifiers = 0;
       if (_state.exocetCount >= 2) {
-        logLine('> Exocet missile: +2');
+        logLine('>|Exocet missile|+2|');
         modifiers += 2;
       }
       int total = die + modifiers;
-      logLine('> Total: $total');
+      logLine('>Total|$total|');
       int heliCount = 0;
       switch (total) {
       case 1:
       case 2:
       case 3:
         heliCount = 3;
-        logLine('> No damage at all');
+        logLine('>No damage at all');
       case 4:
         heliCount = 2;
-        logLine('> Significant hit');
+        logLine('>Significant hit');
       case 5:
         heliCount = 1;
-        logLine('> Disastrous hit');
+        logLine('>Disastrous hit');
       case 6:
       case 7:
       case 8:
         heliCount = 0;
-        logLine('> Catastrophic hit');
+        logLine('>Catastrophic hit');
       }
       if (_state.exocetCount >= 2) {
         adjustExocetCount(-1);
