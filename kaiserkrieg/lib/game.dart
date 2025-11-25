@@ -2625,6 +2625,8 @@ class Game {
           logLine('>${logPiece(piece)} eliminated.');
           setPieceLocation(piece, Location.trayFrench);
         } else {
+          logLine('>|Effect|Value|');
+          logLine('>|:---|:---:|');
           int die = rollD6();
           logD6InTable(die);
           int value = 0;
@@ -3248,9 +3250,13 @@ class Game {
       33: [frenchTankArmy],
     };
 
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
     int die = rollD6();
-    logD6(die);
+    logD6InTable(die);
+    logLine('>|Turn|${turn + 1}');
     int result = turn + die + 1;
+    logLine('>|Total|$result|');
     final specialEventHandler = specialEvents[result];
     if (specialEventHandler != null) {
       specialEventHandler();
@@ -3492,6 +3498,8 @@ class Game {
       throw PlayerChoiceException();
     }
     logLine('### Control of the Skies.');
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
     int die = rollD6();
     int modifier = 0;
     if (checkChoice(Choice.minusOne)) {
@@ -3882,6 +3890,8 @@ class Game {
           } else {
             die = rollD6();
           }
+          logLine('>|Effect|Value|');
+          logLine('>|:---|:---:|');
           logD6InTable(die);
           int value = 0;
           if (piece.isType(PieceType.army)) {
@@ -4211,6 +4221,8 @@ void nearEastPhaseOttomanGroundCombat() {
       final location = pieceLocation(army);
       logLine('### Ottoman Forces Attack ${logPiece(army)} in ${logLocation(location)}.');
       spendLira(1);
+      logLine('>|Effect|Value|');
+      logLine('>|:---|:---:|');
       int die = rollD6();
       logD6InTable(die);
       int modifiers = 0;
