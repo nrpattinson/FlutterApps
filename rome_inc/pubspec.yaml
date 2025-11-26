@@ -371,6 +371,18 @@ flutter:
    - assets/images/war_sarmatian_10.png
    - assets/images/war_saxon_6.png
    - assets/images/war_vandal_9.png
+   - assets/images/d6_red_1.png
+   - assets/images/d6_red_2.png
+   - assets/images/d6_red_3.png
+   - assets/images/d6_red_4.png
+   - assets/images/d6_red_5.png
+   - assets/images/d6_red_6.png
+   - assets/images/d6_white_1.png
+   - assets/images/d6_white_2.png
+   - assets/images/d6_white_3.png
+   - assets/images/d6_white_4.png
+   - assets/images/d6_white_5.png
+   - assets/images/d6_white_6.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

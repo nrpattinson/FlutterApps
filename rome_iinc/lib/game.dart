@@ -5544,6 +5544,7 @@ class PhaseStateTreasury extends PhaseState {
 }
 
 class PhaseStateUnrest extends PhaseState {
+  int statesmenRemainingCount = 0;
   List<int> empireAnnexRemainingCounts = [0, 0];
   List<int> breadAndCircusesPrestigeCounts = [0, 0];
   Location? transferEmpire;
@@ -5551,15 +5552,17 @@ class PhaseStateUnrest extends PhaseState {
 
   PhaseStateUnrest();
 
-  PhaseStateUnrest.fromJson(Map<String, dynamic> json) {
-    empireAnnexRemainingCounts = List<int>.from(json['empireAnnexRemainingCounts']); 
-    breadAndCircusesPrestigeCounts = List<int>.from(json['breadAndCircusesPrestigeCounts']);
-    transferEmpire = locationFromIndex(json['transferEmpire'] as int?);
-    transferGovernorship = locationFromIndex(json['transferGovernorship'] as int?);
-  }
+  PhaseStateUnrest.fromJson(Map<String, dynamic> json)
+    : statesmenRemainingCount = json['statesmenRemainingCount'] as int
+    , empireAnnexRemainingCounts = List<int>.from(json['empireAnnexRemainingCounts'])
+    , breadAndCircusesPrestigeCounts = List<int>.from(json['breadAndCircusesPrestigeCounts'])
+    , transferEmpire = locationFromIndex(json['transferEmpire'] as int?)
+    , transferGovernorship = locationFromIndex(json['transferGovernorship'] as int?)
+    ;
 
   @override
   Map<String, dynamic> toJson() => {
+    'statesmenRemainingCount': statesmenRemainingCount,
     'empireAnnexRemainingCounts': empireAnnexRemainingCounts,
     'breadAndCircusesPrestigeCounts': breadAndCircusesPrestigeCounts,
     'transferEmpire': locationToIndex(transferEmpire),
@@ -6179,36 +6182,44 @@ class Game {
     await GameDatabase.instance.completeGame(_gameId, jsonEncode(outcome.toJson()));
   }
 
+  // Logging
+
   String get log {
     return _log;
   }
 
   void logLine(String line) {
-    _log += '$line  \n';
+    _log += '$line\n';
   }
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  // Randomness
+
+  String redDieFace(int die) {
+    return '![](resource:assets/images/d6_red_$die.png)';
+  }
+
+  String whiteDieFace(int die) {
+    return '![](resource:assets/images/d6_white_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${whiteDieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${whiteDieFace(die)}|$die|');
   }
 
   (int,int,int,int) roll2D6() {
@@ -6225,13 +6236,19 @@ class Game {
     } else if (omensCount == 2) {
       omensModifier = -1;
     }
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    if (omensModifier == 1) {
-      logLine('> Omens Event: +1');
-    } else if (omensModifier == -1) {
-      logLine('> Omens Event (doubled): -1');
-    }
     return (d0, d1, omensModifier, d0 + d1 + omensModifier);
+  }
+
+  void log2D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int omensModifier = rolls.$3;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)}|${d0 + d1}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
   }
 
   (int,int,int,int,int) roll3D6() {
@@ -6251,20 +6268,51 @@ class Game {
     } else if (omensCount == 2) {
       omensModifier = -1;
     }
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
-    if (omensModifier == 1) {
-      logLine('> Omens Event: +1');
-    } else if (omensModifier == -1) {
-      logLine('> Omens Event (doubled): -1');
-    }
     return (d0, d1, d2, omensModifier, d0 + d1 + d2 + omensModifier);
   }
 
-  (int,int) rollD6D3() {
+  void log3D6WithRed((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}');
+    logLine('>');
+  }
+
+  void log3D6InTable((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    int omensModifier = rolls.$4;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${whiteDieFace(d2)}|${d0 + d1 + d2}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
+  }
+ 
+  void log3D6WithRedInTable((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    int omensModifier = rolls.$4;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}|${d0 + d1 + d2}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
+  }
+ 
+  (int,int) rollAndLogD6D3() {
     int value = _random.nextInt(18);
     int d0 = value ~/ 3 + 1;
     int d1 = value % 3 + 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    logLine('>');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)}');
+    logLine('>');
     return (d0, d1);
   }
 
@@ -6272,24 +6320,16 @@ class Game {
     int value = _random.nextInt(12);
     int d0 = value ~/ 2 + 1;
     int d1 = value % 2 + 1;
-    if (d2Required) {
-      logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    } else {
-      logLine('> Roll: **${dieFaceCharacter(d0)}**');
-    }
     return (d0, d1);
   }
 
   int rollD3() {
     int die = _random.nextInt(3) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
   }
 
-  int rollD2() {
-    int die = _random.nextInt(2) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
-    return die;
+  void logD3InTable(int die) {
+    logLine('>|${whiteDieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -6340,7 +6380,7 @@ class Game {
 
   void setProvinceStatus(Location province, ProvinceStatus status) {
     _state.setProvinceStatus(province, status);
-    logLine('> ${province.desc} to ${GameState.provinceStatusName(status)}.');
+    logLine('>${province.desc} to ${GameState.provinceStatusName(status)}.');
   }
 
   void provinceIncreaseStatus(Location province) {
@@ -6380,27 +6420,27 @@ class Game {
   void adjustEmpireGold(Location empire, int amount) {
     _state.adjustEmpireGold(empire, amount);
     if (amount > 0) {
-      logLine('> ${_state.empireDesc(empire)} Gold: +$amount => ${_state.empireGold(empire)}');
+      logLine('>${_state.empireDesc(empire)} Gold: +$amount => ${_state.empireGold(empire)}');
     } else {
-      logLine('> ${_state.empireDesc(empire)} Gold: $amount => ${_state.empireGold(empire)}');
+      logLine('>${_state.empireDesc(empire)} Gold: $amount => ${_state.empireGold(empire)}');
     }
   }
 
   void adjustEmpirePrestige(Location empire, int amount) {
     _state.adjustEmpirePrestige(empire, amount);
     if (amount > 0) {
-      logLine('> ${_state.empireDesc(empire)} Prestige: +$amount => ${_state.empirePrestige(empire)}');
+      logLine('>${_state.empireDesc(empire)} Prestige: +$amount => ${_state.empirePrestige(empire)}');
     } else {
-      logLine('> ${_state.empireDesc(empire)} Prestige: $amount => ${_state.empirePrestige(empire)}');
+      logLine('>${_state.empireDesc(empire)} Prestige: $amount => ${_state.empirePrestige(empire)}');
     }
   }
 
   void adjustEmpireUnrest(Location empire, int amount) {
     _state.adjustEmpireUnrest(empire, amount);
     if (amount > 0) {
-      logLine('> ${_state.empireDesc(empire)} Unrest: +$amount => ${_state.empireUnrest(empire)}');
+      logLine('>${_state.empireDesc(empire)} Unrest: +$amount => ${_state.empireUnrest(empire)}');
     } else {
-      logLine('> ${_state.empireDesc(empire)} Unrest: $amount => ${_state.empireUnrest(empire)}');
+      logLine('>${_state.empireDesc(empire)} Unrest: $amount => ${_state.empireUnrest(empire)}');
     }
   }
 
@@ -6539,7 +6579,7 @@ class Game {
         statesman = _state.leaderStatesman(leader);
       }
       final land = _state.pieceLocation(war);
-      logLine('> ${leader.desc} leads ${war.desc} in ${land.desc}.');
+      logLine('>${leader.desc} leads ${war.desc} in ${land.desc}.');
       _state.setPieceLocation(leader, land);
       if (statesman != null) {
         final location = _state.pieceLocation(statesman);
@@ -6559,11 +6599,11 @@ class Game {
         final location = _state.pieceLocation(leader);
         if (!location.isType(LocationType.homeland)) {
           final homeland = randLocation(enemy.homelands)!;
-          logLine('> ${leader.desc} returns to Homeland.');
+          logLine('>${leader.desc} returns to Homeland.');
           _state.setPieceLocation(leader, homeland);
         }
       } else {
-        logLine('> ${leader.desc} returns to the Statesmen Pool.');
+        logLine('>${leader.desc} returns to the Statesmen Pool.');
         _state.setPieceLocation(leader, Location.poolStatesmen);
       }
     }
@@ -6599,7 +6639,7 @@ class Game {
       if (!_state.empireHasFallen(empire)) {
         if (_state.empireGold(empire) < 0) {
           logLine('### ${_state.commandName(empire)} Falls');
-          logLine('> ${_state.commandName(empire)} is Bankrupt.');
+          logLine('>${_state.commandName(empire)} is Bankrupt.');
           empireFalls(empire);
           if (_state.activeEmperors.isEmpty) {
             if (empire == Location.commandWesternEmperor) {
@@ -6614,7 +6654,7 @@ class Game {
           }
         } else if (_state.empireUnrest(empire) > 25) {
           logLine('### ${_state.commandName(empire)} Falls');
-          logLine('> ${_state.commandName(empire)} disintegrates due to high Unrest.');
+          logLine('>${_state.commandName(empire)} disintegrates due to high Unrest.');
           empireFalls(empire);
           if (_state.activeEmperors.isEmpty) {
             if (empire == Location.commandWesternEmperor) {
@@ -6631,7 +6671,7 @@ class Game {
           final capital = _state.empireCapital(empire);
           if (!_state.spaceInsurgentOrBetter(capital)) {
             logLine('### ${_state.commandName(empire)} Falls');
-            logLine('> ${capital.name} is lost.');
+            logLine('>${capital.name} is lost.');
             empireFalls(empire);
             if (_state.activeEmperors.isEmpty) {
               if (empire == Location.commandWesternEmperor) {
@@ -6714,27 +6754,27 @@ class Game {
         logLine('### ${_state.empireDesc(empire)} Empire Defeat');
         switch (cause) {
         case GameResultCause.fallen:
-          logLine('> The ${_state.empireDesc(empire)} Empire has Fallen.');
+          logLine('>The ${_state.empireDesc(empire)} Empire has Fallen.');
         case GameResultCause.bankrupt:
-          logLine('> The ${_state.empireDesc(empire)} Empire is bankrupt.');
+          logLine('>The ${_state.empireDesc(empire)} Empire is bankrupt.');
         case GameResultCause.revolution:
-          logLine('> Revolution breaks out across the ${_state.empireDesc} Empire');
+          logLine('>Revolution breaks out across the ${_state.empireDesc} Empire');
         case GameResultCause.lostCapital:
-          logLine('> ${_state.empireCapital(empire).desc} falls.');
+          logLine('>${_state.empireCapital(empire).desc} falls.');
         case GameResultCause.endured:
         }
       case GameResult.minorDefeat:
         logLine('### Minor Defeat');
-        logLine('> The ${_state.empireDesc(empire)} Empire endures, with $prestige Prestige.');
+        logLine('>The ${_state.empireDesc(empire)} Empire endures, with $prestige Prestige.');
       case GameResult.draw:
         logLine('### Draw');
-        logLine('> The ${_state.empireDesc(empire)} Empire is stable, with $prestige Prestige.');
+        logLine('>The ${_state.empireDesc(empire)} Empire is stable, with $prestige Prestige.');
       case GameResult.minorVictory:
         logLine('### Minor Victory');
-        logLine('> The ${_state.empireDesc(empire)} Empire prospers, with $prestige Prestige.');
+        logLine('>The ${_state.empireDesc(empire)} Empire prospers, with $prestige Prestige.');
       case GameResult.majorVictory:
         logLine('### Major Victory');
-        logLine('> The ${_state.empireDesc(empire)} Empire dominates its enemies, with $prestige Prestige.');
+        logLine('>The ${_state.empireDesc(empire)} Empire dominates its enemies, with $prestige Prestige.');
       }
     }
   }
@@ -6745,9 +6785,12 @@ class Game {
     final empire = _state.commandEmpire(command);
     final emperor = command.isType(LocationType.emperor) ? _state.otherEmpire(empire) : empire;
 
+    logTableHeader();
+
     final rolls = roll3D6();
     int omens = rolls.$4;
     int total = rolls.$5;
+    log3D6InTable(rolls);
 
     int modifiers = 0;
     int modifier = 0;
@@ -6756,61 +6799,62 @@ class Game {
     int popularityModifier = 0;
     if (commanderPopularity >= emperorPopularity) {
       modifier = commanderPopularity;
-      logLine('> ${_state.commanderName(command)}: +$modifier');
+      logLine('>|${_state.commanderName(command)} Popularity|+$modifier|');
       modifiers += modifier;
       modifier = -emperorPopularity;
-      logLine('> ${_state.commanderName(emperor)}: $modifier');
+      logLine('>|${_state.commanderName(emperor)} Popularity|$modifier|');
       modifiers += modifier;
       popularityModifier = commanderPopularity - emperorPopularity;
     } else {
       modifier = emperorPopularity;
-      logLine('> ${_state.commanderName(emperor)}: +$modifier');
+      logLine('>|${_state.commanderName(emperor)} Popularity|+$modifier|');
       modifiers += modifier;
       modifier = -commanderPopularity;
-      logLine('> ${_state.commanderName(command)}: $modifier');
+      logLine('>|${_state.commanderName(command)} Popularity|$modifier|');
       modifiers += modifier;
       popularityModifier = emperorPopularity - commanderPopularity;
     }
     modifier = _state.empireUnrest(empire);
     if (modifier != 0) {
-      logLine('> Unrest: +$modifier');
+      logLine('>|Unrest|+$modifier|');
       modifiers += modifier;
     }
     int veteransModifier = _state.rebellionVeteransControlledByCommandCount(command);
     modifier = veteransModifier;
     if (modifier != 0) {
-      logLine('> Veteran Units: +$modifier');
+      logLine('>|Veteran Units|+$modifier|');
       modifiers += modifier;
     }
 
     int result = total + modifiers;
-    logLine('> Result: $result');
+    logLine('>|Total|$result|');
+    logLine('>');
 
     if (result >= 25) {
       if (result - omens < 25) {
-        logLine('> ${_state.commanderName(command)} Rebels, in accordance with the Omens.');
+        logLine('>${_state.commanderName(command)} Rebels, in accordance with the Omens.');
       } else if (result - popularityModifier < 25 && popularityModifier >= 2) {
         if (commanderPopularity > emperorPopularity) {
           if (emperorPopularity == 1) {
-            logLine('> ${_state.commanderName(command)} Rebels against pagan ${_state.commanderName(emperor)}.');
+            logLine('>${_state.commanderName(command)} Rebels against pagan ${_state.commanderName(emperor)}.');
           } else if (emperorPopularity == 2) {
-            logLine('> ${_state.commanderName(command)} Rebels against heretical ${_state.commanderName(emperor)}.');
+            logLine('>${_state.commanderName(command)} Rebels against heretical ${_state.commanderName(emperor)}.');
           } else {
-            logLine('> Devout ${_state.commanderName(command)} Rebels.');
+            logLine('>Devout ${_state.commanderName(command)} Rebels.');
           }
         } else {
           if (commanderPopularity == 1) {
-            logLine('> Pagan ${_state.commanderName(command)} Rebels.');
+            logLine('>Pagan ${_state.commanderName(command)} Rebels.');
           } else if (commanderPopularity == 1) {
-            logLine('> Heretical ${_state.commanderName(command)} Rebels.');
+            logLine('>Heretical ${_state.commanderName(command)} Rebels.');
           } else {
-            logLine('> ${_state.commanderName(command)} Rebels against zealot ${_state.commanderName(emperor)}.');
+            logLine('>${_state.commanderName(command)} Rebels against zealot ${_state.commanderName(emperor)}.');
           }
         }
       } else if (result - veteransModifier < 25) {
-        logLine('> Veterans support ${_state.commanderName(command)} in Rebellion.');
+        logLine('>Veterans support ${_state.commanderName(command)} in Rebellion.');
       } else {
-        logLine('> ${_state.commanderName(command)} Rebels.');
+        logLine('>${_state.commanderName(command)} Rebels.');
       }
       if (command.isType(LocationType.governorship)) {
         _state.governorRebels(command);
@@ -6824,9 +6868,9 @@ class Game {
       }
     } else {
       if (result - omens >= 25) {
-        logLine('> ${_state.commanderName(command)} remains Loyal, in accordance with the Omens.');
+        logLine('>${_state.commanderName(command)} remains Loyal, in accordance with the Omens.');
       } else {
-        logLine('> ${_state.commanderName(command)} remains Loyal.');
+        logLine('>${_state.commanderName(command)} remains Loyal.');
       }
     }
   }
@@ -6958,22 +7002,22 @@ class Game {
 
   void legionDestroy(Piece legion) {
     final province = _state.pieceLocation(legion);
-    logLine('> ${legion.desc} in ${province.desc} is Destroyed.');
+    logLine('>${legion.desc} in ${province.desc} is Destroyed.');
     _state.setPieceLocation(legion, Location.offmap);
   }
 
   void unitDismiss(Piece unit) {
     final province = _state.pieceLocation(unit);
-    logLine('> ${unit.desc} in ${province.desc} is Dismissed.');
+    logLine('>${unit.desc} in ${province.desc} is Dismissed.');
     _state.setPieceLocation(unit, Location.boxBarracks);
   }
 
   void unitDemote(Piece unit) {
     final province = _state.pieceLocation(unit);
     if (unit.isType(PieceType.pseudoLegion)) {
-      logLine('> ${unit.desc} in ${province.desc} is Demoted to Fort.');
+      logLine('>${unit.desc} in ${province.desc} is Demoted to Fort.');
     } else {
-      logLine('> ${unit.desc} in ${province.desc} is Demoted.');
+      logLine('>${unit.desc} in ${province.desc} is Demoted.');
     }
     _state.flipUnit(unit);
   }
@@ -6981,15 +7025,15 @@ class Game {
   void unitPromote(Piece unit) {
     final province = _state.pieceLocation(unit);
     if (unit.isType(PieceType.fort)) {
-      logLine('> ${unit.desc} in ${province.desc} is Promoted to Pseudo Legion.');
+      logLine('>${unit.desc} in ${province.desc} is Promoted to Pseudo Legion.');
     } else {
-      logLine('> ${unit.desc} in ${province.desc} is Promoted to Veteran.');
+      logLine('>${unit.desc} in ${province.desc} is Promoted to Veteran.');
     }
     _state.flipUnit(unit);
   }
 
   void annexProvince(Location province) {
-    logLine('> ${province.desc} is Annexed.');
+    logLine('>${province.desc} is Annexed.');
     provinceIncreaseStatus(province);
     final command = _state.provinceCommand(province);
     final empire = _state.commandEmpire(command);
@@ -6998,7 +7042,7 @@ class Game {
 
   void annexProvinceToFoederati(Location province, Enemy foederati) {
     final oldStatus = _state.provinceStatus(province);
-    logLine('> ${province.desc} is Annexed by the ${foederati.name}.');
+    logLine('>${province.desc} is Annexed by the ${foederati.name}.');
     _state.setProvinceStatus(province, foederati.foederatiStatus!);
     final command = _state.provinceCommand(province);
     final empire = _state.commandEmpire(command);
@@ -7012,11 +7056,11 @@ class Game {
 		int discreteEventCount = _state.eventTypeDiscreteCount();
 		if (discreteEventCount < 6) {
 			while (eventType == null) {
-        final rolls = rollD6D3();
+        final rolls = rollAndLogD6D3();
 				int eventIndex = (rolls.$1 - 1) * 3 + (rolls.$2 - 1);
         eventType = EventType.values[eventIndex];
 				if (_state.eventTypeCount(eventType) == 2) {
-					logLine('> ${_state.eventTypeName(eventType)} already doubled');
+					logLine('>${_state.eventTypeName(eventType)} already doubled');
 					eventType = null;
 				}
 			}
@@ -7038,36 +7082,39 @@ class Game {
 
   bool failMortalityRoll(String name, int? age) {
     logLine('### Mortality Check for $name');
+    logTableHeader();
     bool hasSavingRoll = _options.finiteLifetimes && age != null && age <= 2;
     final rolls = rollD6D2(hasSavingRoll);
     int die = rolls.$1;
+    logD6InTable(die);
     int savingRoll = rolls.$2;
     int modifiers = 0;
     int plagueModifier = 0;
     if (_state.eventTypeCount(EventType.plague) == 2) {
       plagueModifier = 1;
       modifiers += plagueModifier;
-      logLine('> Plague Event (doubled): +1');
+      logLine('>|Plague|+1|');
     }
     if (_options.finiteLifetimes && age != null) {
       if (age > 3) {
         int modifier = age - 3;
-        logLine('> Age: +$modifier');
+        logLine('>|Age|+$modifier|');
         modifiers += modifier;
       }
     }
     int result = die + modifiers;
+    logLine('|Total|$result|');
     bool fail = result >= 6 && (result != 6 || !hasSavingRoll || savingRoll != 1);
     if (fail) {
       if (result - plagueModifier < 6) {
-        logLine('> $name succumbs to the Plague.');
+        logLine('>$name succumbs to the Plague.');
       } else {
-        logLine('> $name Dies.');
+        logLine('>$name Dies.');
       }
     } else if (result >= 6) {
-      logLine('> $name falls ill but recovers.');
+      logLine('>$name falls ill but recovers.');
     } else {
-      logLine('> $name remains in good health.');
+      logLine('>$name remains in good health.');
     }
     return fail;
   }
@@ -7087,40 +7134,40 @@ class Game {
     }
 
     final name = _state.commandName(command);
-    logLine('> ');
-    logLine('> $name');
+    logLine('>');
+    logLine('>$name');
+
+    logTableHeader();
 
     final rolls = roll2D6();
+    log2D6InTable(rolls);
     int rollTotal = rolls.$4;
     int modifiers = 0;
     int modifier = 0;
     final emperor = _state.commandEmpire(command);
     modifier = -_state.commandAdministration(emperor);
-    logLine('> ${_state.commanderName(emperor)}: $modifier');
+    logLine('>${_state.commanderName(emperor)} Administration|$modifier|');
     modifiers += modifier;
     modifier = -_state.commandAdministration(command);
-    logLine('> ${_state.commanderName(command)}: $modifier');
+    logLine('>${_state.commanderName(command)} Administration|$modifier|');
     modifiers += modifier;
     if (_state.eventTypeCount(EventType.inflation) > 0) {
       modifier = _state.eventTypeCount(EventType.inflation);
-      if (modifier == 1) {
-        logLine('> Inflation Event: +1');
-      } else {
-        logLine('> Inflation Event (doubled): +2');
-      }
+      logLine('>|Inflation|+$modifier|');
       modifiers += modifier;
     }
     modifier = _options.taxRollModifier;
     if (modifier != 0) {
       if (modifier == 1) {
-        logLine('> Lower Tax option: +1');
+        logLine('>|Lower Tax Option|+1|');
       } else if (modifier == -1) {
-        logLine('> Higher Tax option: -1');
+        logLine('>|Higher Tax Option|-1|');
       }
       modifiers += modifier;
     }
     int result = rollTotal + modifiers;
-    logLine('> Result: $result');
+    logLine('>|Total|$result|');
+    logLine('>');
 
     int finalTotal = total;
     String doubledDesc = '';
@@ -7128,7 +7175,7 @@ class Game {
       finalTotal *= 2;
       doubledDesc = ' doubled to $finalTotal';
     }
-    logLine('> Tax: $total$doubledDesc');
+    logLine('>Tax: $total$doubledDesc');
 
     return finalTotal;
   }
@@ -7140,7 +7187,7 @@ class Game {
         amount += taxCommand(command);
       }
     }
-    logLine('> ');
+    logLine('>');
     adjustEmpireGold(empire, amount);
   }
 
@@ -7154,7 +7201,7 @@ class Game {
     adjustEmpireGold(empire, total);
     adjustEmpireUnrest(empire, 1);
     adjustEmpirePrestige(empire, -1);
-    logLine('> ');
+    logLine('>');
   }
 
   int moveWarPriority(Piece war, Location? displaceSpace, Location connectedSpace, ConnectionType connectionType) {
@@ -7241,14 +7288,16 @@ class Game {
     Location province = _state.pieceLocation(war);
     Piece? leader = _state.pieceInLocation(PieceType.leader, province);
 
-    logLine('> ');
-    logLine('> ${war.desc} Pillage');
+    logLine('>');
+    logLine('>${war.desc} Pillage');
+    logTableHeader();
     final roll = rollD6();
+    logD6InTable(roll);
     int modifiers = 0;
     int modifier = 0;
     if (leader != null) {
       modifier = _state.leaderPillage(leader);
-      logLine('> ${leader.desc}: +$modifier');
+      logLine('>|${leader.desc}|+$modifier|');
       modifiers += modifier;
     }
     int cavalryStrength = _state.warCavalryStrength(war);
@@ -7259,45 +7308,43 @@ class Game {
       modifier = 1;
     }
     if (modifier > 0) {
-      logLine('> Cavalry: +$modifier');
+      logLine('>|Cavalry|+$modifier|');
       modifiers += modifier;
     }
     modifier = _state.eventTypeCount(EventType.migration);
-    if (modifier == 1) {
-      logLine('> Migration Event: +1');
-    } else if (modifier == 2) {
-      logLine('> Migration Event (doubled): +2');
+    if (modifier > 0) {
+      logLine('>|Migration: +$modifier');
+      modifiers += modifier;
     }
-    modifiers += modifier;
 
     modifier = 0;
     switch (_state.provinceStatus(province)) {
     case ProvinceStatus.insurgent:
       modifier = 1;
-      logLine('> Insurgent: +1');
+      logLine('>|Insurgent|+1|');
     case ProvinceStatus.allied:
       modifier = -1;
-      logLine('> Allied: -1');
+      logLine('>|Allied|-1|');
     case ProvinceStatus.foederatiFrankish:
     case ProvinceStatus.foederatiOstrogothic:
     case ProvinceStatus.foederatiSuevian:
     case ProvinceStatus.foederatiVandal:
     case ProvinceStatus.foederatiVisigothic:
       modifier = -2;
-      logLine('> Foederati: -2');
+      logLine('>|Foederati|-2|');
     default:
     }
     modifiers += modifier;
 
     modifier = -_state.pillageDeterrentLandUnitsInSpaceCount(province);
     if (modifier != 0) {
-      logLine('> Units: $modifier');
+      logLine('>|Units|$modifier|');
       modifiers += modifier;
     }
  
     int result = roll + modifiers;
-    logLine('> Result: $result');
-    logLine('> ');
+    logLine('>|Total|$result|');
+    logLine('>');
 
     return result >= 4;
   }
@@ -7321,7 +7368,7 @@ class Game {
       }
       pathDesc += ' ';
     }
-    logLine('> $piecesDesc $verb ${pathDesc}to ${path[path.length - 1].desc}.');
+    logLine('>$piecesDesc $verb ${pathDesc}to ${path[path.length - 1].desc}.');
     for (final province in annexations) {
       annexProvinceToFoederati(province, enemy);
     }
@@ -7350,7 +7397,7 @@ class Game {
       pillageRollCount += 1;
       final pillage = determinePillage(war);
       if (!pillage) {
-        logLine('> ${war.desc} remains in ${originSpace.desc}.');
+        logLine('>${war.desc} remains in ${originSpace.desc}.');
         return;
       }
     }
@@ -7411,7 +7458,7 @@ class Game {
             pillageRollCount += 1;
             bool pillage = determinePillage(war);
             if (!pillage) {
-              logLine('> ${war.desc} halts in ${nextSpace.desc}.');
+              logLine('>${war.desc} halts in ${nextSpace.desc}.');
               terminate = true;
             }
           }
@@ -7424,17 +7471,17 @@ class Game {
   void dynastyAdded(Piece dynasty) {
     switch (dynasty) {
     case Piece.dynastyConstantinian:
-      logLine('> Moesia and Pannonia transfer to the Western Empire.');
-      logLine('> Tetrarchy abandoned, Emperors no longer abdicate.');
+      logLine('>Moesia and Pannonia transfer to the Western Empire.');
+      logLine('>Tetrarchy abandoned, Emperors no longer abdicate.');
     case Piece.dynastyValentinian:
-      logLine('> Legions and Auxilia may not be Promoted to Veteran.');
-      logLine('> Guards and Forts prevent Unrest as if Legions.');
+      logLine('>Legions and Auxilia may not be Promoted to Veteran.');
+      logLine('>Guards and Forts prevent Unrest as if Legions.');
     case Piece.dynastyTheodosian:
-      logLine('> Moesia transfers to the Eastern Empire.');
-      logLine('> Veteran Cavalry protect against Assassination.');
-      logLine('> Imperial Emperors may not fight Foreign Wars.');
+      logLine('>Moesia transfers to the Eastern Empire.');
+      logLine('>Veteran Cavalry protect against Assassination.');
+      logLine('>Imperial Emperors may not fight Foreign Wars.');
     case Piece.dynastyLeonid:
-      logLine('> Veteran Legions and Auxilia are Demoted.');
+      logLine('>Veteran Legions and Auxilia are Demoted.');
       for (final legion in PieceType.legionVeteran.pieces) {
         if (_state.pieceLocation(legion) != Location.flipped) {
           _state.flipUnit(legion);
@@ -7446,136 +7493,13 @@ class Game {
         }
       }
     case Piece.dynastyJustinian:
-      logLine('> Annex one Province in each Unrest Phase.');
+      logLine('>Annex one Province in each Unrest Phase.');
     default:
     }
   }
 
-  void drawStatesmen() {
-    logLine('### New Statesmen');
-    final poolPieces = _state.piecesInLocation(PieceType.statesmenPool, Location.poolStatesmen);
-
-    int drawCount = 0;
-    if (_subStep == 0) {
-      if (_state.turn % 10 == 9) {
-        drawCount = poolPieces.length;
-      } else {
-        int roll = rollD3();
-        int modifiers = 0;
-        int timePeriod = _state.turn ~/ 10;
-        if (timePeriod == 3 || timePeriod == 4) {
-          String scenarioDesc = timePeriod == 3 ? '497 CE' : '565 CE';
-          logLine('> $scenarioDesc Scenario: -1');
-          modifiers -= 1;
-        }
-        int result = roll + modifiers;
-        logLine('> Result: $result');
-        drawCount = result;
-        if (drawCount > poolPieces.length) {
-          drawCount = poolPieces.length;
-        }
-      }
-      if (poolPieces.isEmpty) {
-        logLine('> No Statesmen/Emperors left to Draw.');
-        return;
-      }
-
-      for (int i = 0; i < drawCount; ++i) {
-        final piece = randPiece(poolPieces)!;
-        poolPieces.remove(piece);
-        if (piece.isType(PieceType.statesman)) {
-          if (_state.statesmanActiveImperial(piece)) {
-            logLine('> ${_state.statesmanName(piece)} comes of age.');
-          } else {
-            logLine('> ${_state.statesmanName(piece)} rises to prominence.');
-          }
-          _state.setPieceLocation(piece, Location.boxStatesmen);
-          _state.setStatesmanAge(piece, _state.statesmanImperial(piece) ? 0 : 1);
-          final leader = _state.statesmanLeader(piece);
-          if (leader != null) {
-            final enemy = _state.leaderEnemy(leader);
-            redistributeEnemyLeaders(enemy);
-          }
-        } else {
-          logLine('> Line of ${piece.desc} is established.');
-          _state.setPieceLocation(piece, Location.boxDynasties);
-          dynastyAdded(piece);
-          if ([Piece.dynastyConstantinian, Piece.dynastyTheodosian].contains(piece)) {
-            _subStep = 1;
-          }
-        }
-      }
-    }
-
-    if (_subStep == 1) {
-      final splitAllegiances = <Location>[];
-      for (final governorship in LocationType.governorship.locations) {
-        final empire = _state.commandEmpire(governorship);
-        final otherEmpire = _state.otherEmpire(empire);
-        final allegiance = _state.commandAllegiance(governorship);
-        if (allegiance == governorship) {
-          if (_state.commandRebel(empire)) {
-            _state.setCommandAllegiance(governorship, empire);
-            //final statesman = _state.pieceInLocation(PieceType.statesman, governorship);
-            //if (statesman != null) {
-            //  _state.setPieceLocation(statesman, Location.boxStatesmen);
-            //}
-          }
-        } else if (allegiance == otherEmpire) {
-          if (_state.commandRebel(empire)) {
-            _state.setCommandAllegiance(governorship, empire);
-          } else {
-            _state.setCommandAllegiance(governorship, governorship);
-          }
-        } else if (allegiance == empire) {
-        } else {
-          final allegianceEmpire = _state.commandEmpire(allegiance);
-          if (allegianceEmpire != empire) {
-            if (!splitAllegiances.contains(allegiance)) {
-              splitAllegiances.add(allegiance);
-            }
-          }
-        }
-      }
-      while (splitAllegiances.isNotEmpty) {
-        final statesman = _state.pieceInLocation(PieceType.statesman, splitAllegiances[0])!;
-        if (choicesEmpty()) {
-          setPrompt('Select Governorship for ${_state.statesmanName(statesman)}');
-          for (final governorship in LocationType.governorship.locations) {
-            if (_state.commandAllegiance(governorship) == splitAllegiances[0]) {
-              locationChoosable(governorship);
-            }
-          }
-          throw PlayerChoiceException();
-        }
-        final governorship = selectedLocation()!;
-        if (governorship == splitAllegiances[0]) {
-          logLine('> ${_state.statesmanName(statesman)} remains ${_state.commanderPositionName(governorship)}.');
-        } else {
-          logLine('> ${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(governorship)}.');
-          _state.setPieceLocation(statesman, governorship);
-          for (final otherGovernorship in LocationType.governorship.locations) {
-            if (_state.commandAllegiance(otherGovernorship) == splitAllegiances[0]) {
-              _state.setCommandAllegiance(otherGovernorship, governorship);
-            }
-          }
-        }
-        splitAllegiances.remove(splitAllegiances[0]);
-        clearChoices();
-      }
-    }
-    for (final governorship in LocationType.governorship.locations) {
-      final statesman = _state.pieceInLocation(PieceType.statesman, governorship);
-      if (statesman != null) {
-        if (_state.commandAllegiance(governorship) != governorship) {
-          _state.setPieceLocation(statesman, Location.boxStatesmen);
-        }
-      }
-    }
-  }
-
   void appointStatesmanToCommand(Piece statesman, Location command) {
-    logLine('> ${_state.statesmanName(statesman)} is Appointed as ${_state.commanderPositionName(command)}.');
+    logLine('>${_state.statesmanName(statesman)} is Appointed as ${_state.commanderPositionName(command)}.');
     final previousCommander = _state.commandCommander(command);
     if (previousCommander != null) {
       _state.setPieceLocation(previousCommander, Location.boxStatesmen);
@@ -7596,7 +7520,7 @@ class Game {
         (command == Location.commandHispania && _state.eventTypeCount(EventType.bagaudae) >= 2)) {
       modifier = 1;
       if (log) {
-        logLine('> Bagaudae: +1');
+        logLine('>|Bagaudae|+1|');
       }
       modifiers += modifier;
     }
@@ -7604,21 +7528,21 @@ class Game {
         (command == Location.commandAfrica && _state.eventTypeCount(EventType.heresy) >= 2)) {
       modifier = 1;
       if (log) {
-        logLine('> Heresy: +1');
+        logLine('>|Heresy|+1|');
       }
       modifiers += modifier;
     }
     if (leader != null) {
       modifier = _state.leaderPillage(leader);
       if (log) {
-        logLine('> ${leader.desc}: +$modifier');
+        logLine('>|${leader.desc}|+$modifier|');
       }
       modifiers += modifier;
     }
     if (war != null) {
       modifier = 3;
       if (log) {
-        logLine('> ${war.desc}: +$modifier');
+        logLine('>|${war.desc}|+$modifier|');
       }
       modifiers += modifier;
     }
@@ -7665,7 +7589,7 @@ class Game {
           }
           if (modifier != 0) {
             if (log) {
-              logLine('> ${connectedSpace.desc}: +$modifier.');
+              logLine('>|${connectedSpace.desc}|+$modifier|');
             }
             modifiers += modifier;
           }
@@ -7680,7 +7604,7 @@ class Game {
           }
           if (modifier != 0) {
             if (log) {
-              logLine('> ${connectedWar.desc}: +$modifier');
+              logLine('>|${connectedWar.desc}|+$modifier|');
             }
             modifiers += modifier;
           }
@@ -7690,7 +7614,7 @@ class Game {
         for (final connectedLeader in _state.piecesInLocation(PieceType.leader, connectedSpace)) {
           modifier = 1;
           if (log) {
-            logLine('> ${connectedLeader.desc}: +$modifier');
+            logLine('>|${connectedLeader.desc}|+$modifier|');
           }
           modifiers += modifier;
         }
@@ -7700,7 +7624,7 @@ class Game {
     if (status == ProvinceStatus.insurgent) {
       modifier = 1;
       if (log) {
-        logLine('> Insurgent: +1');
+        logLine('>|Insurgent|+1|');
       }
       modifiers += modifier;
     }
@@ -7714,7 +7638,7 @@ class Game {
       modifier -= 2 * _state.piecesInLocationCount(PieceType.fort, province);
       if (modifier != 0) {
         if (log) {
-          logLine('> Units: $modifier');
+          logLine('>|Units|$modifier|');
         }
         modifiers += modifier;
       }
@@ -7724,7 +7648,7 @@ class Game {
     case ProvinceStatus.allied:
       modifier = -1;
       if (log) {
-        logLine('> Allied: -1');
+        logLine('>|Allied|-1|');
       }
       modifiers += modifier;
     case ProvinceStatus.foederatiFrankish:
@@ -7734,7 +7658,7 @@ class Game {
     case ProvinceStatus.foederatiVisigothic:
       modifier = -2;
       if (log) {
-        logLine('> Foederati: -2');
+        logLine('>|Foederati|-2|');
       }
       modifiers += modifier;
     default:
@@ -7753,11 +7677,13 @@ class Game {
     if ((status != ProvinceStatus.insurgent || war != null) && modifiers <= 0) {
       return 0;
     }
-    logLine('### ${province.desc}');
+    logLine('### Revolt Check for ${province.desc}');
+    logTableHeader();
     int roll = rollD6();
+    logD6InTable(roll);
     modifiers = calculateProvinceRevoltModifier(province, false, true);
     int result = roll + modifiers;
-    logLine('> Result: $result');
+    logLine('>|Total|$result|');
    
     if (result > 6) {
       return 1;
@@ -7866,6 +7792,7 @@ class Game {
     int d3 = rolls.$3;
     int omens = rolls.$4;
     int total = rolls.$5;
+    log3D6WithRed(rolls);
 
     bool matchingWarAbility = false;
     bool stalemateAbility = false;
@@ -7896,22 +7823,22 @@ class Game {
         disaster = true;
         if (matchingWarAbility) {
           disaster = false;
-          logLine('> ${_state.statesmanName(general!)} averts Disaster.');
+          logLine('>${_state.statesmanName(general!)} averts Disaster.');
         } else if (stalemateAbility) {
           disaster = false;
-          logLine('> ${_state.statesmanName(general!)} averts Disaster.');
+          logLine('>${_state.statesmanName(general!)} averts Disaster.');
           stalemate = true;
         }
       } else {
         if (matchingWarAbility) {
-          logLine('> ${_state.statesmanName(general!)} breaks the Stalemate.');
+          logLine('>${_state.statesmanName(general!)} breaks the Stalemate.');
         } else {
           stalemate = true;
         }
       }
       if (disaster) {
         if (d3 != d1) {
-          logLine('> Low morale resulting from Persecution leads to Disaster.');
+          logLine('>Low morale resulting from Persecution leads to Disaster.');
         }
       }
     }
@@ -7920,19 +7847,22 @@ class Game {
     bool triumph = false;
 
     if (disaster) {
-      logLine('> Campaign against $warDesc ends in Disaster.');
+      logLine('>Campaign against $warDesc ends in Disaster.');
     } else if (stalemate) {
-      logLine('> Campaign against $warDesc results in a Stalemate.');
+      logLine('>Campaign against $warDesc results in a Stalemate.');
     } else {
+      logTableHeader();
+      log3D6WithRedInTable(rolls);
+
       int nonMatchingFoederatiProvinceCount = 0;
       int modifiers = 0;
       int modifier = 0;
       modifier = _state.warStrength(war);
-      logLine('> ${war.desc}: +$modifier');
+      logLine('>|${war.desc}|+$modifier|');
       modifiers += modifier;
       if (leader != null) {
         modifier = _state.leaderStrength(leader);
-        logLine('> ${leader.desc}": +$modifier');
+        logLine('>|${leader.desc}|+$modifier|');
         modifiers += modifier;
       }
       final spaces = _state.spaceConnectedSpaces(warProvince);
@@ -7944,12 +7874,12 @@ class Game {
           } else {
             modifier = 1;
           }
-          logLine('> ${space.desc}: +$modifier');
+          logLine('>|${space.desc}|+$modifier|');
           modifiers += modifier;
         } else {
           if (enemy == Enemy.isaurians && space == Location.provinceIsauria) {
             modifier = space == warProvince ? 2 : 1;
-            logLine('> ${space.desc}: +$modifier');
+            logLine('>|${space.desc}|+$modifier|');
             modifiers += modifier;
           }
           modifier = 0;
@@ -7974,9 +7904,9 @@ class Game {
           case ProvinceStatus.roman:
           }
           if (modifier > 0) {
-            logLine('> ${space.desc}: +$modifier');
+            logLine('>|${space.desc}|+$modifier|');
           } else if (modifier < 0) {
-            logLine('> ${space.desc}: $modifier');
+            logLine('>|${space.desc}|$modifier|');
           }
           modifiers += modifier;
         }
@@ -7990,50 +7920,50 @@ class Game {
         }
       }
       if (modifier != 0) {
-        logLine('> Units: $modifier');
+        logLine('>|Units|$modifier|');
         modifiers += modifier;
       }
       if (matchingWarAbility) {
         modifier = -1;
-        logLine('> ${_state.statesmanName(general!)} Ability: -1');
+        logLine('>|${_state.statesmanName(general!)} Ability|-1|');
         modifiers += modifier;
       }
       modifier = -_state.commandMilitary(warCommand);
-      logLine('> ${_state.commanderName(warCommand)}: $modifier');
+      logLine('>|${_state.commanderName(warCommand)}|$modifier|');
       modifiers += modifier;
 
       modifier = _options.warRollModifier;
       if (modifier != 0) {
         if (modifier == 1) {
-          logLine('> Harder Wars option: +1');
+          logLine('>|Harder Wars option|+1|');
         } else if (modifier == -1) {
-          logLine('> Easier Wars option: -1');
+          logLine('>|Easier Wars option|-1|');
         }
         modifiers += modifier;
       }
 
       int result = total + modifiers;
-      logLine('> Result: $result');
+      logLine('>|Total|$result|');
 
       if (result >= 12) {
         if (matchingWarAbility) {
           draw = true;
-          logLine('> ${_state.statesmanName(general!)} narrowly avoids Defeat.');
-          logLine('> Campaign against $warDesc results in a Draw.');
+          logLine('>${_state.statesmanName(general!)} narrowly avoids Defeat.');
+          logLine('>Campaign against $warDesc results in a Draw.');
         } else if (stalemateAbility) {
           stalemate = true;
-          logLine('> ${_state.statesmanName(general!)} narrowly avoids Defeat.');
-          logLine('> Campaign against $warDesc results in a Stalemate.');
+          logLine('>${_state.statesmanName(general!)} narrowly avoids Defeat.');
+          logLine('>Campaign against $warDesc results in a Stalemate.');
         } else {
           if (result - omens < 12) {
-            logLine('> Campaign against $warDesc ends in Defeat, in accordance with the Omens.');
+            logLine('>Campaign against $warDesc ends in Defeat, in accordance with the Omens.');
           } else {
-            logLine('> Campaign against $warDesc ends in Defeat.');
+            logLine('>Campaign against $warDesc ends in Defeat.');
           }
         }
       } else if (result >= 10) {
         draw = true;
-        logLine('> Campaign against $warDesc results in a Draw.');
+        logLine('>Campaign against $warDesc results in a Draw.');
       } else {
         if (_state.warNavalStrength(war) > 0) {
           int fleetStrength = 0;
@@ -8046,7 +7976,7 @@ class Game {
           }
           if (fleetStrength + nonMatchingFoederatiProvinceCount < _state.warNavalStrength(war)) {
             draw = true;
-            logLine('> Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
+            logLine('>Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
           }
         }
         if (_state.warCavalryStrength(war) > 0) {
@@ -8062,15 +7992,15 @@ class Game {
           }
           if (cavalryStrength + nonMatchingFoederatiProvinceCount < _state.warCavalryStrength(war)) {
             draw = true;
-            logLine('> Campaign against $warDesc results in a Draw due to a shortage of Cavalry.');
+            logLine('>Campaign against $warDesc results in a Draw due to a shortage of Cavalry.');
           }
         }
         if (!draw) {
           triumph = true;
           if (result - omens >= 10) {
-            logLine('> Campaign against $warDesc end in Triumph, in accordance with the Omens.');
+            logLine('>Campaign against $warDesc end in Triumph, in accordance with the Omens.');
           } else {
-            logLine('> Campaign against $warDesc ends in Triumph.');
+            logLine('>Campaign against $warDesc ends in Triumph.');
           }
         }
       }
@@ -8092,10 +8022,10 @@ class Game {
     }
 
     String lossesDesc = lossCount == 1 ? 'Loss' : 'Losses';
-    logLine('> Campaign incurs $lossCount $lossesDesc.');
+    logLine('>Campaign incurs $lossCount $lossesDesc.');
 
     if (disaster) {
-      logLine('> ${_state.commanderName(warCommand)} is Killed.');
+      logLine('>${_state.commanderName(warCommand)} is Killed.');
       if (warCommand.isType(LocationType.emperor)) {
         emperorDies(warCommand);
       } else {
@@ -8223,28 +8153,31 @@ class Game {
 
     logLine('### ${_state.commanderName(emperorCommand)} vs. ${_state.commanderName(rebelCommand)}');
 
+    logTableHeader();
+
     final rolls = roll3D6();
     final d3 = rolls.$3;
     final omens = rolls.$4;
     final total = rolls.$5;
+    log3D6WithRedInTable(rolls);
 
     int modifiers = 0;
     int modifier = 0;
     modifier = _state.commandMilitary(rebelCommand);
-    logLine('> ${_state.commanderName(rebelCommand)}: +$modifier');
+    logLine('>|${_state.commanderName(rebelCommand)}|+$modifier|');
     modifiers += modifier;
     modifier = rebelStrength;
-    logLine('> Rebel Strength: +$modifier');
+    logLine('>|Rebel Strength|+$modifier|');
     modifiers += modifier;
     modifier = -emperorStrength;
-    logLine('> Emperor Strength: $modifier');
+    logLine('>|Emperor Strength|$modifier|');
     modifiers += modifier;
     modifier = -_state.commandMilitary(emperorCommand);
-    logLine('> ${_state.commanderName(emperorCommand)}: $modifier');
+    logLine('>|${_state.commanderName(emperorCommand)}|$modifier|');
     modifiers += modifier;
 
     int result = total + modifiers;
-    logLine('> Result: $result');
+    logLine('>|Total|$result|');
 
     int lossCount = d3;
     int destroyLegionsCount = (lossCount + 1) ~/ 2;
@@ -8261,27 +8194,27 @@ class Game {
     if (result >= 12) {
       rebelVictory = true;
       if (result - omens < 12) {
-        logLine('> ${_state.commanderName(rebelCommand)} is victorious, in accordance with the Omens.');
+        logLine('>${_state.commanderName(rebelCommand)} is victorious, in accordance with the Omens.');
       } else {
-        logLine('> ${_state.commanderName(rebelCommand)} is victorious.');
+        logLine('>${_state.commanderName(rebelCommand)} is victorious.');
       }
     } else if (result >= 10) {
       stalemate = true;
-      logLine('> Civil War with ${_state.commanderName(rebelCommand)} is a Stalemate.');
+      logLine('>Civil War with ${_state.commanderName(rebelCommand)} is a Stalemate.');
     } else {
       rebelDefeat = true;
       if (result - omens >= 10) {
-        logLine('> Civil War ends with ${_state.commanderName(rebelCommand)} being defeated, in accordance with the Omens.');
+        logLine('>Civil War ends with ${_state.commanderName(rebelCommand)} being defeated, in accordance with the Omens.');
       } else {
-        logLine('> Civil War ends with ${_state.commanderName(rebelCommand)} being defeated.');
+        logLine('>Civil War ends with ${_state.commanderName(rebelCommand)} being defeated.');
       }
     }
 
     String lossesDesc = lossCount == 1 ? 'Loss' : 'Losses';
-    logLine('> Civil War incurs $lossCount $lossesDesc.');
+    logLine('>Civil War incurs $lossCount $lossesDesc.');
 
     if (rebelVictory) {
-      logLine('> ${_state.commanderName(emperorCommand)} is overthrown.');
+      logLine('>${_state.commanderName(emperorCommand)} is overthrown.');
       int prestigeAmount = -_state.commandAdministration(emperorCommand);
       int unrestAmount = _state.commandPopularity(emperorCommand);
       adjustEmpireUnrest(emperorCommand, unrestAmount);
@@ -8296,7 +8229,7 @@ class Game {
     }
     if (rebelDefeat) {
       int amount = rebelCommandCount;
-      logLine('> ${_state.commanderName(rebelCommand)} is Killed.');
+      logLine('>${_state.commanderName(rebelCommand)} is Killed.');
       if (rebelCommand.isType(LocationType.emperor)) {
         emperorDies(rebelCommand);
       } else {
@@ -8622,17 +8555,17 @@ class Game {
             throw PlayerChoiceException();
           }
         }
-        logLine('> ${unit.desc} in ${fromProvince.desc} cannot be Transferred.');
+        logLine('>${unit.desc} in ${fromProvince.desc} cannot be Transferred.');
         if (unit.isType(PieceType.legionaries)) {
-          logLine('> ${unit.desc} Destroyed.');
+          logLine('>${unit.desc} Destroyed.');
           _state.setPieceLocation(unit, Location.offmap);
         } else {
-          logLine('> ${unit.desc} Dismissed.');
+          logLine('>${unit.desc} Dismissed.');
           _state.setPieceLocation(unit, Location.boxBarracks);
         }
       }
       if (toProvince != null) {
-        logLine('> Transferred ${unit.desc} from ${fromProvince.desc} to ${toProvince.desc}.');
+        logLine('>Transferred ${unit.desc} from ${fromProvince.desc} to ${toProvince.desc}.');
         final fromCommand = _state.provinceCommand(fromProvince);
         final toCommand = _state.provinceCommand(toProvince);
         _state.setPieceLocation(unit, toProvince);
@@ -8650,7 +8583,7 @@ class Game {
     if (localState.subStep == 0) {
       // a, b
       if (cause == EmperorDeathCause.rebelEmperorVictory || cause == EmperorDeathCause.rebelEmperorDefeat || cause == EmperorDeathCause.empireFell) {
-        logLine('> ${_state.commanderName(causeCommand!)} becomes Sole Emperor.');
+        logLine('>${_state.commanderName(causeCommand!)} becomes Sole Emperor.');
         if (_state.commandRebel(emperor)) {
           rebelEmperorBecomesLoyal(emperor);
         }
@@ -8690,7 +8623,7 @@ class Game {
 
         // c
         if (causeEligible && _state.soleEmperor) {
-          logLine('> ${_state.commanderName(causeCommand)} becomes Sole Emperor.');
+          logLine('>${_state.commanderName(causeCommand)} becomes Sole Emperor.');
           governorBecomesLoyalEmperor(causeCommand, emperor);
           _newEmperorState = null;
           return;
@@ -8698,13 +8631,13 @@ class Game {
 
         // d
         if (causeEligible) {
-          logLine('> ${_state.commanderName(causeCommand)} becomes Rebel ${_state.commanderPositionName(emperor)}.');
+          logLine('>${_state.commanderName(causeCommand)} becomes Rebel ${_state.commanderPositionName(emperor)}.');
           governorBecomesRebelEmperor(causeCommand, emperor);
           _newEmperorState = null;
           return;
         }
 
-        logLine('> ${_state.commanderName(causeCommand)} supports a new puppet Emperor.');
+        logLine('>${_state.commanderName(causeCommand)} supports a new puppet Emperor.');
         if (_state.commandRebel(causeCommand)) {
           governorshipBecomesLoyalToEmperor(causeCommand);
         }
@@ -8738,7 +8671,7 @@ class Game {
             if (_state.statesmanInPlay(statesman)) {
               final location = _state.pieceLocation(statesman);
               if (!location.isType(LocationType.emperor)) {
-                logLine('> ${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(vacancy)}');
+                logLine('>${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(vacancy)}');
                 if (location.isType(LocationType.governorship)) {
                   governorBecomesLoyalEmperor(location, vacancy);
                 } else {
@@ -8783,7 +8716,7 @@ class Game {
         statesman = selectedPiece();
       }
       if (statesman != null) {
-        logLine('> ${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(vacancy)}');
+        logLine('>${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(vacancy)}');
         final location = _state.pieceLocation(statesman);
         if (location.isType(LocationType.governorship)) {
           governorBecomesLoyalEmperor(location, vacancy);
@@ -8794,7 +8727,7 @@ class Game {
       }
 
       // g
-      logLine('> A new ${_state.commanderPositionName(vacancy)} is appointed.');
+      logLine('>A new ${_state.commanderPositionName(vacancy)} is appointed.');
       genericBecomesLoyalEmperor(vacancy);
     }
 
@@ -8811,70 +8744,64 @@ class Game {
       } else {
         logLine('### ${_state.commanderName(assassinCommand)} attempts to Assassinate ${_state.statesmanName(targetStatesman!)}');
       }
+      logTableHeader();
       int modifiers = 0;
       int die = rollD6();
+      logD6InTable(die);
       int modifier = 0;
       int assassinPopularity = _state.commandPopularity(assassinCommand);
       int targetPopularity = targetCommand != null ? _state.commandPopularity(targetCommand) : _state.statesmanPopularity(targetStatesman!);
       int popularityModifier = 0;
       if (assassinPopularity >= targetPopularity) {
         modifier = assassinPopularity;
-        logLine('> ${_state.commanderName(assassinCommand)} Popularity: +$modifier');
+        logLine('>|${_state.commanderName(assassinCommand)} Popularity|+$modifier|');
         modifiers += modifier;
         modifier = -targetPopularity;
         if (targetCommand != null) {
-          logLine('> ${_state.commanderName(targetCommand)} Popularity: $modifier');
+          logLine('>|${_state.commanderName(targetCommand)} Popularity|$modifier|');
         } else {
-          logLine('> ${_state.statesmanName(targetStatesman!)} Popularity: $modifier');
+          logLine('>|${_state.statesmanName(targetStatesman!)} Popularity|$modifier|');
         }
         modifiers += modifier;
         popularityModifier = assassinPopularity - targetPopularity;
       } else {
         modifier = targetPopularity;
         if (targetCommand != null) {
-          logLine('> ${_state.commanderName(targetCommand)} Popularity: +$modifier');
+          logLine('>|${_state.commanderName(targetCommand)} Popularity|+$modifier|');
         } else {
-          logLine('> ${_state.statesmanName(targetStatesman!)} Popularity: +$modifier');
+          logLine('>|${_state.statesmanName(targetStatesman!)} Popularity|+$modifier|');
         }
         modifiers += modifier;
         modifier = -assassinPopularity;
-        logLine('> ${_state.commanderName(assassinCommand)} Popularity: $modifier');
+        logLine('>|${_state.commanderName(assassinCommand)} Popularity|$modifier|');
         modifiers += modifier;
         popularityModifier = targetPopularity - assassinPopularity;
       }
       modifier = _state.commandIntrigue(assassinCommand);
-      logLine('> ${_state.commanderName(assassinCommand)} Intrigue: +$modifier');
+      logLine('>|${_state.commanderName(assassinCommand)} Intrigue|+$modifier|');
       modifiers += modifier;
       if (targetCommand != null) {
         modifier = _state.commandIntrigue(targetCommand);
-        logLine('> ${_state.commanderName(targetCommand)} Intrigue: +$modifier');
+        logLine('>|${_state.commanderName(targetCommand)} Intrigue|+$modifier|');
       } else {
         modifier = _state.statesmanIntrigue(targetStatesman!);
-        logLine('> ${_state.statesmanName(targetStatesman)} Intrigue: +$modifier');
+        logLine('>|${_state.statesmanName(targetStatesman)} Intrigue|+$modifier|');
       }
       modifiers += modifier;
       modifier = _state.dynastiesCount;
       if (modifier > 0) {
-        logLine('> Dynasties: + $modifier');
+        logLine('>|Dynasties|+$modifier|');
         modifiers += modifier;
       }
       modifier = _state.eventTypeCount(EventType.conspiracy);
       if (modifier > 0) {
-        if (modifier == 1) {
-          logLine('> Conspiracy Event: +$modifier');
-        } else {
-          logLine('> Conspiracy Event (doubled): + $modifier');
-        }
+        logLine('>|Conspiracy|+$modifier|');
         modifiers += modifier;
       }
       int conspiracyModifier = modifier;
       modifier = -_state.eventTypeCount(EventType.bodyguard);
       if (modifier < 0) {
-        if (modifier == -1) {
-          logLine('> Bodyguards Event: $modifier');
-        } else {
-          logLine('> Bodyguards Event (doubled): $modifier');
-        }
+        logLine('>|Bodyguards|$modifier|');
         modifiers += modifier;
       }
       int bodyguardsModifier = modifier;
@@ -8883,39 +8810,39 @@ class Game {
       if (targetCommand != null) {
         modifier = -_state.assassinationGuardsInCapitalCount(targetCommand);
         if (modifier < 0) {
-          logLine('> Guards in Capital: $modifier');
+          logLine('>|Guards in Capital|$modifier|');
           modifiers += modifier;
         }
         guardsModifier += modifier;
         modifier = -_state.assassinationVeteranGuardsOutsideCapitalCount(targetCommand);
         if (modifier < 0) {
-          logLine('> Veteran Guards outside Capital: $modifier');
+          logLine('>|Veteran Guards outside Capital|$modifier|');
           modifiers += modifier;
         }
         guardsModifier += modifier;
         modifier = -_state.assassinationVeteranCavalryCount(targetCommand);
         if (modifier < 0) {
-          logLine('> Veteran Cavalry: $modifier');
+          logLine('>|Veteran Cavalry|$modifier|');
           modifiers += modifier;
         }
         cavalryModifier += modifier;
       }
       int result = die + modifiers;
-      logLine('> Total: $result');
+      logLine('>|Total|$result|');
 
       String assassinName = _state.commanderName(assassinCommand);
       String targetName = targetCommand != null ? _state.commanderName(targetCommand) : _state.statesmanName(targetStatesman!);
 
       if (result < 12) {
         if (result - bodyguardsModifier >= 12) {
-          logLine('> Attempt to Assassinate $targetName is thwarted by Bodyguards.');
+          logLine('>Attempt to Assassinate $targetName is thwarted by Bodyguards.');
         } else if (result - guardsModifier >= 12) {
-          logLine('> Attempt to Assassinate $targetName is thwarted by the Guard.');
+          logLine('>Attempt to Assassinate $targetName is thwarted by the Guard.');
         }
         else if (result - cavalryModifier >= 12) {
-          logLine('> Attempt to Assassinate $targetName is thwarted by the Cavalry.');
+          logLine('>Attempt to Assassinate $targetName is thwarted by the Cavalry.');
         } else {
-          logLine('> A plot to Assassinate $targetName is uncovered.');
+          logLine('>A plot to Assassinate $targetName is uncovered.');
         }
         _assassinationAttemptState = null;
         return;
@@ -8923,30 +8850,30 @@ class Game {
 
       if (result - conspiracyModifier < 12) {
         if (assassinCommand.isType(LocationType.governorship)) {
-          logLine('> A Conspiracy led by $assassinName Assassinates $targetName.');
+          logLine('>A Conspiracy led by $assassinName Assassinates $targetName.');
         } else {
-          logLine('> A Conspiracy initiated by $assassinName Assassinates $targetName.');
+          logLine('>A Conspiracy initiated by $assassinName Assassinates $targetName.');
         }
       } else if (result - popularityModifier < 12 && popularityModifier >= 2) {
         if (assassinPopularity > targetPopularity) {
           if (targetPopularity == 1) {
-            logLine('> $assassinName Assassinates pagan $targetName.');
+            logLine('>$assassinName Assassinates pagan $targetName.');
           } else if (targetPopularity == 2) {
-            logLine('> $assassinName Assassinates heretical $targetName.');
+            logLine('>$assassinName Assassinates heretical $targetName.');
           } else {
-            logLine('> Devout $assassinName Assassinates $targetName.');
+            logLine('>Devout $assassinName Assassinates $targetName.');
           }
         } else {
           if (assassinPopularity == 1) {
-            logLine('> Pagan $assassinName Assassinates $targetName.');
+            logLine('>Pagan $assassinName Assassinates $targetName.');
           } else if (assassinPopularity == 1) {
-            logLine('> Heretical $assassinName Assassinates $targetName.');
+            logLine('>Heretical $assassinName Assassinates $targetName.');
           } else {
-            logLine('> $assassinName Assassinates zealot $targetName.');
+            logLine('>$assassinName Assassinates zealot $targetName.');
           }
         }
       } else {
-        logLine('> $targetName is Assassinated by $assassinName.');
+        logLine('>$targetName is Assassinated by $assassinName.');
       }
 
       if (targetCommand != null) {
@@ -8995,7 +8922,7 @@ class Game {
         throw PlayerChoiceException();
       } 
       if (checkChoiceAndClear(Choice.next)) {
-        logLine('> No Provinces available for Annexation.');
+        logLine('>No Provinces available for Annexation.');
         return null;
       }
       if (checkChoice(Choice.cancel)) {
@@ -9068,7 +8995,7 @@ class Game {
         }
       }
       if (candidateEmperors.isEmpty) {
-        logLine('> Assassination attempt does not materialize.');
+        logLine('>Assassination attempt does not materialize.');
         _eventAssassinState = null;
         return;
       }
@@ -9100,7 +9027,7 @@ class Game {
         targets.add(statesman);
       }
       if (targets.isEmpty) {
-        logLine('> Assassination attempt does not materialize.');
+        logLine('>Assassination attempt does not materialize.');
         _eventAssassinState = null;
         return;
       }
@@ -9118,27 +9045,27 @@ class Game {
   }
 
   void eventBagaudae() {
-    logLine('> Increased chance of Revolt in Gallia.');
+    logLine('>Increased chance of Revolt in Gallia.');
   }
 
   void eventBagaudaeDoubled() {
-    logLine('> Increased chance of Revolt in Gallia and Hispania.');
+    logLine('>Increased chance of Revolt in Gallia and Hispania.');
   }
 
   void eventBodyguard() {
-		logLine('> Reduced chance of successful Assassination.');
+		logLine('>Reduced chance of successful Assassination.');
   }
 
   void eventBodyguardDoubled() {
-		logLine('> Greatly reduced chance of successful Assassination.');
+		logLine('>Greatly reduced chance of successful Assassination.');
   }
 
   void eventConspiracy() {
-		logLine('> Increased chance of successful Assassination.');
+		logLine('>Increased chance of successful Assassination.');
   }
 
   void eventConspiracyDoubled() {
-		logLine('> Greatly increased chance of successful Assassination.');
+		logLine('>Greatly increased chance of successful Assassination.');
   }
 
   void eventConvert() {
@@ -9158,7 +9085,7 @@ class Game {
         }
       }
       if (wars.isEmpty) {
-        logLine('> No Wars are available to Convert.');
+        logLine('>No Wars are available to Convert.');
         return;
       }
       setPrompt('Select War to Convert');
@@ -9169,7 +9096,7 @@ class Game {
     }
     final war = selectedPiece()!;
     final province = _state.pieceLocation(war);
-    logLine('> Conversion removes ${war.name} from ${province.name}.');
+    logLine('>Conversion removes ${war.name} from ${province.name}.');
     setWarOffmap(war);
   }
 
@@ -9190,7 +9117,7 @@ class Game {
         }
       }
       if (wars.isEmpty) {
-        logLine('> No Wars are available for Diplomacy.');
+        logLine('>No Wars are available for Diplomacy.');
         return;
       }
       setPrompt('Select War for Diplomacy');
@@ -9201,7 +9128,7 @@ class Game {
     }
     final war = selectedPiece()!;
     final province = _state.pieceLocation(war);
-    logLine('> Diplomacy removes ${war.name} from ${province.name}.');
+    logLine('>Diplomacy removes ${war.name} from ${province.name}.');
     setWarOffmap(war);
   }
 
@@ -9238,7 +9165,7 @@ class Game {
             int result = provinceRevoltCheck(province);
             if (result > 0) {
               if (status == ProvinceStatus.roman) {
-                logLine('> ${province.name} Revolts.');
+                logLine('>${province.name} Revolts.');
                 provinceDecreaseStatus(province);
                 adjustEmpireUnrest(empire, 1);
                 adjustEmpirePrestige(empire, -1);
@@ -9247,7 +9174,7 @@ class Game {
               }
             } else if (result < 0) {
               if (status == ProvinceStatus.insurgent) {
-                logLine('> ${province.name} undergoes Romanization.');
+                logLine('>${province.name} undergoes Romanization.');
                 provinceIncreaseStatus(province);
                 adjustEmpirePrestige(empire, 1);
               }
@@ -9270,11 +9197,11 @@ class Game {
   }
 
   void eventHeresy() {
-    logLine('> Increased chance of Revolt in Oriens.');
+    logLine('>Increased chance of Revolt in Oriens.');
   }
 
   void eventHeresyDoubled() {
-    logLine('> Increased chance of Revolt in Oriens and Africa.');
+    logLine('>Increased chance of Revolt in Oriens and Africa.');
   }
 
   void eventHippodrome() {
@@ -9290,12 +9217,12 @@ class Game {
     case ProvinceStatus.foederatiVandal:
     case ProvinceStatus.foederatiVisigothic:
     case ProvinceStatus.allied:
-      logLine('> Hippodrome factions in Constantinople rise up in support of the Empire.');
+      logLine('>Hippodrome factions in Constantinople rise up in support of the Empire.');
       setProvinceStatus(Location.provinceConstantinople, ProvinceStatus.insurgent);
     case ProvinceStatus.insurgent:
-      logLine('> Hippodrome factions in Constantinople continue rioting.');
+      logLine('>Hippodrome factions in Constantinople continue rioting.');
     case ProvinceStatus.roman:
-      logLine('> Rioting breaks out in Constantinople between rival Hippodrome factions.');
+      logLine('>Rioting breaks out in Constantinople between rival Hippodrome factions.');
       setProvinceStatus(Location.provinceConstantinople, ProvinceStatus.insurgent);
     }
   }
@@ -9304,22 +9231,22 @@ class Game {
     for (final empire in LocationType.empire.locations) {
       adjustEmpireGold(empire, -(_state.empireGold(empire) ~/ 2));
     }
-    logLine('> Reduced Taxation yield expected.');
+    logLine('>Reduced Taxation yield expected.');
   }
 
   void eventInflationDoubled() {
     for (final empire in LocationType.empire.locations) {
       adjustEmpireGold(empire, -_state.empireGold(empire));
     }
-    logLine('> Greatly reduced Taxation yield expected.');
+    logLine('>Greatly reduced Taxation yield expected.');
   }
 
   void eventMigration() {
-    logLine('> Increased number of Wars and Pillage.');
+    logLine('>Increased number of Wars and Pillage.');
   }
 
   void eventMigrationDoubled() {
-    logLine('> Greatly increased number of Wars and Pillage.');
+    logLine('>Greatly increased number of Wars and Pillage.');
   }
 
   void eventMutiny() {
@@ -9339,11 +9266,11 @@ class Game {
   }
 
   void eventOmens() {
-    logLine('> Increased chance of bad outcomes.');
+    logLine('>Increased chance of bad outcomes.');
   }
 
   void eventOmensDoubled() {
-    logLine('> Reduced chance of bad outcomes.');
+    logLine('>Reduced chance of bad outcomes.');
   }
 
   void eventOrthodoxy() {
@@ -9373,12 +9300,12 @@ class Game {
     case ProvinceStatus.foederatiVandal:
     case ProvinceStatus.foederatiVisigothic:
     case ProvinceStatus.allied:
-      logLine('> Christians in Rome rise up in support of the Empire.');
+      logLine('>Christians in Rome rise up in support of the Empire.');
       setProvinceStatus(Location.provinceRome, ProvinceStatus.insurgent);
     case ProvinceStatus.insurgent:
-      logLine('> Religious unrest continues in Rome.');
+      logLine('>Religious unrest continues in Rome.');
     case ProvinceStatus.roman:
-      logLine('> Religious unrest breaks out in Rome.');
+      logLine('>Religious unrest breaks out in Rome.');
       setProvinceStatus(Location.provinceRome, ProvinceStatus.insurgent);
     }
   }
@@ -9392,7 +9319,7 @@ class Game {
   }
 
   void eventPersecutionDoubled() {
-    logLine('> Increased chance of military disaster.');
+    logLine('>Increased chance of military disaster.');
   }
 
   void eventPlague() {
@@ -9402,7 +9329,7 @@ class Game {
         final piece = selectedPiece()!;
         final province = _state.pieceLocation(piece);
         command = _state.provinceCommand(province);
-        logLine('> ${_state.commandName(command)}');
+        logLine('>${_state.commandName(command)}');
         unitDemote(piece);
         clearChoices();
       } else {
@@ -9419,7 +9346,7 @@ class Game {
           setPrompt('Select Veteran Unit in ${_state.commandName(command)} to Demote');
           throw PlayerChoiceException();
         }
-        logLine('> ${_state.commandName(command)}');
+        logLine('>${_state.commandName(command)}');
         final empire = _state.commandEmpire(command);
         adjustEmpireUnrest(empire, 1);
       }
@@ -9433,7 +9360,7 @@ class Game {
   }
 
   void eventPlagueDoubled() {
-    logLine('> Increased chance of death.');
+    logLine('>Increased chance of death.');
   }
 
   void eventUsurper() {
@@ -9444,12 +9371,12 @@ class Game {
 
   void eventUsurperDoubled() {
     if (_state.soleEmperor) {
-      logLine('> Sole Emperor forestalls Usurpation attempt.');
+      logLine('>Sole Emperor forestalls Usurpation attempt.');
       return;
     }
     for (final emperor in LocationType.emperor.locations) {
       if (_state.commandRebel(emperor)) {
-        logLine('> Rebel Emperor forestalls Usurpation attempt.');
+        logLine('>Rebel Emperor forestalls Usurpation attempt.');
         return;
       }
     }
@@ -9557,30 +9484,34 @@ class Game {
   void eventPhaseEventRoll() {
     final phaseState = _phaseState as PhaseStateEvent;
     logLine('### Events Roll');
+    logTableHeader();
     int die = rollD6();
+    logD6InTable(die);
 		int eventCount = die;
     for (final statesman in PieceType.statesman.pieces) {
 			if (_state.statesmanInPlay(statesman) && _state.statesmanAbility(statesman) == Ability.event) {
-				logLine('> ${_state.statesmanName(statesman)}: +1');
+				logLine('>|${_state.statesmanName(statesman)}|+1|');
 				eventCount += 1;
 			}
 		}
 		int modifier = _options.eventCountModifier;
 		if (modifier != 0) {
 			if (modifier == 1) {
-				logLine('> More Events option: +1');
+				logLine('>|More Events Option|+1|');
 			} else if (modifier == -1) {
-				logLine('> Less Events options: -1');
+				logLine('>|Less Events Option|-1|');
 			}
 			eventCount += modifier;
 		}
+    logLine('>|Total|$eventCount|');
+    logLine('>');
 		if (eventCount == 0) {
-			logLine('> No Events');
+			logLine('>No Events');
 		}
 		else if (eventCount == 1) {
-			logLine('> $eventCount Event');
+			logLine('>$eventCount Event');
 		} else {
-			logLine('> $eventCount Events');
+			logLine('>$eventCount Events');
 		}
 		phaseState.eventsRemainingCount = eventCount;
   }
@@ -9597,9 +9528,9 @@ class Game {
       _state.incrementEventTypeCount(eventType);
       int eventTypeCount = _state.eventTypeCount(eventType);
       if (eventTypeCount == 1) {
-        logLine('> ${_state.eventTypeName(eventType)}');
+        logLine('>${_state.eventTypeName(eventType)}');
       } else {
-        logLine('> ${_state.eventTypeName(eventType)} (Doubled)');
+        logLine('>${_state.eventTypeName(eventType)} (Doubled)');
       }
       phaseState.eventType = eventType;
       _subStep = 1;
@@ -9669,7 +9600,7 @@ class Game {
         if (!_state.empireHasViceroy(emperor) && !_state.empireHasFallen(emperor)) {
           final name = _state.commanderName(emperor);
           if (!_state.dynastyActive(Piece.dynastyConstantinian) && [2,4,6,8].contains(_state.turn)) {
-            logLine('> $name Abdicates.');
+            logLine('>$name Abdicates.');
             phaseState.emperorMortalities.add(emperor);
           } else {
             final statesman = _state.commandCommander(emperor);
@@ -9979,25 +9910,24 @@ class Game {
       phaseState.warsRemainingCount = poolCount;
     } else {
       logLine('### Draw New Wars');
+      logTableHeader();
       int roll = rollD3();
+      logD3InTable(roll);
       int modifiers = 0;
       int timePeriod = _state.turn ~/ 10;
       if (timePeriod == 1 || timePeriod == 2 || timePeriod == 4) {
         String scenarioDesc = timePeriod == 1 ? '363 CE' : (timePeriod == 2 ? '425 CE' : '565 CE');
-        logLine('> $scenarioDesc Scenario: +1');
+        logLine('>|$scenarioDesc Scenario|+1|');
         modifiers += 1;
       }
       int modifier = _state.eventTypeCount(EventType.migration);
       if (modifier != 0) {
-        if (modifier == 1) {
-          logLine('> Migration Event: +1');
-        } else {
-          logLine('> Migration Event (doubled): +2');
-        }
+        logLine('>|Migration|+$modifier|');
         modifiers += modifier;
       }
       int result = roll + modifiers;
-      logLine('> Result: $result');
+      logLine('>|Total:$result|');
+      logLine('>');
       if (result > poolCount) {
         result = poolCount;
       }
@@ -10018,19 +9948,19 @@ class Game {
           final wars = _state.enemyWarsWithoutLeaders(enemy);
           if (wars.isEmpty) {
             final homeland = randLocation(enemy.homelands)!;
-            logLine('> ${piece.desc} appears in ${homeland.desc}.');
+            logLine('>${piece.desc} appears in ${homeland.desc}.');
             _state.setPieceLocation(piece, homeland);
           } else {
             final war = randPiece(wars)!;
             final space = _state.pieceLocation(war);
-            logLine('> ${piece.desc} appears in ${space.desc} with ${war.desc}.');
+            logLine('>${piece.desc} appears in ${space.desc} with ${war.desc}.');
             _state.setPieceLocation(piece, space);
           }
           phaseState.warsRemainingCount -= 1;
         } else {
           logLine('### ${piece.desc}');
           final homeland = randLocation(_state.warHomelands(piece))!;
-          logLine('> ${piece.desc} arises in ${homeland.desc}.');
+          logLine('>${piece.desc} arises in ${homeland.desc}.');
           final otherWar = _state.pieceInLocation(PieceType.war, homeland);
           _state.setPieceLocation(piece, homeland);
           phaseState.setWarUnmoved(piece, true);
@@ -10048,7 +9978,7 @@ class Game {
           final zenoLocation = _state.pieceLocation(Piece.statesmanZeno);
           if (zenoLocation.isType(LocationType.emperor)) {
             phaseState.zenoEmpire = zenoLocation;
-            logLine('> ${_state.commanderName(zenoLocation)} abandons the Empire to lead ${war.desc}.');
+            logLine('>${_state.commanderName(zenoLocation)} abandons the Empire to lead ${war.desc}.');
             _state.setPieceLocation(Piece.statesmanZeno, Location.provinceIsauria);
             _subStep = 2;
           }
@@ -10115,9 +10045,9 @@ class Game {
       }
     }
     if (rebelCommands.isNotEmpty) {
-      logLine('> Rebels');
+      logLine('>Rebels');
       for (final rebelCommand in rebelCommands) {
-        logLine('> - ${_state.commanderName(rebelCommand)}');
+        logLine('>- ${_state.commanderName(rebelCommand)}');
       }
       logLine('');
       amount += rebelCommands.length;
@@ -10134,10 +10064,10 @@ class Game {
       }
     }
     if (wars.isNotEmpty) {
-      logLine('> Wars:');
+      logLine('>Wars:');
       for (final war in wars) {
         final location = _state.pieceLocation(war);
-        logLine('> - ${war.desc} in ${location.desc}');
+        logLine('>- ${war.desc} in ${location.desc}');
       }
       logLine('');
       amount += wars.length;
@@ -10159,9 +10089,9 @@ class Game {
       }
     }
     if (leaders.isNotEmpty) {
-      logLine('> Leaders:');
+      logLine('>Leaders:');
       for (final leader in leaders) {
-        logLine('> - ${leader.desc}');
+        logLine('>- ${leader.desc}');
       }
       logLine('');
       amount += leaders.length;
@@ -10199,30 +10129,30 @@ class Game {
 
     if (legions.isNotEmpty) {
       if (_state.dynastyActive(Piece.dynastyValentinian)) {
-        logLine('> Troops Needed:');
+        logLine('>Troops Needed:');
       } else {
-        logLine('> Legions Needed:');
+        logLine('>Legions Needed:');
       }
       for (final legion in legions) {
-         logLine('> - ${legion.$1.desc}');
+         logLine('>- ${legion.$1.desc}');
         amount += legion.$2;
       }
       logLine('');
     }
 
     if (fleets.isNotEmpty) {
-      logLine('> Fleets Needed:');
+      logLine('>Fleets Needed:');
       for (final fleet in fleets) {
-         logLine('> - ${fleet.$1.desc}');
+         logLine('>- ${fleet.$1.desc}');
         amount += fleet.$2;
       }
       logLine('');
     }
 
     if (grains.isNotEmpty) {
-      logLine('> Grain Supply Interrupted:');
+      logLine('>Grain Supply Interrupted:');
       for (final grain in grains) {
-         logLine('> - ${grain.desc}');
+         logLine('>- ${grain.desc}');
         amount += 1;
       }
       logLine('');
@@ -10240,46 +10170,177 @@ class Game {
   }
 
   void unrestPhaseDrawStatesmen() {
+    final phaseState = _phaseState as PhaseStateUnrest;
     if (_subStep == 0) {
-      drawStatesmen();
-      setPrompt('Draw Statesmen Step Complete');
-      choiceChoosable(Choice.next, true);
+      logLine('### New Statesmen');
       _subStep = 1;
-      throw PlayerChoiceException();
     }
-    clearChoices();
+    if (_subStep == 1) {
+      final poolPieces = _state.piecesInLocation(PieceType.statesmenPool, Location.poolStatesmen);
+      int drawCount = 0;
+      if (_state.turn % 10 == 9) {
+        drawCount = poolPieces.length;
+      } else {
+        logTableHeader();
+        int roll = rollD3();
+        logD3InTable(roll);
+        int modifiers = 0;
+        int timePeriod = _state.turn ~/ 10;
+        if (timePeriod == 3 || timePeriod == 4) {
+          String scenarioDesc = timePeriod == 3 ? '497 CE' : '565 CE';
+          logLine('>|$scenarioDesc Scenario|-1|');
+          modifiers -= 1;
+        }
+        int result = roll + modifiers;
+        logLine('>|Total|$result|');
+        drawCount = result;
+        if (drawCount > poolPieces.length) {
+          drawCount = poolPieces.length;
+        }
+      }
+      if (poolPieces.isEmpty) {
+        logLine('>No Statesmen/Emperors left to Draw.');
+        return;
+      }
+      phaseState.statesmenRemainingCount = drawCount;
+      _subStep = 2;
+    }
+    while (_subStep >= 2 && _subStep <= 3) {
+      if (phaseState.statesmenRemainingCount == 0) {
+        _subStep = 4;
+        break;
+      }
+      if (_subStep == 2) {
+        final poolPieces = _state.piecesInLocation(PieceType.statesmenPool, Location.poolStatesmen);
+        final piece = randPiece(poolPieces)!;
+        poolPieces.remove(piece);
+        if (piece.isType(PieceType.statesman)) {
+          if (_state.statesmanActiveImperial(piece)) {
+            logLine('>${_state.statesmanName(piece)} comes of age.');
+          } else {
+            logLine('>${_state.statesmanName(piece)} rises to prominence.');
+          }
+          _state.setPieceLocation(piece, Location.boxStatesmen);
+          _state.setStatesmanAge(piece, _state.statesmanImperial(piece) ? 0 : 1);
+          final leader = _state.statesmanLeader(piece);
+          if (leader != null) {
+            final enemy = _state.leaderEnemy(leader);
+            redistributeEnemyLeaders(enemy);
+          }
+          phaseState.statesmenRemainingCount -= 1;
+        } else {
+          logLine('>Line of ${piece.desc} is established.');
+          _state.setPieceLocation(piece, Location.boxDynasties);
+          dynastyAdded(piece);
+          if ([Piece.dynastyConstantinian, Piece.dynastyTheodosian].contains(piece)) {
+            _subStep = 3;
+          } else {
+            phaseState.statesmenRemainingCount -= 1;
+          }
+        }
+      }
+      if (_subStep == 3) {
+        final splitAllegiances = <Location>[];
+        for (final governorship in LocationType.governorship.locations) {
+          final empire = _state.commandEmpire(governorship);
+          final otherEmpire = _state.otherEmpire(empire);
+          final allegiance = _state.commandAllegiance(governorship);
+          if (allegiance == governorship) {
+            if (_state.commandRebel(empire)) {
+              _state.setCommandAllegiance(governorship, empire);
+              //final statesman = _state.pieceInLocation(PieceType.statesman, governorship);
+              //if (statesman != null) {
+              //  _state.setPieceLocation(statesman, Location.boxStatesmen);
+              //}
+            }
+          } else if (allegiance == otherEmpire) {
+            if (_state.commandRebel(empire)) {
+              _state.setCommandAllegiance(governorship, empire);
+            } else {
+              _state.setCommandAllegiance(governorship, governorship);
+            }
+          } else if (allegiance == empire) {
+          } else {
+            final allegianceEmpire = _state.commandEmpire(allegiance);
+            if (allegianceEmpire != empire) {
+              if (!splitAllegiances.contains(allegiance)) {
+                splitAllegiances.add(allegiance);
+              }
+            }
+          }
+        }
+        while (splitAllegiances.isNotEmpty) {
+          final statesman = _state.pieceInLocation(PieceType.statesman, splitAllegiances[0])!;
+          if (choicesEmpty()) {
+            setPrompt('Select Governorship for ${_state.statesmanName(statesman)}');
+            for (final governorship in LocationType.governorship.locations) {
+              if (_state.commandAllegiance(governorship) == splitAllegiances[0]) {
+                locationChoosable(governorship);
+              }
+            }
+            throw PlayerChoiceException();
+          }
+          final governorship = selectedLocation()!;
+          if (governorship == splitAllegiances[0]) {
+            logLine('>${_state.statesmanName(statesman)} remains ${_state.commanderPositionName(governorship)}.');
+          } else {
+            logLine('>${_state.statesmanName(statesman)} becomes ${_state.commanderPositionName(governorship)}.');
+            _state.setPieceLocation(statesman, governorship);
+            for (final otherGovernorship in LocationType.governorship.locations) {
+              if (_state.commandAllegiance(otherGovernorship) == splitAllegiances[0]) {
+                _state.setCommandAllegiance(otherGovernorship, governorship);
+              }
+            }
+          }
+          splitAllegiances.remove(splitAllegiances[0]);
+          clearChoices();
+        }
+        for (final governorship in LocationType.governorship.locations) {
+          final statesman = _state.pieceInLocation(PieceType.statesman, governorship);
+          if (statesman != null) {
+            if (_state.commandAllegiance(governorship) != governorship) {
+              _state.setPieceLocation(statesman, Location.boxStatesmen);
+            }
+          }
+        }
+      }
+    }
+    if (_subStep == 4) {
+      if (choicesEmpty()) {
+        setPrompt('Draw Statesmen Step Complete');
+        choiceChoosable(Choice.next, true);
+        throw PlayerChoiceException();
+      }
+      clearChoices();
+    }
   }
 
   void unrestPhaseAnnex() {
     final phaseState = _phaseState as PhaseStateUnrest;
     if (_subStep == 0) {
-      bool logged = false;
+      logLine('### Annexations');
       if (_state.dynastyActive(Piece.dynastyJustinian)) {
-        if (!logged) {
-          logLine('### Annexation');
-        }
-        logLine('> Justinian Dynasty: Western Empire');
-        logLine('> Justinian Dynasty: Eastern Empire');
+        logLine('>|Justinian Dynasty (Western)|+1|');
+        logLine('>|Justinian Dynasty (Eastern)|+1|');
         phaseState.empireAnnexRemainingCounts[0] += 1;
         phaseState.empireAnnexRemainingCounts[1] += 1;
       }
       for (final emperor in LocationType.emperor.locations) {
         final statesman = _state.pieceInLocation(PieceType.statesman, emperor);
         if (statesman != null && _state.statesmanAbility(statesman) == Ability.conquest) {
-          if (!logged) {
-            logLine('### Annexation');
-          }
           if (_state.soleEmperor) {
-            logLine('> ${_state.statesmanName(statesman)}: Western Empire');
-            logLine('> ${_state.statesmanName(statesman)}: Eastern Empire');
+            logLine('>|${_state.commanderName(emperor)} (Western)|+1|');
+            logLine('>|${_state.commanderName(emperor)} (Eastern)|+1|');
             phaseState.empireAnnexRemainingCounts[0] += 1;
             phaseState.empireAnnexRemainingCounts[1] += 1;
           } else {
-            logLine('> ${_state.statesmanName(statesman)}: ${_state.empireDesc(emperor)} Empire');
+            logLine('>|${_state.commanderName(emperor)} ${_state.empireDesc(emperor)}|+1|');
             phaseState.empireAnnexRemainingCounts[emperor.index - LocationType.emperor.firstIndex] += 1;
           }
         }
       }
+      logLine('>|Western|${phaseState.empireAnnexRemainingCounts[0]}|');
+      logLine('>|Eastern|${phaseState.empireAnnexRemainingCounts[1]}|');
       if (phaseState.empireAnnexRemainingCounts[0] + phaseState.empireAnnexRemainingCounts[1] == 0) {
         return;
       }
@@ -10394,9 +10455,9 @@ class Game {
         Location fromCommand = _state.commandAllegiance(governorship);
         _state.fixGovernorship(fromCommand);
         if (governorship == toCommand) {
-          logLine('> Remove ${_state.commandName(governorship)} from ${_state.commanderName(fromCommand)}.');
+          logLine('>Remove ${_state.commandName(governorship)} from ${_state.commanderName(fromCommand)}.');
         } else {
-          logLine('> Transfer ${_state.commandName(governorship)} to ${_state.commanderName(toCommand!)}.');
+          logLine('>Transfer ${_state.commandName(governorship)} to ${_state.commanderName(toCommand!)}.');
         }
         _state.setCommandAllegiance(governorship, toCommand!);
         clearChoices();
@@ -10406,30 +10467,34 @@ class Game {
   }
 
   void unrestPhaseAdjustEmpirePrestigeAndUnrest(Location empire) {
-    logLine('### ${_state.empireDesc(empire)} Prestige and Unrest');
+    logLine('### ${_state.empireDesc(empire)} Prestige');
     int amount = 0;
     int total = 0;
     final emperor = _state.empireEmperor(empire);
     amount = _state.commandAdministration(emperor);
-    logLine('> ${_state.commanderName(emperor)} Administration: +$amount');
+    logLine('>|${_state.commanderName(emperor)} Administration|+$amount|');
     total += amount;
     for (final command in LocationType.command.locations) {
       if (_state.commandEmpire(command) == empire || _state.empireEmperor(empire) == command) {
         final statesman = _state.commandCommander(command);
         if (statesman != null && _state.statesmanAbility(statesman) == Ability.prestige) {
           if (command.isType(LocationType.emperor) || _state.commandLoyal(command)) {
-            logLine('> ${_state.statesmanName(statesman)} Prestige: +1');
+            logLine('>|${_state.statesmanName(statesman)} Prestige|+1|');
             total += 1;
           }
         }
       }
     }
+    logLine('>|Total|$total|');
     adjustEmpirePrestige(empire, total);
 
+    logLine('### ${_state.empireDesc(empire)} Unrest');
+    logTableHeader();
     total = 0;
     amount = -_state.commandPopularity(emperor);
-    logLine('> ${_state.commanderName(emperor)} Popularity: $amount');
+    logLine('>|${_state.commanderName(emperor)} Popularity|$amount|');
     total += amount;
+    logLine('>|Total|$total|');
     adjustEmpireUnrest(empire, total);
   }
 
@@ -10475,14 +10540,14 @@ class Game {
         }
         if (checkChoice(Choice.breadAndCircusesPrestigeWest) || checkChoice(Choice.breadAndCircusesPrestigeEast)) {
           final empire = checkChoice(Choice.breadAndCircusesPrestigeWest) ? Location.commandWesternEmperor : Location.commandEasternEmperor;
-          logLine('> Bread and Circuses Increase Prestige in ${_state.empireDesc(empire)} Empire.');
+          logLine('>Bread and Circuses Increase Prestige in ${_state.empireDesc(empire)} Empire.');
           adjustEmpireGold(empire, -10);
           adjustEmpirePrestige(empire, 1);
           phaseState.breadAndCircusesPrestigeCounts[empire.index - LocationType.empire.firstIndex] += 1;
           clearChoices();
         } else if (checkChoice(Choice.breadAndCircusesUnrestWest) || checkChoice(Choice.breadAndCircusesUnrestEast)) {
           final empire = checkChoice(Choice.breadAndCircusesUnrestWest) ? Location.commandWesternEmperor : Location.commandEasternEmperor;
-          logLine('> Bread and Circuses Reduce Unrest in ${_state.empireDesc(empire)} Empire.');
+          logLine('>Bread and Circuses Reduce Unrest in ${_state.empireDesc(empire)} Empire.');
           adjustEmpireGold(empire, -10);
           adjustEmpireUnrest(empire, -1);
           clearChoices();
@@ -10586,7 +10651,7 @@ class Game {
         final command = _state.provinceCommand(province);
         final empire = _state.commandEmpire(command);
         if (_state.unitCanBuild(unit)) {
-          logLine('> Build ${unit.desc} in ${province.desc}.');
+          logLine('>Build ${unit.desc} in ${province.desc}.');
           _state.setPieceLocation(unit, province);
           int amount = -_state.unitBuildCost(unit);
           adjustEmpireGold(empire, amount);
@@ -10594,12 +10659,12 @@ class Game {
           final oldProvince = _state.pieceLocation(unit);
           if (province == oldProvince) {
             final newUnit = _state.unitFlipUnit(unit);
-            logLine('> Promote ${unit.desc} in ${oldProvince.desc} to ${newUnit.desc}');
+            logLine('>Promote ${unit.desc} in ${oldProvince.desc} to ${newUnit.desc}');
             int amount = -_state.unitPromoteCost(unit);
             adjustEmpireGold(empire, amount);
             _state.flipUnit(unit);
           } else {
-            logLine('> Transfer ${unit.desc} from ${oldProvince.desc} to ${province.desc}.');
+            logLine('>Transfer ${unit.desc} from ${oldProvince.desc} to ${province.desc}.');
             int amount = -_state.unitTransferCostToProvince(unit, province);
             if (amount != 0) {
               adjustEmpireGold(empire, amount);
@@ -11128,7 +11193,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossUnrest)) {
               if (phaseState.disgraceCount == 0) {
-                logLine('> Rome is Disgraced.');
+                logLine('>Rome is Disgraced.');
               }
               adjustEmpireUnrest(phaseState.empire!, 1);
               phaseState.lossCount -= 1;
@@ -11136,7 +11201,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossPrestige)) {
               if (phaseState.dishonorCount == 0) {
-                logLine('> Rome is Dishonored.');
+                logLine('>Rome is Dishonored.');
               }
               adjustEmpirePrestige(phaseState.empire!, -1);
               phaseState.lossCount -= 1;
@@ -11144,7 +11209,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossTribute)) {
               if (phaseState.tributeCount == 0) {
-                logLine('> Rome offers Tribute.');
+                logLine('>Rome offers Tribute.');
               }
               int amount = _options.tributeAmount;
               if (phaseState.rebelGold > 0) {
@@ -11165,7 +11230,7 @@ class Game {
                 choiceChoosable(Choice.cancel, true);
                 throw PlayerChoiceException();
               }
-              logLine('> ${province.desc} Revolts.');
+              logLine('>${province.desc} Revolts.');
               provinceDecreaseStatus(province);
               phaseState.lossCount -= 1;
               phaseState.revoltCount += 1;
@@ -11205,7 +11270,7 @@ class Game {
                 choiceChoosable(Choice.cancel, true);
                 throw PlayerChoiceException();
               }
-              logLine('> Annex ${province.desc}');
+              logLine('>Annex ${province.desc}');
               annexProvince(province);
               phaseState.annexCount -= 1;
               clearChoices();
@@ -11441,7 +11506,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossUnrest)) {
               if (phaseState.disgraceCount == 0) {
-                logLine('> Rome is Disgraced.');
+                logLine('>Rome is Disgraced.');
               }
               adjustEmpireUnrest(phaseState.empire!, 1);
               phaseState.lossCount -= 1;
@@ -11449,7 +11514,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossPrestige)) {
               if (phaseState.dishonorCount == 0) {
-                logLine('> Rome is Dishonored.');
+                logLine('>Rome is Dishonored.');
               }
               adjustEmpirePrestige(phaseState.empire!, -1);
               phaseState.lossCount -= 1;
@@ -11457,7 +11522,7 @@ class Game {
               clearChoices();
             } else if (checkChoice(Choice.lossTribute)) {
               if (phaseState.tributeCount == 0) {
-                logLine('> Rome offers Tribute.');
+                logLine('>Rome offers Tribute.');
               }
               adjustEmpireGold(phaseState.empire!, -_options.tributeAmount);
               phaseState.lossCount -= 1;

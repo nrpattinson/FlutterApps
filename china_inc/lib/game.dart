@@ -5665,6 +5665,8 @@ class Game {
     await GameDatabase.instance.completeGame(_gameId, jsonEncode(outcome.toJson()));
   }
 
+  // Logging
+
   String get log {
     return _log;
   }
@@ -6519,10 +6521,10 @@ class Game {
     int modifier = 0;
     final ruler = _state.rulingCommand;
     modifier = -_state.commandAdministration(ruler);
-    logLine('>|${_state.commanderName(ruler)}|$modifier|');
+    logLine('>|${_state.commanderName(ruler)} Administration|$modifier|');
     modifiers += modifier;
     modifier = -_state.commandAdministration(command);
-    logLine('>|${_state.commanderName(command)}|$modifier|');
+    logLine('>|${_state.commanderName(command)} Administration|$modifier|');
     modifiers += modifier;
     if (_state.treatyActive(Piece.treatyNanjing)) {
       logLine('>|${Piece.treatyNanjing.desc}|+1|');
@@ -8148,8 +8150,8 @@ class Game {
       } else {
         logLine('### ${_state.commanderName(assassinCommand)} attempts to Assassinate ${_state.adornedStatesmanName(targetStatesman!)}');
       }
-      int modifiers = 0;
       logTableHeader();
+      int modifiers = 0;
       int die = rollD6();
       logD6InTable(die);
       int modifier = 0;
@@ -9539,22 +9541,23 @@ class Game {
     final phaseState = _phaseState as PhaseStateUnrest;
     if (_subStep == 0) {
       logLine('### Annexations');
-      logLine('>Base: 2');
+      logTableHeader();
+      logLine('>|Base|2|');
       int annexCount = 2;
       final statesman = _state.pieceInLocation(PieceType.statesman, _state.rulingCommand);
       if (statesman != null && _state.statesmanAbility(statesman) == Ability.conquest) {
-        logLine('>${_state.commanderName(_state.rulingCommand)}: +1');
+        logLine('>|${_state.commanderName(_state.rulingCommand)}|+1|');
         annexCount += 1;
       }
       if (_state.treatyActive(Piece.treatyKyakhta)) {
-        logLine('>Kyakhta Treaty: -1');
+        logLine('>|Kyakhta Treaty|-1|');
         annexCount -= 1;
       }
       if (_state.treatyActive(Piece.treatyTianjin)) {
-        logLine('>Tianjin Treaty: -1');
+        logLine('>|Tianjin Treaty|-1|');
         annexCount -= 1;
       }
-      logLine('>Annexations: $annexCount');
+      logLine('>|Total|$annexCount|');
       if (annexCount <= 0) {
         return;
       }
@@ -9626,16 +9629,17 @@ class Game {
 
   void unrestPhaseAdjustPrestige() {
     logLine('### Prestige');
+    logTableHeader();
     int amount = 0;
     int total = 0;
     amount = _state.commandAdministration(_state.rulingCommand);
-    logLine('>${_state.commanderName(_state.rulingCommand)} Administration: +$amount');
+    logLine('>|${_state.commanderName(_state.rulingCommand)} Administration|+$amount|');
     total += amount;
     for (final command in LocationType.command.locations) {
       final statesman = _state.commandCommander(command);
       if (statesman != null && _state.statesmanAbility(statesman) == Ability.prestige) {
         if (command.isType(LocationType.ruler) || _state.commandLoyal(command)) {
-          logLine('>${statesman.desc} Prestige: +1');
+          logLine('>|${statesman.desc} Prestige|+1|');
           total += 1;
         }
       }
@@ -9666,11 +9670,12 @@ class Game {
           }
         }
         if (prestigious) {
-          logLine('>${_state.commandName(command)}: +1');
+          logLine('>|${_state.commandName(command)}|+1|');
           total += 1;
         }
       }
     }
+    logLine('>|Total|$total|');
     adjustPrestige(total);
   }
 
@@ -9700,11 +9705,12 @@ class Game {
 
   void unrestPhaseAdjustUnrest() {
     logLine('### Unrest');
+    logTableHeader();
     int amount = 0;
     int total = 0;
     amount = _state.commandReform(_state.rulingCommand);
-    logLine('>${_state.commanderName(_state.rulingCommand)} Reform: +$amount');
-    total += amount;
+    logLine('>|${_state.commanderName(_state.rulingCommand)} Reform|-$amount|');
+    total -= amount;
     for (final command in LocationType.governorship.locations) {
       if (_state.commandLoyal(command)) {
         final locationType = _state.commandLocationType(command)!;
@@ -9731,12 +9737,13 @@ class Game {
           }
         }
         if (stable) {
-          logLine('>${_state.commandName(command)}: +1');
-          total += 1;
+          logLine('>|${_state.commandName(command)}|-1|');
+          total -= 1;
         }
       }
     }
-    adjustUnrest(-total);
+    logLine('>|Total|$total|');
+    adjustUnrest(total);
   }
 
   void unrestPhaseAdjustUnrestMandateOfHeaven() {
