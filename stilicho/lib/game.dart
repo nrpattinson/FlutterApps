@@ -1406,12 +1406,62 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
+  }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: $die');
     return die;
+  }
+
+  int dieWithDrm(int die, int drm) {
+    if (die == 1 || die == 6) {
+      return die;
+    }
+    return die + drm;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
+  }
+
+  (int,int,int) roll2D6() {
+    int value = _random.nextInt(36);
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
+    return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1738,22 +1788,22 @@ class Game {
         }
         if (piece.isType(PieceType.garrison)) {
           if (location.isType(LocationType.army)) {
-            logLine('> Garrison withdraws from ${oldLocation.desc} and joins {$location.desc}.');
+            logLine('>Garrison withdraws from ${oldLocation.desc} and joins {$location.desc}.');
           } else {
-            logLine('> Garrison transfers from ${oldLocation.desc} to ${location.desc}.');
+            logLine('>Garrison transfers from ${oldLocation.desc} to ${location.desc}.');
           }
         } else {
           if (location.isType(LocationType.army)) {
             if (oldLocation == Location.recovery) {
-              logLine('> Comitatenses is deployed to ${location.desc}.');
+              logLine('>Comitatenses is deployed to ${location.desc}.');
             } else {
-              logLine('> Comitatenses transfers from ${oldLocation.desc} to ${location.desc}.');
+              logLine('>Comitatenses transfers from ${oldLocation.desc} to ${location.desc}.');
             }
           } else {
             if (oldLocation == Location.recovery) {
-              logLine('> Garrison is established in ${location.desc}.');
+              logLine('>Garrison is established in ${location.desc}.');
             } else {
-              logLine('> ${location.desc} is Garrisoned with Comitatenses from ${oldLocation.desc}.');
+              logLine('>${location.desc} is Garrisoned with Comitatenses from ${oldLocation.desc}.');
             }
           }
         }
@@ -1765,25 +1815,25 @@ class Game {
         if (oldLocation.isType(LocationType.city)) {
           final enemy = _state.pieceInLocation(PieceType.enemy, _state.citySiegeSpace(oldLocation));
           if (enemy != null) {
-            logLine('> ${enemy.desc} occupies ${oldLocation.desc}.');
+            logLine('>${enemy.desc} occupies ${oldLocation.desc}.');
             _state.setPieceLocation(enemy, oldLocation);
           }
         }
       } else {
         if (location == Location.olympiusAdvocate) {
           if (oldLocation == Location.recovery) {
-            logLine('> ${piece.desc} is made Advocate.');
+            logLine('>${piece.desc} is made Advocate.');
           } else {
-            logLine('> ${piece.desc} is removed from ${oldLocation.desc} and made Advocate.');
+            logLine('>${piece.desc} is removed from ${oldLocation.desc} and made Advocate.');
           }
 
         } else {
           if (oldLocation == Location.recovery) {
-            logLine('> ${piece.desc} is deployed to ${location.desc}.');
+            logLine('>${piece.desc} is deployed to ${location.desc}.');
           } else if (oldLocation == Location.olympiusAdvocate) {
-            logLine('> ${piece.desc} ceases being Adovate and is deployed to ${location.desc}.');
+            logLine('>${piece.desc} ceases being Adovate and is deployed to ${location.desc}.');
           } else {
-            logLine('> ${piece.desc} transfers from ${oldLocation.desc} to ${location.desc}.');
+            logLine('>${piece.desc} transfers from ${oldLocation.desc} to ${location.desc}.');
           }
         }
         _state.setPieceLocation(piece, location);
@@ -1814,17 +1864,41 @@ class Game {
     var defender = originalDefender;
     final attackerSpace = _state.pieceLocation(attacker);
     final battleSpace = _state.pieceLocation(defender);
-    logLine('> ${attacker.desc} Attacks ${defender.desc}.');
+    logLine('>${attacker.desc} Attacks ${defender.desc}.');
     while (true) {
+      int attackerDie = rollD6();
+      int defenderDie = rollD6();
+
+      logTableHeader();
       int attackerValue = _state.enemyAttackValue(attacker);
       int defenderValue = _state.enemyAttackValue(defender);
-      logLine('> ${attacker.desc}: $attackerValue');
-      int attackerDie = rollD6();
+      logLine('>|${attacker.desc}|$attackerValue|');
+      logD6InTable(attackerDie);
       int attackerTotal = attackerValue + attackerDie;
-      logLine('> ${attacker.desc} total: $attackerTotal');
+      logLine('>|${attacker.desc} total|$attackerTotal|');
+      logLine('>|${defender.desc}|$defenderValue|');
+      logD6InTable(defenderDie);
+      int defenderTotal = defenderValue + defenderDie;
+      logLine('>|${defender.desc} total|$defenderTotal|');
+
+      if (attackerTotal > defenderTotal) {
+        final defenderPath = _state.enemyPath(defender);
+        final retreatSpace = _state.pathPrevSpace(defenderPath, battleSpace)!;
+        logLine('>${defender.desc} retreats to ${retreatSpace.desc}.');
+        logLine('>${attacker.desc} advances to ${battleSpace.desc}.');
+        _state.setPieceLocation(defender, retreatSpace);
+        _state.setPieceLocation(attacker, battleSpace);
+      } else if (attackerTotal < defenderTotal) {
+        logLine('>${defender.desc} holds off ${attacker.desc}.');
+        _state.setPieceLocation(defender, battleSpace);
+        _state.setPieceLocation(attacker, attackerSpace);
+      } else {
+        logLine('>Battle continues.');
+      }
+
       if (attackerDie == 1) {
         if (!_state.enemyIsDemoralized(attacker)) {
-          logLine('> ${attacker.desc} is Demoralized.');
+          logLine('>${attacker.desc} is Demoralized.');
           attacker = _state.pieceFlipSide(attacker)!;
         }
       } else if (attackerDie == 6) {
@@ -1833,10 +1907,7 @@ class Game {
           attacker = _state.pieceFlipSide(attacker)!;
         }
       }
-      logLine('> ${defender.desc}: $defenderValue');
-      int defenderDie = rollD6();
-      int defenderTotal = defenderValue + defenderDie;
-      logLine('> ${defender.desc} total: $defenderTotal');
+
       if (defenderDie == 1) {
         if (!_state.enemyIsDemoralized(defender)) {
           logLine('> ${defender.desc} is Demoralized.');
@@ -1848,19 +1919,8 @@ class Game {
           defender = _state.pieceFlipSide(defender)!;
         }
       }
-      if (attackerTotal > defenderTotal) {
-        final defenderPath = _state.enemyPath(defender);
-        final retreatSpace = _state.pathPrevSpace(defenderPath, battleSpace)!;
-        logLine('> ${defender.desc} retreats to ${retreatSpace.desc}.');
-        logLine('> ${attacker.desc} advances to ${battleSpace.desc}.');
-        _state.setPieceLocation(defender, retreatSpace);
-        _state.setPieceLocation(attacker, battleSpace);
-        return;
-      }
-      if (attackerTotal < defenderTotal) {
-        logLine('> ${defender.desc} holds off ${attacker.desc}.');
-        _state.setPieceLocation(defender, battleSpace);
-        _state.setPieceLocation(attacker, attackerSpace);
+
+      if (attackerTotal != defenderTotal) {
         return;
       }
     }
@@ -1883,7 +1943,7 @@ class Game {
     if (nextSpace.isType(LocationType.siege)) {
       final citySpace = _state.siegeCitySpace(nextSpace);
       if (_state.piecesInLocationCount(PieceType.garrison, citySpace) > 0) {
-        logLine('> ${constantine.desc} lays siege to ${citySpace.desc}.');
+        logLine('>${constantine.desc} lays siege to ${citySpace.desc}.');
         _state.setPieceLocation(constantine, nextSpace);
         return false;
       }
@@ -1897,7 +1957,7 @@ class Game {
       return false;
     }
     if (constantine.isType(PieceType.enemyConstantineDemoralized)) {
-      logLine('> Constantine III is Emboldened.');
+      logLine('>Constantine III is Emboldened.');
       _state.flipPiece(constantine);
       return true;
     }
@@ -1918,7 +1978,7 @@ class Game {
       return false;
     }
     if (constantine.isType(PieceType.enemyConstantineDemoralized)) {
-      logLine('> Constantine III is Emboldened.');
+      logLine('>Constantine III is Emboldened.');
       _state.flipPiece(constantine);
     }
     return advanceConstantine();
