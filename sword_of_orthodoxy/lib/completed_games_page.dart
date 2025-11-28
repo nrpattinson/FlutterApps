@@ -35,7 +35,7 @@ class CompletedGamesPageState extends State<CompletedGamesPage> {
             DataColumn(label: Text('Options')),
             DataColumn(label: Text('Begun')),
             DataColumn(label: Text('Ended')),
-            DataColumn(label: Text('Dynasty')),
+            DataColumn(label: Text('Turn')),
             DataColumn(label: Text('Replay')),
             DataColumn(label: Text('Delete'))
           ],

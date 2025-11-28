@@ -1151,7 +1151,7 @@ class GamePageState extends State<GamePage> {
     }
 
     final rootWidget = MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.5)),
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
