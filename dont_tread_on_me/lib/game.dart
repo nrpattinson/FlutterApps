@@ -1242,41 +1242,84 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
+    return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
+  }
+
+  (int,int,int,int) roll3D6() {
+    int value = _random.nextInt(216);
+    int d0 = value ~/ 36;
+    value -= d0 * 36;
+    int d1 = value ~/ 6;
+    value -= d1 * 6;
+    int d2 = value;
     d0 += 1;
     d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    return (d0, d1, d0 + d1);
+    d2 += 1;
+    return (d0, d1, d2, d0 + d1 + d2);
+  }
+
+  void log3D6((int,int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    int d2 = results.$3;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}');
+    logLine('>');
+  }
+
+  void lod3D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}|${d0 + d1 + d2}');
   }
 
   int randInt(int max) {
@@ -1411,18 +1454,18 @@ class Game {
   void adjustStateLoyalty(Location state, int delta) {
     _state.adjustStateLoyalty(state, delta);
     if (delta > 0) {
-      logLine('> ${state.desc} Loyalty: +$delta => ${_state.stateLoyalty(state)}');
+      logLine('>${state.desc} Loyalty: +$delta → ${_state.stateLoyalty(state)}');
     } else if (delta < 0) {
-      logLine('> ${state.desc} Loyalty: $delta => ${_state.stateLoyalty(state)}');
+      logLine('>${state.desc} Loyalty: $delta → ${_state.stateLoyalty(state)}');
     }
   }
 
   void adjustPounds(int delta) {
     _state.adjustPounds(delta);
     if (delta > 0) {
-      logLine('> Pounds: +$delta => ${_state.pounds}');
+      logLine('>Pounds: +$delta → ${_state.pounds}');
     } else if (delta < 0) {
-      logLine('> Pounds: $delta => ${_state.pounds}');
+      logLine('>Pounds: $delta → ${_state.pounds}');
     }
   }
 
@@ -1529,15 +1572,16 @@ class Game {
   void newsAdmiralRodney() {
     if (_subStep == 0) {
       logLine('### Admiral Rodney!');
-      logLine('> Admiral Rodney engages the French Fleet.');
+      logLine('>Admiral Rodney engages the French Fleet.');
       int die = rollD6();
+      logD6(die);
       if (die <= 4) {
-        logLine('> British victory knocks France out of the war.');
+        logLine('>British victory knocks France out of the war.');
         _state.setPieceLocation(Piece.navalFrenchFleet, Location.discarded);
         _state.setPieceLocation(Piece.groundFrenchRoch, Location.discarded);
         return;
       }
-      logLine('> The French Fleet is victorious.');
+      logLine('>The French Fleet is victorious.');
       _subStep = 1;
     }
     if (_subStep == 1) {
@@ -1549,7 +1593,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final piece = selectedPiece()!;
-      logLine('> ${piece.desc} is lost.');
+      logLine('>${piece.desc} is lost.');
       _state.setPieceLocation(piece, Location.discarded);
       clearChoices();
       _subStep = 2;
@@ -1563,7 +1607,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final piece = selectedPiece()!;
-      logLine('> ${piece.desc} is lost.');
+      logLine('>${piece.desc} is lost.');
       _state.setPieceLocation(piece, Location.discarded);
       clearChoices();
     }
@@ -1571,13 +1615,13 @@ class Game {
 
   void newsBenedictWedsPeggy() {
     logLine('### Benedict Weds Peggy!');
-    logLine('> Disgruntled U.S. General Benedict Arnold marries prominent Tory Peggy Shippen.');
+    logLine('>Disgruntled U.S. General Benedict Arnold marries prominent Tory Peggy Shippen.');
     _state.setLimitedEventOccurred(LimitedEvent.benedictArnoldWedsPeggy);
   }
 
   void newsBostonEvacuated() {
     logLine('### Boston Evacuated!');
-    logLine('> Britain withdraws its beseiged garrison and widens the war.');
+    logLine('>Britain withdraws its beseiged garrison and widens the war.');
     for (final piece in _state.piecesInLocation(PieceType.groundBritish, Location.boxBoston)) {
       _state.setPieceLocation(piece, Location.poolBritishForce);
     }
@@ -1590,36 +1634,41 @@ class Game {
 
   void newsCharlottesvilleRaid() {
     logLine('### Charlottesvill Raid!');
-    logLine('> Redcoats try to kidnnap Thomas Jefferson.');
+    logLine('>Redcoats try to kidnnap Thomas Jefferson.');
     int die = rollD6();
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     for (final groundUnit in PieceType.groundBritishPlayer.pieces) {
       if (_state.groundUnitIsHorse(groundUnit)) {
         final location = _state.pieceLocation(groundUnit);
         if (_state.locationState(location) == Location.stateVirginia) {
-          logLine('> British Horse in Virginia: +1');
+          logLine('>|British Horse in Virginia|+1|');
           modifiers += 1;
           break;
         }
       }
     }
     int total = die + modifiers;
-    logLine('> Total: $total');
+    logLine('>Total|$total|');
+    logTableFooter();
+
     if (total >= 6) {
-      logLine('Raid seizes Jefferson.');
+      logLine('>Raid seizes Jefferson.');
       for (final state in LocationType.state.locations) {
         int adjustment = state == Location.stateVirginia ? 3 : 1;
          adjustStateLoyalty(state, adjustment);
       }
     } else {
-      logLine('Jefferson flees in disgrace.');
+      logLine('>Jefferson flees in disgrace.');
     }
     _state.setPieceLocation(Piece.jefferson, Location.discarded);
   }
 
   void newsContinentalDollarCollapses() {
     logLine('### Continental \$ Collapses!');
-    logLine('> Unrestrained deficit spending led to the near collapse of the U.S. economy.');
+    logLine('>Unrestrained deficit spending leads to the near collapse of the U.S. economy.');
     _state.currentEventCurrent(CurrentEvent.continentalDollarCollapses);
 
   }
@@ -1645,7 +1694,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final british = selectedPiece()!;
-      logLine('> ${british.desc} enters the British Force Pool.');
+      logLine('>${british.desc} enters the British Force Pool.');
       _state.setPieceLocation(british, Location.poolBritishForce);
       clearChoices();
       _subStep = 2;
@@ -1659,7 +1708,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final loyalist = selectedPiece()!;
-      logLine('> ${loyalist.desc} enters the British Force Pool.');
+      logLine('>${loyalist.desc} enters the British Force Pool.');
       _state.setPieceLocation(loyalist, Location.poolBritishForce);
       clearChoices();
     }
@@ -1667,7 +1716,7 @@ class Game {
 
   void newsHortalezEtCie() {
     logLine('### Hortalez et Cie.!');
-    logLine('> The wily French set up a fake corporation to funnel aid to the revolutionaries.');
+    logLine('>The wily French set up a fake corporation to funnel aid to the revolutionaries.');
     final smugglers = _state.piecesInLocation(PieceType.smugglers, Location.outOfPlay);
     _state.setPieceLocation(smugglers[0], Location.boxCaribbean);
     _state.setPieceLocation(smugglers[1], Location.boxCaribbean);
@@ -1676,7 +1725,7 @@ class Game {
   void newsIndependenceDeclared() {
     if (_subStep == 0) {
       logLine('### Independence Declared!');
-      logLine('> On 4 July 1776 Congress ratified the Declaration of Indenpendence.');
+      logLine('>On 4 July 1776 Congress ratified the Declaration of Indenpendence.');
       _state.setPieceLocation(Piece.navalBritishParker, Location.boxBritishShipsAtSea);
       _state.setPieceLocation(Piece.navalRebelPrivateers0, Location.boxCaribbean);
       _subStep = 1;
@@ -1690,7 +1739,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final loyalist = selectedPiece()!;
-      logLine('> ${loyalist.desc} enters the British Force Pool.');
+      logLine('>${loyalist.desc} enters the British Force Pool.');
       _state.setPieceLocation(loyalist, Location.poolBritishForce);
       clearChoices();
     }
@@ -1698,19 +1747,19 @@ class Game {
 
   void newsInoculation() {
     logLine('### Inoculation');
-    logLine('> George Washington orders the inoculation of Continental soldiers against smallpox.');
+    logLine('>George Washington orders the inoculation of Continental soldiers against smallpox.');
     _state.setLimitedEventOccurred(LimitedEvent.inoculation);
   }
 
   void newsInvasionScare() {
     if (_subStep == 0) {
       logLine('### Invasion Scare!');
-      logLine('> French and Spanish fleets set sail for the English Channel.');
+      logLine('>French and Spanish fleets set sail for the English Channel.');
       for (final piece in PieceType.groundBritishBlue.pieces) {
-        logLine('> ${piece.desc} is withdrawn to Britain.');
+        logLine('>${piece.desc} is withdrawn to Britain.');
         _state.setPieceLocation(piece, Location.discarded);
       }
-      logLine('> ${Piece.groundCOSFM.desc} enters the Rebel Force Pool.');
+      logLine('>${Piece.groundCOSFM.desc} enters the Rebel Force Pool.');
       _state.setPieceLocation(Piece.groundCOSFM, Location.poolRebelForce);
       _subStep = 1;
     }
@@ -1723,7 +1772,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final hessian = selectedPiece()!;
-      logLine('> ${hessian.desc} enters the Force Pool.');
+      logLine('>${hessian.desc} enters the Force Pool.');
       _state.setPieceLocation(hessian, Location.poolBritishForce);
       clearChoices();
       _subStep += 1;
@@ -1732,21 +1781,21 @@ class Game {
 
   void newsJeffersonElected() {
     logLine('### Jefferson Elected!');
-    logLine('> Thomas Jefferson becomes Governor of Virgina.');
+    logLine('>Thomas Jefferson becomes Governor of Virgina.');
     _state.setPieceLocation(Piece.jefferson, Location.boxAmericanLeadershipVirginia);
   }
 
   void newsJohnPaulJones() {
     logLine('### John Paul Jones!');
-    logLine('> Dashing Rebel humiliates the Brits in their home waters');
+    logLine('>Dashing Rebel humiliates the Brits in their home waters');
     _state.setPieceLocation(Piece.navalRebelPrivateers1, Location.boxCaribbean);
   }
 
   void newsLordGermainsNewPlan() {
     if (_subStep == 0) {
       logLine('### Lord Germain’s New Plan!');
-      logLine('> Raise Loyalist units under their own officers.');
-      logLine('> ${Piece.groundLoyalistTBL.desc} enters the British Force Pool.');
+      logLine('>Raise Loyalist units under their own officers.');
+      logLine('>${Piece.groundLoyalistTBL.desc} enters the British Force Pool.');
       _state.setPieceLocation(Piece.groundLoyalistTBL, Location.poolBritishForce);
       _subStep = 1;
     }
@@ -1759,7 +1808,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final loyalist = selectedPiece()!;
-      logLine('> ${loyalist.desc} enters the British Force Pool.');
+      logLine('>${loyalist.desc} enters the British Force Pool.');
       _state.setPieceLocation(loyalist, Location.poolBritishForce);
       clearChoices();
       _subStep = 2;
@@ -1773,7 +1822,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final british = selectedPiece()!;
-      logLine('> ${british.desc} enters the British Force Pool.');
+      logLine('>${british.desc} enters the British Force Pool.');
       _state.setPieceLocation(british, Location.poolBritishForce);
       clearChoices();
       _subStep = 3;
@@ -1787,7 +1836,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final hessian = selectedPiece()!;
-      logLine('> ${hessian.desc} enters the British Force Pool.');
+      logLine('>${hessian.desc} enters the British Force Pool.');
       _state.setPieceLocation(hessian, Location.poolBritishForce);
       clearChoices();
     }
@@ -1800,9 +1849,9 @@ class Game {
   void newsNewYorkCitySiege() {
     logLine('### New York City Siege');
     if (_state.currentTurn == 11) {
-      logLine('> Washington begins campaign to besiege New York City');
+      logLine('>Washington begins campaign to besiege New York City');
     } else {
-      logLine('> Washington continues his attempt to besiege New York City');
+      logLine('>Washington continues his attempt to besiege New York City');
     }
     _state.currentEventCurrent(CurrentEvent.newYorkCitySiege);
 
@@ -1810,14 +1859,14 @@ class Game {
 
   void newsShotHeardRoundTheWorld() {
     logLine('### Shot Heard Round the World');
-    logLine('> The Revolution starts with an ambush on British troops at Lexington, Massachusetts.');
+    logLine('>The Revolution starts with an ambush on British troops at Lexington, Massachusetts.');
     _state.setCurrentEventOccurred(CurrentEvent.shotHeardRoundTheWorld, true);
   }
 
   void newsSullivansExpedition() {
     if (_subStep == 0) {
       logLine('### Sullivan’s Expedition!');
-      logLine('> Washington orders the total destruction and devastation of Iriquois lands.');
+      logLine('>Washington orders the total destruction and devastation of Iriquois lands.');
       _subStep = 1;
     }
     if (_subStep >= 1 && _subStep <= 2) {
@@ -1831,7 +1880,7 @@ class Game {
         }
         final continental = selectedPiece()!;
         final location = _state.pieceLocation(continental);
-        logLine('> ${continental.desc} is removed from ${location.desc} to the Force Pool.');
+        logLine('>${continental.desc} is removed from ${location.desc} to the Force Pool.');
         _state.setPieceLocation(continental, Location.poolRebelForce);
         clearChoices();
       }
@@ -1840,7 +1889,7 @@ class Game {
     if (_subStep == 3) {
       final location = _state.pieceLocation(Piece.groundIndianMohawk);
       if (location.isType(LocationType.county)) {
-        logLine('> ${Piece.groundIndianMohawk.desc} is removed from ${location.desc} to Available.');
+        logLine('>${Piece.groundIndianMohawk.desc} is removed from ${location.desc} to Available.');
         _state.setPieceLocation(Piece.groundIndianMohawk, Location.boxAvailableIndians);
       }
     }
@@ -1906,19 +1955,21 @@ class Game {
     var dice = <int>[];
     if (totalCount == 1) {
       dice = [rollD6()];
+      logD6(dice[0]);
     } else {
       final results = roll2D6();
       dice = [min(results.$1, results.$2), max(results.$1, results.$2)];
+      log2D6(results);
     }
     for (final die in dice) {
       final seaZone = Location.values[LocationType.seaZone.firstIndex + die - 1];
       if (_state.piecesInLocationCount(PieceType.smugglersAndPrivateers, seaZone) >= 2) {
-        logLine('> ${seaZone.desc} is already brimming with Smugglers.');
+        logLine('>${seaZone.desc} is already brimming with Smugglers.');
       } else {
         final privateers = _state.piecesInLocation(PieceType.privateers, Location.boxCaribbean);
         final smugglers = _state.piecesInLocation(PieceType.smugglers, Location.boxCaribbean);
         final piece = privateers.isNotEmpty ? privateers[0] : smugglers[0];
-        logLine('> ${piece.desc} operates in ${seaZone.desc}.');
+        logLine('>${piece.desc} operates in ${seaZone.desc}.');
         _state.setPieceLocation(piece, seaZone);
       }
     }    
@@ -1947,9 +1998,9 @@ class Game {
     }
     logLine('### French Fleet');
     if (hurricaneWarning) {
-      logLine('> French Fleet moves its base to Boston in anticipation of the hurricane season.');
+      logLine('>French Fleet moves its base to Boston in anticipation of the hurricane season.');
     } else {
-      logLine('> French Fleet moves its base to the Caribbean following the hurricane season.');
+      logLine('>French Fleet moves its base to the Caribbean following the hurricane season.');
     }
     _state.setPieceLocation(Piece.navalFrenchFleet, newLocation);
   }
@@ -2028,21 +2079,28 @@ class Game {
           adjustPounds(-_state.navyUnitCost(attacker));
           if (defender.isType(PieceType.privateers)) {
             int die = rollD6();
+            logD6(die);
             if (die <= 2) {
-              logLine('> ${attacker.desc} withdraws to harbor.');
+              logLine('>${attacker.desc} withdraws to harbor.');
               _state.setPieceLocation(attacker, Location.boxBritishShipsInHarbor);
               continue;
             } else {
-              logLine('> ${attacker.desc} presses its attack.');
+              logLine('>${attacker.desc} presses its attack.');
             }
           }
           int die = rollD6();
+
+          logTableHeader();
+          logD6InTable(die);
           int strength = _state.navyUnitStrength(attacker);
+          logLine('>|${attacker.desc}|$strength|');
+          logTableFooter();
+
           if (die <= strength) {
-            logLine('> ${defender.desc} is sunk.');
+            logLine('>${defender.desc} is sunk.');
             _state.setPieceLocation(defender, Location.boxCaribbean);
           } else {
-            logLine('> ${defender.desc} evades ${attacker.desc}.');
+            logLine('>${defender.desc} evades ${attacker.desc}.');
           }
         }
         _state.setPieceLocation(attacker, Location.boxBritishShipsInHarbor);
@@ -2068,7 +2126,7 @@ class Game {
     final unit = selectedPiece()!;
     logLine('### Shadow the French');
     final location = _state.pieceLocation(Piece.navalFrenchFleet);
-    logLine('> ${unit.desc} shadows the French Fleet in ${location.desc}.');
+    logLine('>${unit.desc} shadows the French Fleet in ${location.desc}.');
     _state.setPieceLocation(unit, location);
   }
 
@@ -2116,41 +2174,46 @@ class Game {
         logLine('> ${continental.desc}');
         int die = rollD6();
         int modifiers = 0;
+
+        logTableHeader();
+        logD6InTable(die);
         final continentalState = _state.locationState(location);
         if (washingtonState != null && continentalState == washingtonState) {
-          logLine('> George Washington: +2');
+          logLine('>|George Washington|+2|');
           modifiers += 2;
         }
         switch (_state.countyTerrain(location)) {
         case Terrain.town:
-          logLine('> Town: +2');
+          logLine('>|Town|+2|');
           modifiers += 2;
         case Terrain.fort:
-          logLine('> Fort: +2');
+          logLine('>|Fort|+2|');
           modifiers += 2;
         case Terrain.farm:
-          logLine('> Farm: +1');
+          logLine('>|Farm|+1|');
           modifiers += 1;
         case Terrain.wilderness:
         }
         if (continentalState == Location.stateVirginia) {
-          logLine('> Virginia: +1');
+          logLine('>Virginia|+1|');
           modifiers += 1;
         } else if (continentalState == Location.stateCarolina) {
-          logLine('> Carolina: +2');
+          logLine('>Carolina|+2|');
           modifiers += 1;
         }
         if (indianStates.contains(continentalState)) {
-          logLine('> Indians: -1');
+          logLine('>|Indians|-1|');
           modifiers -= 1;
         }
         int total = die + modifiers;
-        logLine('> Total: $total');
+        logLine('>|Total|$total|');
+        logTableFooter();
+
         if (total <= survivalNumber) {
-          logLine('> ${continental.desc} disperses.');
+          logLine('>${continental.desc} disperses.');
           _state.setPieceLocation(continental, Location.poolRebelForce);
         } else {
-          logLine('> ${continental.desc} endures the winter.');
+          logLine('>${continental.desc} endures the winter.');
         }
       }
     }
@@ -2176,7 +2239,7 @@ class Game {
           throw PlayerChoiceException();
         }
         final unit = selectedPiece()!;
-        logLine('> ${unit.desc} is released.');
+        logLine('>${unit.desc} is released.');
         _state.setPieceLocation(unit, Location.poolBritishForce);
         britishUnits.remove(unit);
         clearChoices();
@@ -2190,7 +2253,7 @@ class Game {
           throw PlayerChoiceException();
         }
         final unit = selectedPiece()!;
-        logLine('> ${unit.desc} is released.');
+        logLine('>${unit.desc} is released.');
         if (unit == Piece.groundFrenchRoch) {
           _state.setPieceLocation(unit, Location.boxBoston);
         } else {
@@ -2240,7 +2303,7 @@ class Game {
       }
       final britishUnit = selectedPieces()[0];
       final rebelUnit = selectedPieces()[1];
-      logLine('> ${britishUnit.desc} is exchanged for ${rebelUnit.desc}.');
+      logLine('>${britishUnit.desc} is exchanged for ${rebelUnit.desc}.');
       _state.setPieceLocation(britishUnit, Location.poolBritishForce);
       if (rebelUnit == Piece.groundFrenchRoch) {
         _state.setPieceLocation(rebelUnit, Location.boxBoston);
@@ -2305,11 +2368,11 @@ class Game {
         throw PlayerChoiceException();
       }
       if (currentLocation == Location.poolBritishForce) {
-        logLine('> ${unit.desc} deploys in ${county.desc}.');
+        logLine('>${unit.desc} deploys in ${county.desc}.');
         int cost = _state.britishGroundUnitCost(unit);
         adjustPounds(-cost);
       } else {
-        logLine('> ${unit.desc} lands in ${county.desc}.');
+        logLine('>${unit.desc} lands in ${county.desc}.');
       }
       _state.setPieceLocation(unit, county);
     }
@@ -2357,7 +2420,7 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> ${unit.desc} moves from ${currentCounty.desc} to ${destinationCounty.desc}.');
+      logLine('>${unit.desc} moves from ${currentCounty.desc} to ${destinationCounty.desc}.');
       _state.setPieceLocation(unit, destinationCounty);
     }
   }
@@ -2414,21 +2477,26 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> ${unit.desc} marches from ${currentCounty.desc} to ${destinationCounty.desc}.');
+      logLine('>${unit.desc} marches from ${currentCounty.desc} to ${destinationCounty.desc}.');
       int die = rollD6();
       int modifiers = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       if (_state.piecesInLocationCount(PieceType.groundRebel, destinationCounty) > 0) {
-        logLine('> Enemy-occupied county: +1');
+        logLine('>|Enemy-occupied county|+1|');
         modifiers += 1;
       }
       final destinationState = destinationCounty == Location.boxQuebec ? destinationCounty : _state.countyState(destinationCounty);
       final interveningStates = _state.stateInterveningStates(currentState, destinationState);
       if (interveningStates.isNotEmpty) {
-        logLine('> Non-adjacent: +1');
+        logLine('>|Non-adjacent|+1|');
         modifiers += 1;
       }
       int total = die + modifiers;
-      logLine('> Total: $total')''
+      logLine('>|Total|$total|');
+      logTableFooter();
+
       if (total >= )
 
       _state.setPieceLocation(unit, destinationCounty);
