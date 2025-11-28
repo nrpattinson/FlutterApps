@@ -40,8 +40,10 @@ class GamePageState extends State<GamePage> {
   final _referenceImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _trayWidth, height: _trayHeight);
   final _mapStackChildren = <Widget>[];
   final _trayStackChildren = <Widget>[];
+
   final _pieceStackKeys = <Piece,StackKey>{};
   final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -162,6 +164,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -371,19 +377,22 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxStacks(MyAppState appState, Location box, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
     int stackCount = rowCount * colCount;
     for (int row = 0; row < rowCount; ++row) {
       for (int col = 0; col < colCount; ++col) {
         final stackPieces = <Piece>[];
         int stackIndex = row * colCount + col;
-        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
-          stackPieces.add(pieces[pieceIndex]);
-        }
-        if (stackPieces.isNotEmpty) {
-          double xStack = x + col * dxStack;
-          double yStack = y + row * dyStack;
-          layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, sk, stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
         }
       }
     }
@@ -400,11 +409,9 @@ class GamePageState extends State<GamePage> {
       addProvinceToMap(appState, land, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final sk = (land, 0);
-      if (_expandedStacks.contains(sk) == (pass == 1)) {
-        layoutStack(appState, (land, 0), state.piecesInLocation(PieceType.all, land), BoardArea.map, xLand, yLand, 4.0, 4.0);
-      }
+    final sk = (land, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, (land, 0), state.piecesInLocation(PieceType.all, land), BoardArea.map, xLand, yLand, 4.0, 4.0);
     }
  
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
@@ -418,7 +425,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.boxDowntownSoba: (4, 2, 6.0, 5.0),
       Location.boxEthiopia: (1, 1, 0.0, 0.0),
@@ -455,7 +462,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60 + yGap, 4.0, 4.0);
     }
   }
 
@@ -509,9 +516,10 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutBoxes(appState);
       layoutRoyalAssetTracks(appState);
+      layoutBoxes(appState, 0);
       layoutLands(appState, 0);
+      layoutBoxes(appState, 1);
       layoutLands(appState, 1);
 
       const choiceTexts = {

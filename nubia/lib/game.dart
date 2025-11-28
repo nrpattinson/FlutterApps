@@ -1238,41 +1238,55 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1447,37 +1461,43 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoiceAndClear(Choice.blockAdvanceNubianArchers)) {
-          logLine('> Nubian Archers');
-          logLine('> Nubian Archers are lost defending ${toLand.desc} against ${mek.desc}.');
+          logLine('>Nubian Archers');
+          logLine('>Nubian Archers are lost defending ${toLand.desc} against ${mek.desc}.');
           final nubianArchers = _state.pieceInLocation(PieceType.nubianArchers, toLand)!;
           _state.setPieceLocation(nubianArchers, Location.trayNubianArchers);
-          logLine('> ${mek.desc} ceases its Advance.');
+          logLine('>${mek.desc} ceases its Advance.');
           _mekAdvanceState = null;
           return;
         } else if (checkChoiceAndClear(Choice.blockAdvanceMonastery)) {
-          logLine('> Monastery');
+          logLine('>Monastery');
           final monastery = _state.pieceInLocation(PieceType.monastery, toLand)!;
           int die = rollD6();
+
+          logTableHeader();
+          logD6InTable(die);
           int value = _state.monasteryValue(monastery);
+          logLine('>|${monastery.desc}|$value|');
+          logTableFooter();
+
           if (die >= value) {
-            logLine('> Monastery in ${toLand.desc} withstands advance of ${mek.desc}.');
+            logLine('>Monastery in ${toLand.desc} withstands advance of ${mek.desc}.');
             _mekAdvanceState = null;
             return;
           } else {
-            logLine('> ${mek.desc} destroys Monastery in ${toLand.desc}.');
+            logLine('>${mek.desc} destroys Monastery in ${toLand.desc}.');
             _state.setPieceLocation(monastery, Location.trayMonasteries);
             final uru = randPiece(_state.piecesInLocation(PieceType.uru, Location.cupUru))!;
-            logLine('> ${uru.desc} enters the Mosque.');
+            logLine('>${uru.desc} enters the Mosque.');
             _state.setPieceLocation(uru, Location.boxTheMosque);
           }
         } else if (checkChoiceAndClear(Choice.blockAdvanceSlaves)) {
-          logLine('> ${mek.desc} are bought off with Slaves.');
+          logLine('>${mek.desc} are bought off with Slaves.');
           _state.setPieceLocation(Piece.slaves, Location.poolSlavery);
           _mekAdvanceState = null;
           return;
         } else if (checkChoiceAndClear(Choice.blockAdvanceCede)) {
           if (toLand != Location.soba) {
-            logLine('> ${mek.desc} captures ${toLand.desc}.');
+            logLine('>${mek.desc} captures ${toLand.desc}.');
             _state.setPieceLocation(mek, toLand);
             _mekAdvanceState = null;
             return;
@@ -1529,13 +1549,14 @@ class Game {
     final oldMetropolitan = _state.pieceInLocation(PieceType.metropolitan, Location.boxMetrolpolitan)!;
     _state.setPieceLocation(oldMetropolitan, Location.cupMetropolitan);
     final newMetropolitan = randPiece(_state.piecesInLocation(PieceType.metropolitan, Location.cupMetropolitan))!;
-    logLine('> ${oldMetropolitan.desc} dies and is replaced by ${newMetropolitan.desc}.');
+    logLine('>${oldMetropolitan.desc} dies and is replaced by ${newMetropolitan.desc}.');
     _state.setPieceLocation(newMetropolitan, Location.boxMetrolpolitan);
   }
 
   void specialEventCrusadeRoll() {
     logLine('### Crusades');
     int die = rollD6();
+    logD6(die);
     Piece oldCrusadePiece = _state.pieceInLocation(PieceType.crusades, Location.crusadeLevel)!;
     int oldCrusadeLevel = _state.crusadeLevel(oldCrusadePiece);
     int newCrusadeLevel = 0;
@@ -1551,12 +1572,12 @@ class Game {
       newCrusadeLevel = 0;
     }
     if (newCrusadeLevel == oldCrusadeLevel) {
-      logLine('> Crusade Level remains at $oldCrusadeLevel.');
+      logLine('>Crusade Level remains at $oldCrusadeLevel.');
     } else {
       if (newCrusadeLevel > oldCrusadeLevel) {
-        logLine('> Crusade Level rises to $newCrusadeLevel.');
+        logLine('>Crusade Level rises to $newCrusadeLevel.');
       } else {
-        logLine('> Crusade Level falls to $newCrusadeLevel.');
+        logLine('>Crusade Level falls to $newCrusadeLevel.');
       }
       final newCrusadePiece = _state.crusadeLevelPiece(newCrusadeLevel);
       _state.setPieceLocation(oldCrusadePiece, Location.trayCrusades);
@@ -1570,13 +1591,13 @@ class Game {
       return;
     }
     logLine('### Ethiopians');
-    logLine('> Ethiopian allies come to your aid.');
+    logLine('>Ethiopian allies come to your aid.');
     _state.setPieceLocation(Piece.ethiopians, Location.boxPathD);
   }
 
   void specialEventFlipAyyubids() {
     logLine('### Mamluk Sultanate');
-    logLine('> Mamluk regiments overthrow their Ayyubid rulers.');
+    logLine('>Mamluk regiments overthrow their Ayyubid rulers.');
     final location = _state.pieceLocation(Piece.mekAyyubid);
     _state.setPieceLocation(Piece.mekAyyubid, Location.discarded);
     _state.setPieceLocation(Piece.mekMamluk, location);
@@ -1591,7 +1612,7 @@ class Game {
 
   void specialEventFlipShilluk() {
     logLine('### Funj Sultanate');
-    logLine('> The Funj Sultanate is established.');
+    logLine('>The Funj Sultanate is established.');
     final location = _state.pieceLocation(Piece.mekShilluk);
     _state.setPieceLocation(Piece.mekShilluk, Location.discarded);
     _state.setPieceLocation(Piece.mekFunj, location);
@@ -1610,20 +1631,20 @@ class Game {
       int positionA = locationA.index - locationTypeA.firstIndex;
       int positionB = locationB.index - locationTypeB.firstIndex;
       final mosqueLocation = positionB <= positionA ? locationB : locationA;
-      logLine('> A Mosque is built in ${mosqueLocation.desc}.');
+      logLine('>A Mosque is built in ${mosqueLocation.desc}.');
       _state.setPieceLocation(Piece.mosque0, mosqueLocation);
     } else {
       final path = _state.pathMosqueCount(Path.b) > 0 ? Path.a : Path.b;
       final mek = _state.pathMek(path);
       final mosqueLocation = _state.pieceLocation(mek);
-      logLine('> A Mosque is built in ${mosqueLocation.desc}.');
+      logLine('>A Mosque is built in ${mosqueLocation.desc}.');
       _state.setPieceLocation(Piece.mosque1, mosqueLocation);
     }
   }
 
   void specialEventPortuguese() {
     logLine('### Portuguese');
-    logLine('> Portugal signs an alliance with Nubia.');
+    logLine('>Portugal signs an alliance with Nubia.');
     _state.setupPieceType(PieceType.portugal, Location.boxDowntownSoba);
   }
 
@@ -1637,6 +1658,7 @@ class Game {
     if (disaster.isType(PieceType.famine)) {
       logLine('### Famine');
       int die = rollD6();
+      logD6(die);
       Piece? asset;
       switch (die) {
       case 1:
@@ -1677,6 +1699,7 @@ class Game {
   void eventFeudalism() {
     logLine('### Feudalism');
     final results = roll2D6();
+    log2D6(results);
     int d1 = results.$1;
     int d2 = results.$2;
     Path? path;
@@ -1707,37 +1730,37 @@ class Game {
       oldFeudalType = oldFeudal.isType(PieceType.feudalN1) ? PieceType.feudalN1 : PieceType.feudalP1;
     }
     if (location == Location.soba && oldFeudal != null) {
-      logLine('> Feudalism continues in Soba.');
+      logLine('>Feudalism continues in Soba.');
       return;
     }
     if (oldFeudal == null) {
       if (_state.piecesInLocationCount(newFeudalType, Location.trayFeudalism) == 0) {
-        logLine('> Feudalism remains unchanged.');
+        logLine('>Feudalism remains unchanged.');
         return;
       }
       if (newFeudalType == PieceType.feudalN1) {
         if (path != null) {
-          logLine('> Feudalism increases on ${path.desc}.');
+          logLine('>Feudalism increases on ${path.desc}.');
         } else {
-          logLine('> Feudalism increases.');
+          logLine('>Feudalism increases.');
         }
       } else {
-        logLine('> Feudalism weakens ${mek!.desc}.');
+        logLine('>Feudalism weakens ${mek!.desc}.');
       }
       _state.setPieceLocation(_state.piecesInLocation(newFeudalType, Location.trayFeudalism)[0], location);
     } else if (oldFeudalType == newFeudalType) {
       if (newFeudalType == PieceType.feudalP1) {
-        logLine('> Feudalism weakens ${mek!.desc}.');
+        logLine('>Feudalism weakens ${mek!.desc}.');
         pathRetreat(path!);
       } else {
-        logLine('> Feudalism increases on ${path!.desc}.');
+        logLine('>Feudalism increases on ${path!.desc}.');
         pathAdvance(path);
       }
     } else {
       if (newFeudalType == PieceType.feudalP1) {
-        logLine('> Feudalism reduces on ${path!.desc}.');
+        logLine('>Feudalism reduces on ${path!.desc}.');
       } else {
-        logLine('> Feudalism reduces amongst ${mek!.desc}');
+        logLine('>Feudalism reduces amongst ${mek!.desc}');
       }
       _state.setPieceLocation(oldFeudal, Location.trayFeudalism);
     }
@@ -1818,11 +1841,11 @@ class Game {
     _state.setPieceLocation(oldUru, Location.cupUru);
     final crownPrince = _state.pieceInLocation(PieceType.uru, Location.boxCrownPrince);
     if (crownPrince != null) {
-      logLine('> Crown Prince ${crownPrince.desc} becomes Uru.');
+      logLine('>Crown Prince ${crownPrince.desc} becomes Uru.');
       _state.setPieceLocation(crownPrince, Location.boxUru);
     } else {
       final newUru = randPiece(_state.piecesInLocation(PieceType.uru, Location.cupUru))!;
-      logLine('> ${newUru.desc} becomes Uru.');
+      logLine('>${newUru.desc} becomes Uru.');
       _state.setPieceLocation(newUru, Location.boxUru);
     }
   }
@@ -1856,7 +1879,7 @@ class Game {
       }
       clearChoices();
     }
-    logLine('> Uru ${uru.desc} removes all Feudal Tiles.');
+    logLine('>Uru ${uru.desc} removes all Feudal Tiles.');
     for (final feudal in PieceType.feudal.pieces) {
       final location = _state.pieceLocation(feudal);
       if (location != Location.trayFeudalism) {

@@ -3135,7 +3135,7 @@ class Game {
     return die;
   }
 
-int dieWithDrm(int die, int drm) {
+  int dieWithDrm(int die, int drm) {
     if (die == 1 || die == 6) {
       return die;
     }
