@@ -441,7 +441,7 @@ class GameState {
   GameState.fromJson(Map<String, dynamic> json)
    : _pieceLocations = locationListFromIndices(List<int>.from(json['pieceLocations']))
    , _deck = List<int>.from(json['deck'])
-   , _currentCardNumber = json['deck'] as int?
+   , _currentCardNumber = json['currentCardNumber'] as int?
    ;
 
   Map<String, dynamic> toJson() => {
@@ -1009,41 +1009,62 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  int dieWithDrm(int die, int drm) {
+    if (die == 1 || die == 6) {
+      return die;
+    }
+    return die + drm;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1222,15 +1243,16 @@ class Game {
   void gorbymaniaPhaseCheckGorbymania() {
     logLine('### Gorbymania');
     if (_state.pieceLocation(Piece.politburoGorbachev) == Location.boxGorbymania) {
-      logLine('> Gorbachev returns to Politburo duties.');
+      logLine('>Gorbachev returns to Politburo duties.');
       _state.setPieceLocation(Piece.politburoGorbachev, Location.boxPolitburoSupport);
     } else {
       int die = rollD6();
+      logD6(die);
       if (die >= 5) {
-        logLine('> Gorbachev goes on extended leave from the Politburo.');
+        logLine('>Gorbachev goes on extended leave from the Politburo.');
         _state.setPieceLocation(Piece.politburoGorbachev, Location.boxGorbymania);
       } else {
-        logLine('> Gorbachev remains in the Politburo.');
+        logLine('>Gorbachev remains in the Politburo.');
       }
     }
   }
@@ -1249,7 +1271,7 @@ class Game {
       throw PlayerChoiceException();
     }
     if (checkChoice(Choice.yes)) {
-      logLine('> Gorbachev defuses all Demonstrations.');
+      logLine('>Gorbachev defuses all Demonstrations.');
       for (final demonstration in PieceType.demonstration.pieces) {
         if (_state.pieceLocation(demonstration) != Location.trayDemonstration) {
           _state.setPieceLocation(demonstration, Location.trayDemonstration);
@@ -1319,15 +1341,16 @@ class Game {
 
   void specialEventLigachevsChallenge() {
     logLine('### Ligachev’s Challenge');
-    logLine('> Ligachev tries to win back his post as Party deputy leader.');
+    logLine('>Ligachev tries to win back his post as Party deputy leader.');
     int die = rollD6();
+    logD6(die);
     if (die <= 2) {
-      logLine('> Ligachev is reinstated as deputy leader.');
+      logLine('>Ligachev is reinstated as deputy leader.');
       final people = _state.pathPeople(Path.communistParty);
       final location = _state.pieceLocation(people);
       _state.setPieceLocation(Piece.politburoLigachev, location);
     } else {
-      logLine('> Ligachev fails and retires.');
+      logLine('>Ligachev fails and retires.');
       _state.setPieceLocation(Piece.politburoLigachev, Location.discarded);
     }
   }
@@ -1341,7 +1364,7 @@ class Game {
       return;
     }
     logLine('### Loyal Communists');
-    logLine('> Communists of Central Asia are reliably loyal.');
+    logLine('>Communists of Central Asia are reliably loyal.');
     _state.setPieceLocation(Piece.markerLoyalCommunists, Location.boxPathCentralAsia);
   }
 
@@ -1354,7 +1377,7 @@ class Game {
     logLine('### Yegor Ligachev');
     final people = _state.pathPeople(Path.communistParty);
     final location = _state.pieceLocation(people);
-    logLine('> Ligachev is placed in ${location.desc}.');
+    logLine('>Ligachev is placed in ${location.desc}.');
     _state.setPieceLocation(Piece.politburoLigachev, location);
   }
 
@@ -1362,7 +1385,7 @@ class Game {
     logLine('### Boris Yeltsin');
     final people = _state.pathPeople(Path.russia);
     final location = _state.pieceLocation(people);
-    logLine('> Yeltsin is placed in ${location.desc}.');
+    logLine('>Yeltsin is placed in ${location.desc}.');
     _state.setPieceLocation(Piece.politburoYeltsin, location);
   }
 
@@ -1387,7 +1410,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final politician = selectedPiece()!;
-      logLine('> ${politician.desc} opposes Gorbachev.');
+      logLine('>${politician.desc} opposes Gorbachev.');
       _state.setPieceLocation(politician, Location.boxPolitburoOpposition);
     }
   }
@@ -1396,24 +1419,25 @@ class Game {
     if (_subStep == 0) {
       logLine('### Presidential Powers');
       int die = rollD6();
+      logD6(die);
       switch (die) {
       case 1:
-        logLine('> The Baltics and Caucasus disapprove of the use of Presidential Powers.');
+        logLine('>The Baltics and Caucasus disapprove of the use of Presidential Powers.');
         downPathBaltics();
         _subStep = 1;
       case 2:
-        logLine('> The Baltics disapprove of the use of Presidential Powers.');
+        logLine('>The Baltics disapprove of the use of Presidential Powers.');
         downPathBaltics();
       case 3:
-        logLine('> The Caucasus disapproves of the use of Presidential Powers.');
+        logLine('>The Caucasus disapproves of the use of Presidential Powers.');
         downPathCaucasus();
       case 4:
-        logLine('> Nobody notices the use of Presidential Powers.');
+        logLine('>Nobody notices the use of Presidential Powers.');
       case 5:
-        logLine('> Russians approve of the use of Presidential Powers.');
+        logLine('>Russians approve of the use of Presidential Powers.');
         upPathRussia();
       case 6:
-        logLine('> Presidential Powers are used to increase Military Might.');
+        logLine('>Presidential Powers are used to increase Military Might.');
         upAssetMilitaryMight();
       }
     }
@@ -1424,7 +1448,7 @@ class Game {
 
   void specialEventReplaceBaltics() {
     logLine('### Replace Baltics');
-    logLine('> Opposition strengthens in the Baltics.');
+    logLine('>Opposition strengthens in the Baltics.');
     final land = _state.pieceLocation(Piece.peopleBalticsWeak);
     _state.setPieceLocation(Piece.peopleBalticsStrong, land);
     _state.setPieceLocation(Piece.peopleBalticsWeak, Location.discarded);
@@ -1432,7 +1456,7 @@ class Game {
 
   void specialEventReplaceCaucasus() {
     logLine('### Replace Caucasus');
-    logLine('> Opposition strengthens in the Caucasus.');
+    logLine('>Opposition strengthens in the Caucasus.');
     final land = _state.pieceLocation(Piece.peopleCaucasusWeak);
     _state.setPieceLocation(Piece.peopleCaucasusStrong, land);
     _state.setPieceLocation(Piece.peopleCaucasusWeak, Location.discarded);
@@ -1440,7 +1464,7 @@ class Game {
 
   void specialEventReplaceCPSU() {
     logLine('### Replace CPSU');
-    logLine('> Opposition strengthens within the party.');
+    logLine('>Opposition strengthens within the party.');
     final land = _state.pieceLocation(Piece.peopleCommunistPartyWeak);
     _state.setPieceLocation(Piece.peopleCommunistPartyStrong, land);
     _state.setPieceLocation(Piece.peopleCommunistPartyWeak, Location.discarded);
@@ -1448,7 +1472,7 @@ class Game {
 
   void specialEventReplaceRussia() {
     logLine('### Replace Russia');
-    logLine('> Opposition strengthens in Russia.');
+    logLine('>Opposition strengthens in Russia.');
     final land = _state.pieceLocation(Piece.peopleRussiaWeak);
     _state.setPieceLocation(Piece.peopleRussiaStrong, land);
     _state.setPieceLocation(Piece.peopleRussiaWeak, Location.discarded);
@@ -1456,28 +1480,34 @@ class Game {
 
   void specialEventSinatraDoctrine() {
     logLine('### Sinatra Doctrine');
-    logLine('> More autonomy given to Warsaw Pact member states.');
+    logLine('>More autonomy given to Warsaw Pact member states.');
     _state.setPieceLocation(Piece.doctrineBrezhnev, Location.discarded);
     _state.setPieceLocation(Piece.doctrineSinatra, Location.boxDoctrine);
   }
 
   void specialEventStingerMissiles() {
     logLine('### Stinger Missiles');
-    logLine('> US anti-aircraft missiles turn the tide in Afghanistan.');
+    logLine('>US anti-aircraft missiles turn the tide in Afghanistan.');
     _state.setPieceLocation(Piece.forces40Army, Location.afghanistanMayLeave);
   }
 
   void specialEventWarsawPactDissolved() {
     logLine('### Warsaw Pact Dissolved?');
     int die = rollD6();
+
+    logTableHeader();
+    logD6InTable(die);
     final warsawPactAllies = _state.piecesInLocation(PieceType.warsawPact, Location.boxWarsawPact);
+    logLine('>|Warsaw Pact Allies|$warsawPactAllies|');
+    logTableFooter();
+
     if (die > warsawPactAllies.length) {
-      logLine('> The Warsaw Pact is dissolved.');
+      logLine('>The Warsaw Pact is dissolved.');
       for (final ally in warsawPactAllies) {
         _state.setPieceLocation(ally, Location.discarded);
       }
     } else {
-      logLine('> The Warsaw Pact remains intact.');
+      logLine('>The Warsaw Pact remains intact.');
     }
   }
 
@@ -1487,12 +1517,13 @@ class Game {
       return;
     }
     logLine('### Yeltsin Defeated?');
-    logLine('> Yeltsin seeks election as Chairman of the Russian Supreme Soviet.');
+    logLine('>Yeltsin seeks election as Chairman of the Russian Supreme Soviet.');
     int die = rollD6();
+    logD6(die);
     if (die <= 4) {
-      logLine('> Yeltsin wins the election.');
+      logLine('>Yeltsin wins the election.');
     } else {
-      logLine('> Yeltsin loses the election and withdraws from politics.');
+      logLine('>Yeltsin loses the election and withdraws from politics.');
       _state.setPieceLocation(Piece.politburoYeltsin, Location.discarded);
     }
   }
@@ -1502,10 +1533,10 @@ class Game {
       return;
     }
     logLine('### Yeltsin Elected');
-    logLine('> Boris Yeltsin is elected President of Russia.');
+    logLine('>Boris Yeltsin is elected President of Russia.');
     final people = _state.pathPeople(Path.russia);
     final location = _state.pieceLocation(people);
-    logLine('> Yeltsin is placed in ${location.desc}.');
+    logLine('>Yeltsin is placed in ${location.desc}.');
     _state.setPieceLocation(Piece.politburoYeltsin, location);
     _state.setPieceLocation(Piece.markerPopularVote, location);
   }

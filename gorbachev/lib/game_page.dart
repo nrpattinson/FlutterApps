@@ -10,6 +10,8 @@ enum BoardArea {
   tray,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -35,6 +37,10 @@ class GamePageState extends State<GamePage> {
   final _trayImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _trayWidth, height: _trayHeight);
   final _mapStackChildren = <Widget>[];
   final _trayStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -142,6 +148,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -184,17 +194,34 @@ class GamePageState extends State<GamePage> {
       borderWidth += 1.0;
     }
 
+    GestureTapCallback? onTap;
     if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.chosePiece(piece);
-          },
-          child: widget,
-        ),
-      );
+      onTap = () {
+        appState.chosePiece(piece);
+      };
     }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -334,36 +361,70 @@ class GamePageState extends State<GamePage> {
     return coordinates[location]!;
   }
 
-  void layoutLand(MyAppState appState, Location land) {
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int row = 0; row < rowCount; ++row) {
+      for (int col = 0; col < colCount; ++col) {
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, sk, stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutLand(MyAppState appState, Location land, int pass) {
     final state = appState.gameState!;
 
     final coordinates = locationCoordinates(land);
     final xLand = coordinates.$2;
     final yLand = coordinates.$3;
 
-    if (appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(land)) {
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(land)) {
       addLandToMap(appState, land, xLand, yLand);
     }
 
-    if (!_emptyMap) {
-      final pieces = state.piecesInLocation(PieceType.all, land);
-      for (int i = 0; i < pieces.length; ++i) {
-        addPieceToBoard(appState, pieces[i], BoardArea.map, xLand + 4.0 * i, yLand + 4.0 * i);
-      }
+    final sk = (land, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, state.piecesInLocation(PieceType.all, land), BoardArea.map, xLand, yLand, 4.0, 4.0);
     }
  
-    if (appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(land)) {
       addLandToMap(appState, land, xLand, yLand);
     }
   }
 
-  void layoutLands(MyAppState appState) {
+  void layoutLands(MyAppState appState, int pass) {
     for (final land in LocationType.land.locations) {
-      layoutLand(appState, land);
+      layoutLand(appState, land, pass);
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.ddr: (1, 3, 0.0, 8.0),
       Location.easternEurope: (1, 1, 0.0, 0.0),
@@ -415,31 +476,20 @@ class GamePageState extends State<GamePage> {
       double xBox = coordinates.$2;
       double yBox = coordinates.$3;
 
-      //if (appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
-      //  addBoxToMap(appState, box, xBox, yBox);
-      //}
+      if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
+        //addBoxToMap(appState, box, xBox, yBox);
+      }
 
       final info = boxesInfo[box]!;
       int cols = info.$1;
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      final pieces = state.piecesInLocation(PieceType.all, box);
-      int cells = cols * rows;
-      for (int i = 0; i < pieces.length; ++i) {
-        int col = i % cols;
-        int row = (i % cells) ~/ cols;
-        int depth = i ~/ cells;
-        double x = xBox + col * (60.0 + xGap);
-        double y = yBox + row * (60.0 + yGap);
-        x += depth * 5.0;
-        y += depth * 5.0;
-        addPieceToBoard(appState, pieces[i], boardArea, x, y);
-      }
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
 
-      //if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
+      if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
       //  addBoxToMap(appState, box, xBox, yBox);
-      //}
+      }
     }
   }
 
@@ -524,13 +574,15 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutLands(appState);
-      layoutBoxes(appState);
       layoutAssetTracks(appState);
       /*
       layoutTrack(appState);
       layoutTurn(appState);
       */
+      layoutBoxes(appState, 0);
+      layoutLands(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutLands(appState, 1);
 
       const choiceTexts = {
         Choice.yes: 'Yes',
