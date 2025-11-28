@@ -2034,12 +2034,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -2366,10 +2370,13 @@ class Game {
     }
     if (_state.piecesInLocationCount(PieceType.mapMarquis, space) > 0) {
       int die = rollD8();
+
       logTableHeader();
       logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
       logLine('>|${enemyUnit.desc}|$rating|');
+      logTableFooter();
+
       if (die > rating) {
         logLine('>Uprising in ${space.desc} is suppressed by Marquis.');
         _state.setPieceLocation(enemyUnit, Location.poolDead);
@@ -2692,6 +2699,7 @@ class Game {
       logLine('### ${leader.desc} attempts to Suppress ${space.desc}');
       final enemyUnit = _state.spaceTopmostEnemyUnit(space)!;
       int die = rollD8();
+
       logTableHeader();
       logD8InTable(die);
       int rating = _state.enemyUnitResistanceRating(enemyUnit);
@@ -2705,6 +2713,8 @@ class Game {
       }
       int total = rating + modifiers;
       logLine('>|Total|$total|');
+      logTableFooter();
+
       if (die > total) {
         final pieces = _state.piecesInLocation(PieceType.mapEnemyUnit, space);
         if (leader.isType(PieceType.mapCharlemagne) || pieces.length == 1) {

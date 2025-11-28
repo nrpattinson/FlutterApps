@@ -1176,12 +1176,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -1478,8 +1482,9 @@ class Game {
 
   void lancasterHouse() {
     logLine('>Peace conferences is held in Lancaster House in London.');
-    logTableHeader();
     int total = 0;
+
+    logTableHeader();
     int handshakeCount = 5 - _state.fistCount;
     logLine('>|Handshake markers|+$handshakeCount|');
     total += handshakeCount;
@@ -1530,6 +1535,7 @@ class Game {
     }
     // TODO incomplete
 
+    logTableFooter();
   }
   void gameOver(GameOutcome outcome) {
     _outcome = outcome;
@@ -2084,12 +2090,15 @@ class Game {
   void rhodesiaHeraldPhaseRoll() {
     final phaseState = _phaseState as PhaseStateRhodesiaHerald;
     logLine('>Rhodesia Herald');
-    logTableHeader();
     int die = rollD6();
+
+    logTableHeader();
     logD6InTable(die);
     logLine('>|Turn|${_state.currentTurn}|');
     int total = _state.currentTurn + die;
     logLine('>|Total|$total|');
+    logTableFooter();
+
     phaseState.result = total;
   }
 

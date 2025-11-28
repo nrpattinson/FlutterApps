@@ -6189,12 +6189,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -6785,15 +6789,14 @@ class Game {
     final empire = _state.commandEmpire(command);
     final emperor = command.isType(LocationType.emperor) ? _state.otherEmpire(empire) : empire;
 
-    logTableHeader();
-
     final rolls = roll3D6();
     int omens = rolls.$4;
     int total = rolls.$5;
-    log3D6InTable(rolls);
-
     int modifiers = 0;
     int modifier = 0;
+
+    logTableHeader();
+    log3D6InTable(rolls);
     int commanderPopularity = _state.commandPopularity(command);
     int emperorPopularity = _state.commandPopularity(emperor);
     int popularityModifier = 0;
@@ -6825,10 +6828,9 @@ class Game {
       logLine('>|Veteran Units|+$modifier|');
       modifiers += modifier;
     }
-
     int result = total + modifiers;
     logLine('>|Total|$result|');
-    logLine('>');
+    logTableFooter();
 
     if (result >= 25) {
       if (result - omens < 25) {
@@ -7082,13 +7084,14 @@ class Game {
 
   bool failMortalityRoll(String name, int? age) {
     logLine('### Mortality Check for $name');
-    logTableHeader();
     bool hasSavingRoll = _options.finiteLifetimes && age != null && age <= 2;
     final rolls = rollD6D2(hasSavingRoll);
     int die = rolls.$1;
-    logD6InTable(die);
     int savingRoll = rolls.$2;
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     int plagueModifier = 0;
     if (_state.eventTypeCount(EventType.plague) == 2) {
       plagueModifier = 1;
@@ -7104,6 +7107,8 @@ class Game {
     }
     int result = die + modifiers;
     logLine('|Total|$result|');
+    logTableFooter();
+
     bool fail = result >= 6 && (result != 6 || !hasSavingRoll || savingRoll != 1);
     if (fail) {
       if (result - plagueModifier < 6) {
@@ -7137,13 +7142,13 @@ class Game {
     logLine('>');
     logLine('>$name');
 
-    logTableHeader();
-
     final rolls = roll2D6();
-    log2D6InTable(rolls);
-    int rollTotal = rolls.$4;
     int modifiers = 0;
     int modifier = 0;
+
+    logTableHeader();
+    log2D6InTable(rolls);
+    int rollTotal = rolls.$4;
     final emperor = _state.commandEmpire(command);
     modifier = -_state.commandAdministration(emperor);
     logLine('>${_state.commanderName(emperor)} Administration|$modifier|');
@@ -7167,7 +7172,7 @@ class Game {
     }
     int result = rollTotal + modifiers;
     logLine('>|Total|$result|');
-    logLine('>');
+    logTableFooter();
 
     int finalTotal = total;
     String doubledDesc = '';
@@ -7290,11 +7295,12 @@ class Game {
 
     logLine('>');
     logLine('>${war.desc} Pillage');
-    logTableHeader();
     final roll = rollD6();
-    logD6InTable(roll);
     int modifiers = 0;
     int modifier = 0;
+
+    logTableHeader();
+    logD6InTable(roll);
     if (leader != null) {
       modifier = _state.leaderPillage(leader);
       logLine('>|${leader.desc}|+$modifier|');
@@ -7316,7 +7322,6 @@ class Game {
       logLine('>|Migration: +$modifier');
       modifiers += modifier;
     }
-
     modifier = 0;
     switch (_state.provinceStatus(province)) {
     case ProvinceStatus.insurgent:
@@ -7335,16 +7340,14 @@ class Game {
     default:
     }
     modifiers += modifier;
-
     modifier = -_state.pillageDeterrentLandUnitsInSpaceCount(province);
     if (modifier != 0) {
       logLine('>|Units|$modifier|');
       modifiers += modifier;
     }
- 
     int result = roll + modifiers;
     logLine('>|Total|$result|');
-    logLine('>');
+    logTableFooter();
 
     return result >= 4;
   }
@@ -7678,12 +7681,14 @@ class Game {
       return 0;
     }
     logLine('### Revolt Check for ${province.desc}');
-    logTableHeader();
     int roll = rollD6();
+
+    logTableHeader();
     logD6InTable(roll);
     modifiers = calculateProvinceRevoltModifier(province, false, true);
     int result = roll + modifiers;
     logLine('>|Total|$result|');
+    logTableFooter();
    
     if (result > 6) {
       return 1;
@@ -7851,12 +7856,12 @@ class Game {
     } else if (stalemate) {
       logLine('>Campaign against $warDesc results in a Stalemate.');
     } else {
-      logTableHeader();
-      log3D6WithRedInTable(rolls);
-
-      int nonMatchingFoederatiProvinceCount = 0;
       int modifiers = 0;
       int modifier = 0;
+
+      logTableHeader();
+      log3D6WithRedInTable(rolls);
+      int nonMatchingFoederatiProvinceCount = 0;
       modifier = _state.warStrength(war);
       logLine('>|${war.desc}|+$modifier|');
       modifiers += modifier;
@@ -7931,7 +7936,6 @@ class Game {
       modifier = -_state.commandMilitary(warCommand);
       logLine('>|${_state.commanderName(warCommand)}|$modifier|');
       modifiers += modifier;
-
       modifier = _options.warRollModifier;
       if (modifier != 0) {
         if (modifier == 1) {
@@ -7941,9 +7945,9 @@ class Game {
         }
         modifiers += modifier;
       }
-
       int result = total + modifiers;
       logLine('>|Total|$result|');
+      logTableFooter();
 
       if (result >= 12) {
         if (matchingWarAbility) {
@@ -8153,16 +8157,16 @@ class Game {
 
     logLine('### ${_state.commanderName(emperorCommand)} vs. ${_state.commanderName(rebelCommand)}');
 
-    logTableHeader();
-
     final rolls = roll3D6();
     final d3 = rolls.$3;
     final omens = rolls.$4;
     final total = rolls.$5;
-    log3D6WithRedInTable(rolls);
 
     int modifiers = 0;
     int modifier = 0;
+
+    logTableHeader();
+    log3D6WithRedInTable(rolls);
     modifier = _state.commandMilitary(rebelCommand);
     logLine('>|${_state.commanderName(rebelCommand)}|+$modifier|');
     modifiers += modifier;
@@ -8175,9 +8179,9 @@ class Game {
     modifier = -_state.commandMilitary(emperorCommand);
     logLine('>|${_state.commanderName(emperorCommand)}|$modifier|');
     modifiers += modifier;
-
     int result = total + modifiers;
     logLine('>|Total|$result|');
+    logTableFooter();
 
     int lossCount = d3;
     int destroyLegionsCount = (lossCount + 1) ~/ 2;
@@ -8744,11 +8748,12 @@ class Game {
       } else {
         logLine('### ${_state.commanderName(assassinCommand)} attempts to Assassinate ${_state.statesmanName(targetStatesman!)}');
       }
-      logTableHeader();
-      int modifiers = 0;
       int die = rollD6();
-      logD6InTable(die);
+      int modifiers = 0;
       int modifier = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       int assassinPopularity = _state.commandPopularity(assassinCommand);
       int targetPopularity = targetCommand != null ? _state.commandPopularity(targetCommand) : _state.statesmanPopularity(targetStatesman!);
       int popularityModifier = 0;
@@ -8829,6 +8834,7 @@ class Game {
       }
       int result = die + modifiers;
       logLine('>|Total|$result|');
+      logTableFooter();
 
       String assassinName = _state.commanderName(assassinCommand);
       String targetName = targetCommand != null ? _state.commanderName(targetCommand) : _state.statesmanName(targetStatesman!);
@@ -9484,8 +9490,9 @@ class Game {
   void eventPhaseEventRoll() {
     final phaseState = _phaseState as PhaseStateEvent;
     logLine('### Events Roll');
-    logTableHeader();
     int die = rollD6();
+
+    logTableHeader();
     logD6InTable(die);
 		int eventCount = die;
     for (final statesman in PieceType.statesman.pieces) {
@@ -9504,7 +9511,8 @@ class Game {
 			eventCount += modifier;
 		}
     logLine('>|Total|$eventCount|');
-    logLine('>');
+    logTableFooter();
+
 		if (eventCount == 0) {
 			logLine('>No Events');
 		}
@@ -9910,10 +9918,11 @@ class Game {
       phaseState.warsRemainingCount = poolCount;
     } else {
       logLine('### Draw New Wars');
-      logTableHeader();
       int roll = rollD3();
-      logD3InTable(roll);
       int modifiers = 0;
+
+      logTableHeader();
+      logD3InTable(roll);
       int timePeriod = _state.turn ~/ 10;
       if (timePeriod == 1 || timePeriod == 2 || timePeriod == 4) {
         String scenarioDesc = timePeriod == 1 ? '363 CE' : (timePeriod == 2 ? '425 CE' : '565 CE');
@@ -9927,7 +9936,8 @@ class Game {
       }
       int result = roll + modifiers;
       logLine('>|Total:$result|');
-      logLine('>');
+      logTableFooter();
+
       if (result > poolCount) {
         result = poolCount;
       }
@@ -10181,10 +10191,11 @@ class Game {
       if (_state.turn % 10 == 9) {
         drawCount = poolPieces.length;
       } else {
-        logTableHeader();
         int roll = rollD3();
-        logD3InTable(roll);
         int modifiers = 0;
+
+        logTableHeader();
+        logD3InTable(roll);
         int timePeriod = _state.turn ~/ 10;
         if (timePeriod == 3 || timePeriod == 4) {
           String scenarioDesc = timePeriod == 3 ? '497 CE' : '565 CE';
@@ -10193,6 +10204,8 @@ class Game {
         }
         int result = roll + modifiers;
         logLine('>|Total|$result|');
+        logTableFooter();
+
         drawCount = result;
         if (drawCount > poolPieces.length) {
           drawCount = poolPieces.length;
@@ -10489,12 +10502,15 @@ class Game {
     adjustEmpirePrestige(empire, total);
 
     logLine('### ${_state.empireDesc(empire)} Unrest');
-    logTableHeader();
     total = 0;
+
+    logTableHeader();
     amount = -_state.commandPopularity(emperor);
     logLine('>|${_state.commanderName(emperor)} Popularity|$amount|');
     total += amount;
     logLine('>|Total|$total|');
+    logTableFooter();
+
     adjustEmpireUnrest(empire, total);
   }
 

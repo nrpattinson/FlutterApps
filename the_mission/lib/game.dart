@@ -3111,12 +3111,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -3797,10 +3801,11 @@ class Game {
   bool conversionAttempt(Piece field) {
     final land = _state.pieceLocation(field);
     logLine('>Conversion attempt on ${field.desc} in ${land.desc}.');
-    logTableHeader();
     int die = rollD6();
-    logD6InTable(die);
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     for (final pieceType in [PieceType.apostle, PieceType.bishop, PieceType.archbishop, PieceType.pope]) {
       final piece = _state.pieceInLocation(pieceType, land);
       if (piece != null) {
@@ -3825,6 +3830,8 @@ class Game {
     logLine('>|Total|$total|');
     int value = _state.fieldValue(field);
     logLine('>|${field.desc}|$value|');
+    logTableFooter();
+
     if (total <= value) {
       logLine('>Conversion attempt is unsuccessful.');
       return false;
@@ -3945,10 +3952,13 @@ class Game {
         int attackerStrength = _state.advanceForceStrength(primaryInvader);
         for (final army in armies) {
           logLine('> ${army.desc} defends.');
-          logTableHeader();
           int die = rollD6();
+
+          logTableHeader();
           logD6InTable(die);
           logLine('>|${primaryInvader.desc}|$attackerStrength|');
+          logTableFooter();
+
           if (die > attackerStrength) {
             logLine('>${primaryInvader.desc} are repelled.');
             _invadeState = null;
@@ -3959,11 +3969,14 @@ class Game {
       } else {
         for (final army in armies) {
           logLine('>${army.desc} defends.');
-          logTableHeader();
           int die = rollD6();
+
+          logTableHeader();
           logD6InTable(die);
           int defenderStrength = _state.advanceForceStrength(army);
           logLine('>${army.desc}|$defenderStrength|');
+          logTableFooter();
+
           if (die <= defenderStrength) {
             logLine('>${primaryInvader.desc} are repelled.');
             _invadeState = null;
@@ -4086,10 +4099,13 @@ class Game {
       if (amount > 0) {
         logLine('### Baqt');
         adjustSolidi(-amount);
-        logTableHeader();
         int die = rollD6();
+
+        logTableHeader();
         logD6InTable(die);
         logLine('>|Bribe|$amount|');
+        logTableFooter();
+
         if (die <= amount) {
           logLine('>Bribe is successful, Baqt is established.');
           _state.setPieceLocation(Piece.abbasidEastAfrica, Location.landThebes);
@@ -4488,10 +4504,13 @@ class Game {
         }
       }
       adjustSolidi(-hostileLandCount);
-      logTableHeader();
       int die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       logLine('>|Melkites|$melkiteCount|');
+      logTableFooter();
+
       if (die > 1 && die <= melkiteCount) {
         logLine('>${path.desc} is reconciled with the Emperor.');
         _state.flipPiece(schism);
@@ -4631,8 +4650,9 @@ class Game {
 
   void secularPhaseEarnSolidi() {
     logLine('### Earn Solidi');
-    logTableHeader();
     int total = 0;
+
+    logTableHeader();
     final wafer = _state.pieceInLocation(PieceType.waferCoin, Location.boxWafer)!;
     int amount = _state.waferCoinValue(wafer);
     logLine('>|Wafer|$amount|');
@@ -4653,6 +4673,8 @@ class Game {
       }
     }
     logLine('>|Total|$total|');
+    logTableFooter();
+
     adjustSolidi(total);
   }
 
@@ -5318,11 +5340,15 @@ class Game {
             }
           }
           logLine('');
-          logTableHeader();
+
           final rolls = roll2D6();
+          final total = rolls.$3;
+
+          logTableHeader();
           log2D6InTable(rolls);
           logLine('>|Christian Lands|$christianLandCount|');
-          final total = rolls.$3;
+          logTableFooter();
+
           if (total <= christianLandCount) {
             logLine('>Spanish Reconquista is successful.');
             _state.setPieceLocation(Piece.reconquista, Location.landSpain);
@@ -5619,10 +5645,11 @@ class Game {
           logLine('>${unusedBible.desc} is used.');
           _state.flipPiece(unusedBible);
         }
-        logTableHeader();
         int die = rollD6();
-        logD6InTable(die);
         int modifiers = 0;
+
+        logTableHeader();
+        logD6InTable(die);
         for (final pieceType in [PieceType.apostle, PieceType.bishop, PieceType.archbishop, PieceType.pope]) {
           final piece = _state.pieceInLocation(pieceType, land);
           if (piece != null) {
@@ -5639,6 +5666,8 @@ class Game {
           total += modifiers;
         }
         logLine('>|Total|$total|');
+        logTableFooter();
+
         if (total > _state.heresyValue(heresy)) {
           logLine('>${heresy.desc} Heresy in ${land.desc} is suppressed.');
           if (heresy.isType(PieceType.ebioniteHeresy)) {
@@ -5697,10 +5726,13 @@ class Game {
             }
           }
         }
-        logTableHeader();
         int die = rollD6();
-        logD6(die);
+
+        logTableHeader();
+        logD6InTable(die);
         logLine('>|Christian Lands|$christianCount|');
+        logTableFooter();
+
         if (die <= christianCount) {
           String religion = horde == Piece.hordeKhazarsPagan ? 'Judaism' : 'Christianity';
           logLine('>${horde.desc} convert to $religion.');
@@ -6179,8 +6211,9 @@ class Game {
     }
     logLine('# The Crusades');
     _state.setPieceLocation(Piece.gameTurn, _state.actsBox(28));
-    logTableHeader();
     int score = 0;
+
+    logTableHeader();
     int christianLandValues = 0;
     int untouchedLandCount = 0;
     for (final land in LocationType.pathLand.locations) {
@@ -6283,6 +6316,8 @@ class Game {
       score -= 5;
     }
     logLine('>|Score|$score|');
+    logTableFooter();
+
     throw GameOverException(GameResult.victory, score);
   }
 

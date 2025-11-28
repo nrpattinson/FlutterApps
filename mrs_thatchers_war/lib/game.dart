@@ -1055,12 +1055,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -1504,16 +1508,19 @@ class Game {
     }
     if (_subStep == 0) {
       logLine('### Ships Taken Up From Trade');
-      logTableHeader();
       int die = rollD6();
-      logD6InTable(die);
       int modifiers = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       if (_state.exocetCount >= 2) {
         logLine('>|Exocet missile|+2|');
         modifiers += 2;
       }
       int total = die + modifiers;
       logLine('>Total|$total|');
+      logTableFooter();
+
       int heliCount = 0;
       switch (total) {
       case 1:

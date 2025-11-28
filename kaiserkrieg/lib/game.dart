@@ -1175,12 +1175,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   String logLocation(Location location) {
@@ -2630,8 +2634,9 @@ class Game {
           logLine('>${logPiece(piece)} eliminated.');
           setPieceLocation(piece, Location.trayFrench);
         } else {
-          logTableHeader();
           int die = rollD6();
+
+          logTableHeader();
           logD6InTable(die);
           int value = 0;
           if (piece.isType(PieceType.army)) {
@@ -2648,6 +2653,8 @@ class Game {
           final total = die + modifiers;
           logLine('>|Total|$total|');
           logLine('>|${logPiece(piece)}|$value|');
+          logTableFooter();
+
           if (die == 6 || (die != 1 && total > value)) {
             logLine('>Attack succeeded.');
             if (piece.isType(PieceType.roumanianArmy)) {
@@ -3254,12 +3261,15 @@ class Game {
       33: [frenchTankArmy],
     };
 
-    logTableHeader();
     int die = rollD6();
+
+    logTableHeader();
     logD6InTable(die);
     logLine('>|Turn|${turn + 1}');
     int result = turn + die + 1;
     logLine('>|Total|$result|');
+    logTableFooter();
+
     final specialEventHandler = specialEvents[result];
     if (specialEventHandler != null) {
       specialEventHandler();
@@ -3501,9 +3511,10 @@ class Game {
       throw PlayerChoiceException();
     }
     logLine('### Control of the Skies.');
-    logTableHeader();
     int die = rollD6();
     int modifier = 0;
+
+    logTableHeader();
     if (checkChoice(Choice.minusOne)) {
       spendReichsmarks(1);
       modifier = -1;
@@ -3520,6 +3531,8 @@ class Game {
     int total = die + modifier;
     logLine('>|Total|$total|');
     logLine('>|Advance|$airSuperiorityAdvanceRoll|');
+    logTableFooter();
+
     if (die > 1 && die < 6) {
       die += modifier;
     }
@@ -3892,6 +3905,7 @@ class Game {
           } else {
             die = rollD6();
           }
+
           logTableHeader();
           logD6InTable(die);
           int value = 0;
@@ -3913,6 +3927,8 @@ class Game {
             modifiers -= 1;
           }
           logLine('>|${logPiece(piece)}|$value|');
+          logTableFooter();
+
           if (die == 6 || (die != 1 && die + modifiers > value)) {
             if (kaiserschlacht) {
               logLine('>Kaiserschlacht succeeded.');
@@ -4222,10 +4238,11 @@ void nearEastPhaseOttomanGroundCombat() {
       final location = pieceLocation(army);
       logLine('### Ottoman Forces Attack ${logPiece(army)} in ${logLocation(location)}.');
       spendLira(1);
-      logTableHeader();
       int die = rollD6();
-      logD6InTable(die);
       int modifiers = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       if (pieceLocation(Piece.armyBritainMef) == Location.gallipoli) {
         logLine('>|MEF in Gallipoli|-1|');
         modifiers -= 1;
@@ -4238,9 +4255,13 @@ void nearEastPhaseOttomanGroundCombat() {
       logLine('>|Total|$total|');
       int value = armyValue(army);
       logLine('>|${logPiece(army)}|$value|');
+      logTableFooter();
+
       if (total <= value && pieceLocation(Piece.kemal) == location) {
         logLine('>Kemal');
         die = rollD6();
+
+        logTableHeader();
         logD6InTable(die);
         if (pieceLocation(Piece.armyBritainMef) == Location.gallipoli) {
           logLine('>|MEF in Gallipoli|-1|');
@@ -4251,7 +4272,9 @@ void nearEastPhaseOttomanGroundCombat() {
         total = die + modifiers;
         logLine('>|Total|$total|');
         logLine('>|${logPiece(army)}|$value|');
+        logTableFooter();
       }
+
       if (total > armyValue(army)) {
         logLine('>Attack succeeded.');
         final reserves = nearEastTheaterReservesLocation(location);

@@ -3916,6 +3916,7 @@ int dieWithDrm(int die, int drm) {
     } else {
       die = rollD6ForPath(path);
     }
+
     logTableHeader();
     logD6InTable(die);
     bool victory = false;
@@ -4045,6 +4046,7 @@ int dieWithDrm(int die, int drm) {
       logLine('>|Modified|$modifiedDie|');
       logLine('>|${_state.armyName(army)}|$strength|');
       logTableFooter();
+
       victory = modifiedDie > strength;
     } else {
       victory = die >= 2 && die <= 5;
@@ -4109,9 +4111,10 @@ int dieWithDrm(int die, int drm) {
     }
     bool victory = false;
     if (attackType != AttackType.intoBattleNoSword) {
+      int drm = 0;
+
       logTableHeader();
       logD6InTable(die);
-      int drm = 0;
       if (attackType == AttackType.magisterMilitum) {
         logLine('>|Magister Militum|+1|');
         drm += 1;
@@ -4129,6 +4132,7 @@ int dieWithDrm(int die, int drm) {
       logLine('>|Modified|$modifiedDie|');
       logLine('>|${_state.armyName(army)}|$strength|');
       logTableFooter();
+
       victory = modifiedDie > strength;
     } else {
       logD6(die);
@@ -4283,12 +4287,14 @@ int dieWithDrm(int die, int drm) {
       final propUnit = checkChoice(Choice.blockMagyarProp) ? Piece.armyMagyar : Piece.armySkanderbeg;
       logLine('>The Empire supports ${propUnit.desc}.');
       spendSolidus(1);
-      logTableHeader();
       int die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       final armyValue = _state.armyValue(propUnit);
       logLine('>|$armyName|$armyValue|');
       logTableFooter();
+
       if (die <= armyValue) {
         logLine('>${propUnit.desc} repulses the Ottoman advance.');
         _barbariansAdvanceState = null;
@@ -4393,10 +4399,11 @@ int dieWithDrm(int die, int drm) {
       }
 
       logLine('>${tribe.desc} lays Siege to Constantinople.');
-      logTableHeader();
       final rolls = roll2D6();
-      log2D6InTable(rolls);
       int modifiers = 0;
+
+      logTableHeader();
+      log2D6InTable(rolls);
       if (_state.pieceLocation(Piece.factionTheodosianWalls) != Location.constantinople) {
         logLine('>|Unfortified|+3|');
         modifiers += 3;
@@ -4406,6 +4413,7 @@ int dieWithDrm(int die, int drm) {
       final factionCount = _state.piecesInLocationCount(PieceType.faction, Location.constantinople);
       logLine('>|Factions|$factionCount|');
       logTableFooter();
+
       if (total > factionCount) {
         logLine('# Constantinople falls!');
         throw GameOverException(GameResult.defeatConstantinople, 0);
@@ -4472,10 +4480,12 @@ int dieWithDrm(int die, int drm) {
         }
         if (localState.subStep == 2) {
           int die = rollD6ForEasternPath(path);
+
           logTableHeader();
           logD6InTable(die);
           logLine('>|$armyName|$armyStrength|');
           logTableFooter();
+
           if (die > armyStrength) {
             logLine('>Advance of $armyName is halted by Mountains.');
             _barbariansAdvanceState = null;
@@ -4496,10 +4506,12 @@ int dieWithDrm(int die, int drm) {
         }
         if (localState.subStep == 4) {
           int die = rollD6ForEasternPath(path);
+
           logTableHeader();
           logD6InTable(die);
           logLine('>|$armyName|$armyStrength|');
           logTableFooter();
+
           _state.setPieceLocation(_state.pieceFlipSide(hospital)!, toLand);
           if (die > armyStrength) {
             logLine('>Advance of $armyName is halted by Hospital.');
@@ -4593,10 +4605,11 @@ int dieWithDrm(int die, int drm) {
     if (localState.subStep == 9) { // Siege
       final siege = _state.pathSiege(path);
       logLine('>$armyName lays Siege to Constantinople.');
-      logTableHeader();
       final rolls = roll2D6();
-      log2D6InTable(rolls);
       int modifiers = 0;
+
+      logTableHeader();
+      log2D6InTable(rolls);
       if (_state.pieceLocation(Piece.factionTheodosianWalls) != Location.constantinople) {
         logLine('>|Unfortified|+3|');
         modifiers += 3;
@@ -4606,6 +4619,7 @@ int dieWithDrm(int die, int drm) {
       final factionCount = _state.piecesInLocationCount(PieceType.faction, Location.constantinople);
       logLine('>|Factions|$factionCount');
       logTableFooter();
+
       if (total > factionCount) {
         logLine('# Constantinople falls!.');
         throw GameOverException(GameResult.defeatConstantinople, 0);
@@ -4732,10 +4746,11 @@ int dieWithDrm(int die, int drm) {
     }
     logLine('### Migration');
     logLine('>Battle for Carthage');
-    logTableHeader();
     int die = rollD6();
-    logD6InTable(die);
     int drm = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     int modifier = _state.pathBarbarianControlledLandCount(Path.syria);
     logLine('>|Muslim lands on Syrian Path|+$modifier|');
     drm += modifier;
@@ -4746,6 +4761,7 @@ int dieWithDrm(int die, int drm) {
     int modifiedDie = dieWithDrm(die, drm);
     logLine('>|Modified|$modifiedDie|');
     logTableFooter();
+
     if (modifiedDie >= 6) {
       logLine('>Saracens conquer North Africa.');
       _state.pathSetTribe(Path.south, Piece.tribeSouthSaracen);
@@ -4786,11 +4802,14 @@ int dieWithDrm(int die, int drm) {
     }
     logLine('### Migration');
     logLine('>Normans expand into Italy.');
-    logTableHeader();
     int die = rollD6();
+
+    logTableHeader();
     logD6InTable(die);
     int armyCount = _state.piecesInLocationCount(PieceType.armyWest, Location.zoneWest);
     logLine('>|Western Armies|$armyCount|');
+    logTableFooter();
+
     if (die <= armyCount) {
       logLine('> Italy is lost to the Normans.');
       _state.pathSetTribe(Path.west, Piece.tribeWestNorman);
@@ -5331,10 +5350,11 @@ int dieWithDrm(int die, int drm) {
       return;
     }
     logLine('### Tamerlane');
-    logTableHeader();
     int die = rollD6();
-    logD6InTable(die);
     int drm = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     for (final land in _state.mountainLands) {
       if (_state.landIsPlayerControlled(land)) {
         logLine('>${land.desc}|+1|');
@@ -5344,6 +5364,7 @@ int dieWithDrm(int die, int drm) {
     int total = die + drm;
     logLine('>|Total|$total|');
     logTableFooter();
+
     if (die + drm >= 7) {
       logLine('>Tamerlane devastates the Ottomans.');
       if (iberia) {
@@ -5456,10 +5477,11 @@ int dieWithDrm(int die, int drm) {
       }
       final location = selectedLocation()!;
       final amount = location.index - Location.omnibus0.index;
-      logTableHeader();
       int die = rollD6();
-      logD6InTable(die);
       int drm = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       if (_state.basileisAreSaint) {
         logLine('>|${_state.basileisSaintName}|-1|');
         drm = -1;
@@ -5467,6 +5489,7 @@ int dieWithDrm(int die, int drm) {
       int modifiedDie = dieWithDrm(die, drm);
       logLine('>|Modified|$modifiedDie|');
       logTableFooter();
+
       spendSolidus(amount);
       if (modifiedDie < amount) {
         logLine('>Kyiv converts to Orthodoxy.');
@@ -5736,10 +5759,11 @@ int dieWithDrm(int die, int drm) {
       return;
     }
     logLine('### Ottomans');
-    logTableHeader();
     int die = rollD6();
-    logD6InTable(die);
     int drm = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     for (final land in _state.mountainLands) {
       if (_state.landIsPlayerControlled(land)) {
         logLine('>|${_state.landName(land)}|-1|');
@@ -5766,34 +5790,35 @@ int dieWithDrm(int die, int drm) {
         logLine('>|${_state.pathGeographicName(path)}|+1|');
         drm += 1;
       }
-      final modifiedDie = dieWithDrm(die, drm);
-      logLine('>|Modified|$modifiedDie|');
-      logTableFooter();
-      if (modifiedDie <= 0) {
-        logLine('>Ottoman attempt at Empire fails.');
-      } else {
-        logLine('>Ottoman Empire is established.');
+    }
+    final modifiedDie = dieWithDrm(die, drm);
+    logLine('>|Modified|$modifiedDie|');
+    logTableFooter();
+
+    if (modifiedDie <= 0) {
+      logLine('>Ottoman attempt at Empire fails.');
+    } else {
+      logLine('>Ottoman Empire is established.');
+    }
+    if (modifiedDie >= 1) {
+      logLine('>Ottoman Empire seizes control of ${Path.iberia}.');
+      _state.pathSetArmy(Path.iberia, Piece.armyIberiaOttoman);
+    }
+    if (modifiedDie >= 2) {
+      logLine('>Ottoman Empire seizes control of ${Path.persia}.');
+      _state.pathSetArmy(Path.persia, Piece.armyPersiaOttoman);
+    }
+    if (modifiedDie == 3 || modifiedDie >= 5) {
+      if (_state.pieceLocation(Piece.geographyBalkans) == Location.zoneWest) {
+        logLine('>Ottoman Empire seizes control the Balkans.');
+        _state.pathSetTribe(Path.west, Piece.tribeWestOttoman);
       }
-      if (modifiedDie >= 1) {
-        logLine('>Ottoman Empire seizes control of ${Path.iberia}.');
-        _state.pathSetArmy(Path.iberia, Piece.armyIberiaOttoman);
-      }
-      if (modifiedDie >= 2) {
-        logLine('>Ottoman Empire seizes control of ${Path.persia}.');
-        _state.pathSetArmy(Path.persia, Piece.armyPersiaOttoman);
-      }
-      if (modifiedDie == 3 || modifiedDie >= 5) {
-        if (_state.pieceLocation(Piece.geographyBalkans) == Location.zoneWest) {
-          logLine('>Ottoman Empire seizes control the Balkans.');
-          _state.pathSetTribe(Path.west, Piece.tribeWestOttoman);
-        }
-      }
-      if (modifiedDie >= 4) {
-        logLine('>Ottoman Empire seizes control of ${Path.north}.');
-        _state.pathSetTribe(Path.north, Piece.tribeNorthOttoman);
-        logLine('>Ottoman Empire seizes control of ${Path.syria}.');
-        _state.pathSetArmy(Path.syria, Piece.armySyriaOttoman);
-      }
+    }
+    if (modifiedDie >= 4) {
+      logLine('>Ottoman Empire seizes control of ${Path.north}.');
+      _state.pathSetTribe(Path.north, Piece.tribeNorthOttoman);
+      logLine('>Ottoman Empire seizes control of ${Path.syria}.');
+      _state.pathSetArmy(Path.syria, Piece.armySyriaOttoman);
     }
     _state.limitedEventOccurred(LimitedEvent.ottomans);
   }
@@ -6166,12 +6191,14 @@ int dieWithDrm(int die, int drm) {
         _state.pathSetTribe(Path.south, Piece.tribeSouthVenice);
         return;
       }
-      logTableHeader();
       int die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       int armyCount = _state.piecesInLocationCount(PieceType.armySouth, Location.zoneSouth);
       logLine('>|Southern armies|$armyCount|');
       logTableFooter();
+
       if (die > armyCount) {
         logLine('>Venice takes control of Africa.');
         _state.pathSetTribe(Path.south, Piece.tribeSouthVenice);
@@ -6402,10 +6429,11 @@ int dieWithDrm(int die, int drm) {
       return;
     }
     logLine('### Ecumenical Council');
-    logTableHeader();
     int die = rollD6();
-    logD6InTable(die);
     int drm = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     if (_state.popeMean) {
       logLine('>|Mean Pope|+1|');
       drm += 1;
@@ -6413,6 +6441,7 @@ int dieWithDrm(int die, int drm) {
     int modifiedDie = dieWithDrm(die, drm);
     logLine('>|Modified|$modifiedDie|');
     logTableFooter();
+
     adjustSchism(modifiedDie);
   }
 
@@ -6723,10 +6752,11 @@ int dieWithDrm(int die, int drm) {
           }
           _state.setPieceLocation(newDynasty, Location.dynastyBox);
         } else {
-          logTableHeader();
           int die = rollD6();
-          logD6InTable(die);
           int drm = 0;
+
+          logTableHeader();
+          logD6InTable(die);
           if (_state.nike >= 3) {
             logLine('>|Nike|+1|');
             drm += 1;
@@ -6734,6 +6764,7 @@ int dieWithDrm(int die, int drm) {
           int modifiedDie = dieWithDrm(die, drm);
           logLine('>|Modified|$modifiedDie|');
           logTableFooter();
+
           if (modifiedDie >= _state.dynastyDie(oldDynasty)) {
             logLine('>${oldDynasty.desc} remains in power.');
           } else {
@@ -6804,11 +6835,12 @@ int dieWithDrm(int die, int drm) {
           spendSolidus(solidi);
         }
 
+        int die1 = rollD6();
+        int drm1 = 0;
+
         logLine('>${candidate1.desc}');
         logTableHeader();
-        int die1 = rollD6();
         logD6InTable(die1);
-        int drm1 = 0;
         if (_state.pieceLocation(candidate1) == Location.dynastyBox && _state.nike >= 3) {
           logLine('>|Nike|+1|');
           drm1 += 1;
@@ -6821,11 +6853,12 @@ int dieWithDrm(int die, int drm) {
         logLine('>|Modified|$modifiedDie1|');
         logTableFooter();
 
+        int die0 = rollD6();
+        int drm0 = 0;
+
         logLine('> ${candidate0.desc}');
         logTableHeader();
-        int die0 = rollD6();
         logD6InTable(die0);
-        int drm0 = 0;
         if (supportedCandidate == candidate0) {
           logLine('>|Support|+$solidi|');
           drm0 += solidi;
@@ -7236,6 +7269,7 @@ int dieWithDrm(int die, int drm) {
 
   void taxationPhaseIncome() {
     logLine('### Taxation');
+
     logTableHeader();
     final dynasty = _state.pieceInLocation(PieceType.dynasty, Location.dynastyBox)!;
     int dynastyIncome = _state.dynastySolidus(dynasty);
@@ -7258,6 +7292,7 @@ int dieWithDrm(int die, int drm) {
     int totalIncome = dynastyIncome + basileisIncome + patriarchIncome;
     logLine('>|Total|$totalIncome|');
     logTableFooter();
+
     adjustSolidus(totalIncome);
   }
 
@@ -7314,30 +7349,36 @@ int dieWithDrm(int die, int drm) {
   void synopsisOfHistoriesPhaseRoll() {
     if (_options.separateMilitaryPoliticalEvents) {
       logLine('### Random Events Rolls');
-      logTableHeader();
       int die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       logLine('>|Turn|${_state.currentTurn + 1}|');
       int militaryTotal = die + _state.currentTurn + 1;
       logLine('>|Military|$militaryTotal|');
       logTableFooter();
-      logTableHeader();
+
       die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       logLine('>|Turn|${_state.currentTurn + 1}|');
       int politicalTotal = die + _state.currentTurn + 1;
       logLine('>|Political|$politicalTotal');
       logTableFooter();
+
       _phaseState = PhaseStateSynopsisOfHistories(militaryTotal, politicalTotal);
     } else {
       logLine('### Random Events Roll');
-      logTableHeader();
       int die = rollD6();
+
+      logTableHeader();
       logD6InTable(die);
       logLine('>|Turn|${_state.currentTurn + 1}|');
       int total = die + _state.currentTurn + 1;
       logLine('>|Total|$total|');
       logTableFooter();
+
       _phaseState = PhaseStateSynopsisOfHistories(total, total);
     }
   }
@@ -7469,10 +7510,11 @@ int dieWithDrm(int die, int drm) {
     }
 
     if (_subStep == 2) {
-      logTableHeader();
       final rolls = (phaseState.warInTheEast1Die0!, phaseState.warInTheEast1Die1!, phaseState.warInTheEast1Die0! + phaseState.warInTheEast1Die1!);
-      log2D6InTable(rolls);
       int modifiers = 0;
+
+      logTableHeader();
+      log2D6InTable(rolls);
       for (final land in _state.mountainLands) {
         final path = _state.landPath(land)!;
         final controlledCount = _state.pathPlayerControlledLandCount(path);
@@ -7485,6 +7527,7 @@ int dieWithDrm(int die, int drm) {
       final total = rolls.$3 + modifiers;
       logLine('>|Total|$total|');
       logTableFooter();
+
       int rubble = 0;
       int persianAdvance = 0;
       int persianRetreat = 0;
@@ -8674,10 +8717,11 @@ int dieWithDrm(int die, int drm) {
           spendSolidus(1);
         }
         for (int i = 0; i < rollCount && _state.schism > 0; ++i) {
-          logTableHeader();
           int die = rollD6();
-          logD6InTable(die);
           int drm = 0;
+
+          logTableHeader();
+          logD6InTable(die);
           if (!ignoreDrms) {
             if (_state.popeMean) {
               logLine('>|Mean Pope|-1|');
@@ -8693,6 +8737,7 @@ int dieWithDrm(int die, int drm) {
           int modifiedDie = dieWithDrm(die, drm);
           logLine('>|Modified|$modifiedDie|');
           logTableFooter();
+
           if (modifiedDie > 1) {
             logLine('>Schism is reduced.');
             adjustSchism(-1);
@@ -9096,6 +9141,7 @@ int dieWithDrm(int die, int drm) {
       return;
     }
     logLine('# Deus ex Machina');
+
     logTableHeader();
     int total = 30;
     logLine('>|Baseline|30|');
@@ -9158,6 +9204,7 @@ int dieWithDrm(int die, int drm) {
     }
     logLine('>|Victory Points|$total|');
     logTableFooter();
+
     throw GameOverException(GameResult.victory, total);
   }
 

@@ -1503,12 +1503,16 @@ class Game {
   }
 
   void logLine(String line) {
-    _log += '$line\n';
+    _log += '$line  \n';
   }
 
   void logTableHeader() {
     logLine('>|Effect|Value|');
     logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
@@ -2618,6 +2622,7 @@ class Game {
         int emperorRetreatCount = phaseState.emperorRetreatCount!;
         while (barbarians.length > barbarianLossCount && (legions.length > legionLossCount || emperorCount > emperorLossCount + emperorRetreatCount)) {
           int die = skilledGeneralRollD6();
+
           logTableHeader();
           logD6InTable(die);
           if (seaConnection) {
@@ -2625,6 +2630,8 @@ class Game {
             die -= 1;
           }
           logLine('>|Total|$die|');
+          logTableFooter();
+
           if (die <= 3) {
             barbarianLossCount += 1;
           } else if (legionLossCount < legions.length) {
@@ -2705,6 +2712,7 @@ class Game {
         if (barbarians.length > barbarianLossCount && city != null) {
           while (barbarians.length > barbarianLossCount && cityLossCount == 0) {
             int die = skilledGeneralRollD6();
+
             logTableHeader();
             logD6InTable(die);
             if (seaConnection) {
@@ -2712,6 +2720,8 @@ class Game {
               die -= 1;
             }
             logLine('>|Total|$die|');
+            logTableFooter();
+
             if (die == 1) {
               barbarianLossCount += 1;
             } else {
