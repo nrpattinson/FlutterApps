@@ -1385,41 +1385,55 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1554,15 +1568,15 @@ class Game {
   void adjustGold(int delta) {
     _state.adjustGold(delta);
     if (delta > 0) {
-      logLine('> Gold: +$delta => ${_state.gold}');
+      logLine('>Gold: +$delta → ${_state.gold}');
     } else {
-      logLine('> Gold: $delta => ${_state.gold}');
+      logLine('>Gold: $delta → ${_state.gold}');
     }
   }
 
   void locationIncreaseInfantry(Location location, int count) {
     final card = _state.pieceInLocation(PieceType.card, location)!;
-    logLine('> $count Infantry are added in ${card.desc}.');
+    logLine('>$count Infantry are added in ${card.desc}.');
     _state.locationIncreaseInfantry(location, count);
   }
 
@@ -1842,6 +1856,7 @@ class Game {
         int heavyCavalryCount = 0;
         if (phaseState.index == 0) {
           int die = rollD6();
+          logD6(die);
           if (hasInfantry) {
             infantryCount = infantryTableResult(die);
           } else {
@@ -1857,7 +1872,7 @@ class Game {
           }
         }
         if (infantryCount == 0 && lightCavalryCount == 0 && heavyCavalryCount == 0) {
-          logLine('> No increase.');
+          logLine('>No increase.');
         } else if (infantryCount > 0) {
           locationIncreaseInfantry(location, infantryCount);
         } else {

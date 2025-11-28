@@ -10,6 +10,8 @@ enum BoardArea {
   track,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -38,6 +40,10 @@ class GamePageState extends State<GamePage> {
   final _trackImage = Image.asset('assets/images/track.png', key: UniqueKey(), width: _trackWidth, height: _trackHeight);
   final _mapStackChildren = <Widget>[];
   final _trackStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -291,6 +297,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -333,17 +343,34 @@ class GamePageState extends State<GamePage> {
       borderWidth += 1.0;
     }
 
+    GestureTapCallback? onTap;
     if (choosable) {
-      widget = MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            appState.chosePiece(piece);
-          },
-          child: widget,
-        ),
-      );
+      onTap = () {
+        appState.chosePiece(piece);
+      };
     }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -366,7 +393,22 @@ class GamePageState extends State<GamePage> {
     return coordinates[location]!;
   }
 
-  void layoutMapLocation(MyAppState appState, Location location) {
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
+  void layoutMapLocation(MyAppState appState, Location location, int pass) {
     final state = appState.gameState!;
     int col = state.mapColumn(location);
     int row = state.mapRow(location);
@@ -374,7 +416,8 @@ class GamePageState extends State<GamePage> {
     double yCard = row * _cardHeight;
     double xCounters = xCard + 54.0;
     double yCounters = yCard + 55.0;
-    if (!_emptyMap) {
+
+    if (pass == 0) {
       final pieces = state.piecesInLocation(PieceType.counter, location);
       for (int i = 0; i < pieces.length; ++i) {
         final piece = pieces[i];
@@ -387,17 +430,19 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutMap(MyAppState appState) {
+  void layoutMap(MyAppState appState, int pass) {
     final state = appState.gameState!;
     for (final card in PieceType.card.pieces) {
       final location = state.pieceLocation(card);
       if (location.isType(LocationType.map)) {
-        int col = state.mapColumn(location);
-        int row = state.mapRow(location);
-        double x = col * _cardWidth;
-        double y = row * _cardHeight;
-        addCardToMap(appState, card, x, y);
-        layoutMapLocation(appState, location);
+        if (pass == 0) {
+          int col = state.mapColumn(location);
+          int row = state.mapRow(location);
+          double x = col * _cardWidth;
+          double y = row * _cardHeight;
+          addCardToMap(appState, card, x, y);
+        }
+        layoutMapLocation(appState, location, pass);
       }
     }
   }
@@ -440,8 +485,9 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutMap(appState);
       layoutTurn(appState);
+      layoutMap(appState, 0);
+      layoutMap(appState, 1);
 
       const choiceTexts = {
         Choice.mongolLightCavalry: 'Mongol Light Cavalry',

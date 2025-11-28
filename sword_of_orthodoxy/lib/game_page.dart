@@ -40,7 +40,6 @@ class GamePageState extends State<GamePage> {
   final _mapStackChildren = <Widget>[];
   final _counterTrayStackChildren = <Widget>[];
 
-
   final _pieceStackKeys = <Piece,StackKey>{};
   final _expandedStacks = <StackKey>[];
 
