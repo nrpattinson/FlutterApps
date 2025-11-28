@@ -1911,41 +1911,62 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  int dieWithDrm(int die, int drm) {
+    if (die == 1 || die == 6) {
+      return die;
+    }
+    return die + drm;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -2123,9 +2144,9 @@ class Game {
   void adjustTreasury(int delta) {
     _state.adjustTreasury(delta);
     if (delta > 0) {
-      logLine('> Treasury: +$delta → ${_state.treasury}');
+      logLine('>Treasury: +$delta → ${_state.treasury}');
     } else if (delta < 0) {
-      logLine('> Treasury: $delta → ${_state.treasury}');
+      logLine('>Treasury: $delta → ${_state.treasury}');
     }
   }
 
@@ -2136,9 +2157,9 @@ class Game {
   void adjustSpecialCampaignBudget(int delta) {
     _state.adjustSpecialCampaignBudget(delta);
     if (delta > 0) {
-      logLine('> Special Campaign Fund: +$delta → ${_state.specialCampaignBudget}');
+      logLine('>Special Campaign Fund: +$delta → ${_state.specialCampaignBudget}');
     } else if (delta < 0) {
-      logLine('> Special Campaign Fund: $delta → ${_state.specialCampaignBudget}');
+      logLine('>Special Campaign Fund: $delta → ${_state.specialCampaignBudget}');
     }
   }
 
@@ -2150,9 +2171,9 @@ class Game {
     _state.adjustAgricultureLevel(delta);
     int level = _state.agricultureLevel;
     if (delta > 0) {
-      logLine('> Agriculture Level: +$delta → $level');
+      logLine('>Agriculture Level: +$delta → $level');
     } else {
-      logLine('> Agriculture Level: $delta → $level');
+      logLine('>Agriculture Level: $delta → $level');
     }
     return level > 0;
   }
@@ -2161,9 +2182,9 @@ class Game {
     _state.adjustManufactureLevel(delta);
     int level = _state.manufactureLevel;
     if (delta > 0) {
-      logLine('> Manufacture Level: +$delta → $level');
+      logLine('>Manufacture Level: +$delta → $level');
     } else {
-      logLine('> Manufacture Level: $delta → $level');
+      logLine('>Manufacture Level: $delta → $level');
     }
     return level > 0;
   }
@@ -2172,9 +2193,9 @@ class Game {
     _state.adjustInfrastructureLevel(delta);
     int level = _state.agricultureLevel;
     if (delta > 0) {
-      logLine('> Infrastructure Level: +$delta → $level');
+      logLine('>Infrastructure Level: +$delta → $level');
     } else {
-      logLine('> Infrastructure Level: $delta → $level');
+      logLine('>Infrastructure Level: $delta → $level');
     }
     return level > 0;
   }
@@ -2184,12 +2205,12 @@ class Game {
   void adjustBritishIntervention(int delta) {
     final britainIntervenes = _state.adjustBritishIntervention(delta);
     if (delta > 0) {
-      logLine('> British Intervention: +$delta → ${_state.britishIntervention}');
+      logLine('>British Intervention: +$delta → ${_state.britishIntervention}');
     } else if (delta < 0) {
-      logLine('> British Intervention: $delta → ${_state.britishIntervention}');
+      logLine('>British Intervention: $delta → ${_state.britishIntervention}');
     }
     if (britainIntervenes) {
-      logLine('> Britain recognizes the Confederacy.');
+      logLine('>Britain recognizes the Confederacy.');
       _state.setPieceLocation(Piece.generalBritish2, Location.poolCsaGenerals);
       for (final frigate in _state.piecesInLocation(PieceType.frigate, Location.sack)) {
         _state.setPieceLocation(frigate, Location.discarded);
@@ -2200,12 +2221,12 @@ class Game {
   void adjustFrenchIntervention(int delta) {
     final franceIntervenes = _state.adjustFrenchIntervention(delta);
     if (delta > 0) {
-      logLine('> French Intervention: +$delta → ${_state.frenchIntervention}');
+      logLine('>French Intervention: +$delta → ${_state.frenchIntervention}');
     } else if (delta < 0) {
-      logLine('> French Intervention: $delta → ${_state.frenchIntervention}');
+      logLine('>French Intervention: $delta → ${_state.frenchIntervention}');
     }
     if (franceIntervenes) {
-      logLine('> France recognizes the Confederacy.');
+      logLine('>France recognizes the Confederacy.');
       _state.setPieceLocation(Piece.generalFrench2, Location.poolCsaGenerals);
     }
   }
@@ -2215,7 +2236,7 @@ class Game {
       _state.setPieceLocation(piece, Location.discarded);
     }
     _state.setPieceLocation(Piece.campaignModifierKentuckyRebelP1, Location.campaignHeartlandOffensive);
-    logLine('> Confederate forces advance to ${Location.regionPaducah.desc} and ${Location.regionBowlingGreen.desc}.');
+    logLine('>Confederate forces advance to ${Location.regionPaducah.desc} and ${Location.regionBowlingGreen.desc}.');
     for (final rebel in PieceType.rebelUnit.pieces) {
       final location = _state.pieceLocation(rebel);
       if (location.isType(LocationType.path4)) {
@@ -2224,7 +2245,7 @@ class Game {
         _state.setPieceLocation(rebel, Location.regionPaducah);
       }
     }
-    logLine('> ${Piece.armyCumberland.desc} advances to ${Location.regionLouisville.desc}.');
+    logLine('>${Piece.armyCumberland.desc} advances to ${Location.regionLouisville.desc}.');
     _state.setPieceLocation(Piece.armyCumberland, Location.regionLouisville);
   }
 
@@ -2234,16 +2255,16 @@ class Game {
     }
     _state.setPieceLocation(Piece.campaignModifierKentuckyUnionN1, Location.campaignHeartlandOffensive);
     if (_state.missouriRebelCount == 0) {
-      logLine('> ${Piece.armyGrant4.desc} advances to ${Location.regionPaducah.desc}.');
+      logLine('>${Piece.armyGrant4.desc} advances to ${Location.regionPaducah.desc}.');
       _state.setPieceLocation(Piece.armyGrant4, Location.regionPaducah);
     }
-    logLine('> ${Piece.armyCumberland.desc} advances to ${Location.regionLouisville.desc}.');
+    logLine('>${Piece.armyCumberland.desc} advances to ${Location.regionLouisville.desc}.');
     _state.setPieceLocation(Piece.armyCumberland, Location.regionLouisville);
     bool grantInPaducah = _state.pieceLocation(Piece.armyGrant4) == Location.regionPaducah;
     if (grantInPaducah) {
-      logLine('> Confederate forces advance to ${Location.regionBowlingGreen.desc}.');
+      logLine('>Confederate forces advance to ${Location.regionBowlingGreen.desc}.');
     } else {
-      logLine('> Confederate forces advance to ${Location.regionPaducah.desc} and ${Location.regionBowlingGreen.desc}.');
+      logLine('>Confederate forces advance to ${Location.regionPaducah.desc} and ${Location.regionBowlingGreen.desc}.');
     }
     for (final rebel in PieceType.rebelUnit.pieces) {
       final location = _state.pieceLocation(rebel);
@@ -2271,18 +2292,23 @@ class Game {
     }
     if (defeatFizzles) {
       final results = roll2D6();
-      int total = results.$3;
+
+      logTableHeader();
+      log2D6InTable(results);
       int disgruntledConfederateCount = _state.piecesInLocationCount(PieceType.regularPolitician, Location.boxDisgruntledConfederates);
-      logLine('> Disgruntled Confederate politicians: $disgruntledConfederateCount');
+      logLine('>|Disgruntled Politicians|$disgruntledConfederateCount|');
+      logTableFooter();
+
+      int total = results.$3;
       if (total <= disgruntledConfederateCount) {
         defeatFizzles = false;
       }
     }
     if (!defeatFizzles) {
-      logLine('> The Confederacy surrenders to the Union.');
+      logLine('>The Confederacy surrenders to the Union.');
       throw GameOverException(GameResult.defeat, -1);
     }
-    logLine('> The Confederacy remains defiant.');
+    logLine('>The Confederacy remains defiant.');
   }
 
   (bool,bool) economicLoss(Piece asset) {
@@ -2478,15 +2504,15 @@ class Game {
         final chit = randPiece(_state.piecesInLocation(PieceType.all, Location.sack))!;
         if (chit.isType(PieceType.general)) {
           final location = _state.generalFixedLocation(chit) ?? Location.poolCsaGenerals;
-          logLine('> ${chit.desc} is added to ${location.desc}.');
+          logLine('>${chit.desc} is added to ${location.desc}.');
           _state.setPieceLocation(chit, location);
         } else if (chit.isType(PieceType.frigate)) {
-          logLine('> ${chit.desc} is added to ${Location.boxUnionFrigates.desc}.');
+          logLine('>${chit.desc} is added to ${Location.boxUnionFrigates.desc}.');
           _state.setPieceLocation(chit, Location.boxUnionFrigates);
         } else if (chit.isType(PieceType.anaconda)) {
           final hunleyLocation = _state.pieceLocation(Piece.cssHunley);
           if (hunleyLocation.isType(LocationType.port)) {
-            logLine('> ${Piece.cssHunley.desc} thwarts Union landing at ${hunleyLocation.desc}.');
+            logLine('>${Piece.cssHunley.desc} thwarts Union landing at ${hunleyLocation.desc}.');
             _state.setPieceLocation(Piece.cssHunley, Location.discarded);
           } else {
             final vacantPorts = <Location>[];
@@ -2496,7 +2522,7 @@ class Game {
               }
             }
             final port = randLocation(vacantPorts)!;
-            logLine('> Union forces occupy ${port.desc}.');
+            logLine('>Union forces occupy ${port.desc}.');
             _state.setPieceLocation(chit, port);
             adjustBritishIntervention(1);
             adjustFrenchIntervention(1);
@@ -2506,7 +2532,7 @@ class Game {
             _subStep = 2;
           }
         } else if (chit.isType(PieceType.turnChit)) {
-          logLine('> ${chit.desc}');
+          logLine('>${chit.desc}');
           _state.setPieceLocation(chit, _state.currentTurnCalendarBox);
           return;
         }
@@ -2526,7 +2552,7 @@ class Game {
             }
           }
           final port = randLocation(vacantPorts)!;
-          logLine('> ${Piece.cssHunley} deploys to ${port.desc}.');
+          logLine('>${Piece.cssHunley} deploys to ${port.desc}.');
           spendTreasury(2);
           _state.setPieceLocation(Piece.cssHunley, port);
         }
@@ -2594,7 +2620,7 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> ${blockadeRunner.desc} moves to ${destination.desc}.');
+      logLine('>${blockadeRunner.desc} moves to ${destination.desc}.');
       _state.setPieceLocation(blockadeRunner, destination);
       clearChoices();
     }
@@ -2618,10 +2644,11 @@ class Game {
       ];
       logLine('### British Cruiser deployment.');
       final results = roll2D6();
+      log2D6(results);
       int dice = results.$3;
       final locations = frigateTable[dice - 2][frigates.length - 1];
       for (int i = 0; i < frigates.length; ++i) {
-        logLine('> ${frigates[i].desc} patrols ${locations[i].desc}.');
+        logLine('>${frigates[i].desc} patrols ${locations[i].desc}.');
         _state.setPieceLocation(frigates[i], locations[i]);
       }
     }
@@ -2633,7 +2660,7 @@ class Game {
       if (blockadeRunner != null) {
         int frigateCount = _state.piecesInLocationCount(PieceType.frigate, blockade);
         if (frigateCount == 2) {
-          logLine('> ${blockadeRunner.desc} in ${blockade.desc} is sunk.');
+          logLine('>${blockadeRunner.desc} in ${blockade.desc} is sunk.');
           _state.setPieceLocation(blockadeRunner, Location.boxEnglishShipyards);
         }
       }
@@ -2656,11 +2683,16 @@ class Game {
       }
     }
     logLine('### Economic Haul');
-    logLine('> Blockade Runners: +$haul');
+
+    logTableHeader();
+    logLine('>|Blockade Runners|+$haul|');
     if (anaconda > 0) {
-      logLine('> Anaconda Plan: -$anaconda');
+      logLine('>|Anaconda Plan|-$anaconda|');
     }
     int total = max(haul - anaconda, 0);
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     adjustTreasury(total);
   }
 
@@ -2690,11 +2722,12 @@ class Game {
   void kentuckyVote() {
     logLine('### Kentucky Vote');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> Kentucky joins the Confederacy.');
+      logLine('>Kentucky joins the Confederacy.');
       kentuckyJoinsTheConfederacy();
     } else {
-      logLine('> Kentucky stays neutral.');
+      logLine('>Kentucky stays neutral.');
     }
   }
 
@@ -2704,12 +2737,13 @@ class Game {
     }
     logLine('### Kentucky Raid');
     int die = rollD6();
+    logD6(die);
     if (die <= 4) {
-      logLine('> CSA General Leonidas Polk violates Kentucky neutrality.');
-      logLine('> Kentucky joins the Union.');
+      logLine('>CSA General Leonidas Polk violates Kentucky neutrality.');
+      logLine('>Kentucky joins the Union.');
       kentuckyJoinsTheUnion();
     } else {
-      logLine('> Kentucky stays neutral.');
+      logLine('>Kentucky stays neutral.');
     }
   }
 
@@ -2725,7 +2759,7 @@ class Game {
       }
       phaseState.csaElectionLossesRemaining = 12 - count;
       logLine('### CSA Election of 1861');
-      logLine('> Economic Assets under CSA control: $count');
+      logLine('>Economic Assets under CSA control: $count');
       _subStep = 1;
     }
     while (phaseState.csaElectionLossesRemaining > 0) {
@@ -2749,18 +2783,18 @@ class Game {
       }
       final piece = selectedPiece()!;
       if (piece.isType(PieceType.general2)) {
-        logLine('> ${piece.desc} is flipped.');
+        logLine('>${piece.desc} is flipped.');
         _state.flipPiece(piece);
       } else if (piece.isType(PieceType.general1)) {
-        logLine('> ${piece.desc} is removed.');
+        logLine('>${piece.desc} is removed.');
         _state.setPieceLocation(piece, Location.trayConfederateForces);
       } else if (piece.isType(PieceType.slaves2)) {
-        logLine('> Slaves lost.');
+        logLine('>Slaves lost.');
         _state.flipPiece(piece);
         adjustBritishIntervention(-1);
         adjustFrenchIntervention(-1);
       } else if (piece.isType(PieceType.slaves1)) {
-        logLine('> Slaves lost.');
+        logLine('>Slaves lost.');
         _state.setPieceLocation(_state.pieceFlipSide(piece)!, Location.discarded);
         adjustBritishIntervention(-1);
         adjustFrenchIntervention(-1);
@@ -2774,31 +2808,38 @@ class Game {
 
   void usElection1862() {
     logLine('### US Election of 1862');
-    logLine('> McClellan is sacked by Lincoln after successful election outcome.');
+    logLine('>McClellan is sacked by Lincoln after successful election outcome.');
     _state.flipPiece(Piece.armyMcClellan0);
     _state.flipPiece(Piece.armyMcClellan1);
   }
 
   void emancipation() {
     logLine('### The Emancipation Proclomation');
+
+    logTableHeader();
     int baseCount = 0;
     for (final base in PieceType.usBase.pieces) {
       if (_state.pieceLocation(base).isType(LocationType.region)) {
         baseCount += 1;
       }
     }
-    logLine('> US Bases: $baseCount');
+    logLine('>|US Bases|$baseCount|');
     int plantationCount = 0;
     for (final plantation in PieceType.plantationUndepleted.pieces) {
       if (_state.pieceLocation(plantation) == Location.discarded) {
         plantationCount = 0;
       }
     }
-    logLine('> Despoiled Plantations: $plantationCount');
+    logLine('>|Despoiled Plantations|$plantationCount|');
     int totalCount = baseCount + plantationCount;
+    logLine('>|Total|$totalCount|');
+    logTableFooter();
+
     int dice = 0;
     for (int i = 0; i < totalCount; ++i) {
-      dice += rollD6();
+      int die = rollD6();
+      logD6(die);
+      dice += die;
     }
     adjustBritishIntervention(-dice);
     adjustFrenchIntervention(-dice);
@@ -2820,7 +2861,7 @@ class Game {
       }
       phaseState.csaElectionLossesRemaining = 6 - count;
       logLine('### CSA Election of 1863');
-      logLine('> Economic Assets under CSA control: $count');
+      logLine('>Economic Assets under CSA control: $count');
       _subStep = 1;
     }
     while (phaseState.csaElectionLossesRemaining != 0) {
@@ -2870,18 +2911,18 @@ class Game {
       final piece = selectedPiece()!;
       if (phaseState.csaElectionLossesRemaining > 0) {
         if (piece.isType(PieceType.general2)) {
-          logLine('> ${piece.desc} is flipped.');
+          logLine('>${piece.desc} is flipped.');
           _state.flipPiece(piece);
         } else if (piece.isType(PieceType.general1)) {
-          logLine('> ${piece.desc} is removed.');
+          logLine('>${piece.desc} is removed.');
           _state.setPieceLocation(piece, Location.trayConfederateForces);
         } else if (piece.isType(PieceType.slaves2)) {
-          logLine('> Slaves lost.');
+          logLine('>Slaves lost.');
           _state.flipPiece(piece);
           adjustBritishIntervention(-1);
           adjustFrenchIntervention(-1);
         } else if (piece.isType(PieceType.slaves1)) {
-          logLine('> Slaves lost.');
+          logLine('>Slaves lost.');
           _state.setPieceLocation(_state.pieceFlipSide(piece)!, Location.discarded);
           adjustBritishIntervention(-1);
           adjustFrenchIntervention(-1);
@@ -2893,10 +2934,10 @@ class Game {
         if (piece.isType(PieceType.general1)) {
           final location = _state.pieceLocation(piece);
           if (location == Location.trayConfederateForces) {
-            logLine('> ${piece.desc} is returned to ${Location.poolCsaGenerals.desc}.');
+            logLine('>${piece.desc} is returned to ${Location.poolCsaGenerals.desc}.');
             _state.setPieceLocation(piece, Location.poolCsaGenerals);
           } else {
-            logLine('> ${piece.desc} is flipped.');
+            logLine('>${piece.desc} is flipped.');
             _state.flipPiece(piece);
           }
         } else if (piece == Piece.csaTreasury) {
@@ -2911,38 +2952,34 @@ class Game {
   void usElection1864() {
     logLine('### 1864 Presidential Election');
     int score = 0;
+    int die = rollD6();
 
+    logTableHeader();
     int assetCount = 0;
     for (final asset in PieceType.asset.pieces) {
       if (_state.pieceLocation(asset).isType(LocationType.region)) {
         assetCount += 1;
       }
     }
-    logLine('> Economic Assets: $assetCount');
+    logLine('>|Economic Assets|$assetCount|');
     score += assetCount;
-
-    logLine('> Agriculture: ${_state.agricultureLevel}');
+    logLine('>|Agriculture|${_state.agricultureLevel}|');
     score += _state.agricultureLevel;
-
-    logLine('> Manufacture: ${_state.manufactureLevel}');
+    logLine('>|Manufacture|${_state.manufactureLevel}|');
     score += _state.manufactureLevel;
-
-    logLine('> Infrastructure: ${_state.infrastructureLevel}');
+    logLine('>|Infrastructure|${_state.infrastructureLevel}|');
     score += _state.infrastructureLevel;
-
     int campaignCount = 0;
     for (final campaign in PieceType.campaignSuccess.pieces) {
       if (_state.pieceLocation(campaign).isType(LocationType.campaign)) {
         campaignCount += 1;
       }
     }
-    logLine('> Campaign Victories: $campaignCount');
+    logLine('>|Campaign Victories|$campaignCount|');
     score += campaignCount;
-
     int politicianCount = _state.piecesInLocationCount(PieceType.regularPolitician, Location.boxConfederateGovernment);
-    logLine('> CSA Politicians: $politicianCount');
+    logLine('>|CSA Politicians|$politicianCount|');
     score += politicianCount;
-
     int generalCount = 0;
     for (final general in PieceType.general.pieces) {
       final location = _state.pieceLocation(general);
@@ -2956,36 +2993,32 @@ class Game {
         generalCount += 1;
       }
     }
-    logLine('> CSA Generals: $generalCount');
+    logLine('>|CSA Generals|$generalCount|');
     score += generalCount;
-
     int slaveCount = 2 * _state.piecesInLocationCount(PieceType.slaves2, Location.boxSlaveQuarters) + _state.piecesInLocationCount(PieceType.slaves1, Location.boxSlaveQuarters);
-    logLine('> Slaves: $slaveCount');
+    logLine('>|Slaves|$slaveCount|');
     score += slaveCount;
-
     if (_state.pieceLocation(Piece.campaignResultMormonRebels) == Location.campaignNewMexico) {
-      logLine('> Mormon Rebels: 1');
+      logLine('>|Mormon Rebels|1|');
       score += 1;
     }
-
     if (_state.pieceLocation(Piece.washingtonInPanic) == Location.regionWashingtonDC) {
-      logLine('> Washington in Panic: 1');
+      logLine('>|Washington in Panic|1|');
       score += 1;
     }
-
-    int die = rollD6();
+    logD6InTable(die);
     score += die;
-
-    logLine('> Victory Points: $score');
+    logLine('>|Victory Points|$score|');
+    logTableFooter();
 
     final result = score >= 30 ? GameResult.presidentMcClellan : GameResult.presidentLincoln; 
 
     if (score >= 30) {
-      logLine('> General McClellan is elected President of the United States.');
-      logLine('> A peace agreement is negotiated with the Confederate States of America.');
+      logLine('>General McClellan is elected President of the United States.');
+      logLine('>A peace agreement is negotiated with the Confederate States of America.');
     } else {
-      logLine('> Lincoln is reelected President of the United States.');
-      logLine('> The war ends in total defeat for the Confederacy.');
+      logLine('>Lincoln is reelected President of the United States.');
+      logLine('>The war ends in total defeat for the Confederacy.');
     }
 
     throw GameOverException(result, score);
@@ -3015,12 +3048,13 @@ class Game {
     logLine('### Union Offensive');
     final path = _state.turnChitColoredPath(_state.currentTurnChit);
     if (path != null) {
-      logLine('> Union conducts a Sustained Offensive on ${path.desc}.');
+      logLine('>Union conducts a Sustained Offensive on ${path.desc}.');
       _state.setPieceLocation(Piece.sustainedOffensive, _state.currentTurnCalendarBox);
     } else {
       int die = rollD6();
+      logD6(die);
       final surprisePath = Path.values[die - 1];
-      logLine('> Union conducts a Surprise Offensive on ${surprisePath.desc}.');
+      logLine('>Union conducts a Surprise Offensive on ${surprisePath.desc}.');
       _state.setPieceLocation(Piece.surpriseOffensive, _state.pathFinalRegion(surprisePath));
     }
   }
@@ -3035,8 +3069,10 @@ class Game {
     }
     logLine('### Foreign Intervention');
     if (_state.britishIntervention >= 0) {
-      if (_state.adjustBritishIntervention(rollD6())) {
-        logLine('> Britain recognizes the Confederacy.');
+      int die = rollD6();
+      logD6(die);
+      if (_state.adjustBritishIntervention(die)) {
+        logLine('>Britain recognizes the Confederacy.');
         _state.setPieceLocation(Piece.generalBritish2, Location.poolCsaGenerals);
         final frigates = _state.piecesInLocation(PieceType.frigate, Location.sack);
         for (final frigate in frigates) {
@@ -3045,8 +3081,10 @@ class Game {
       }
     }
     if (_state.frenchIntervention >= 0) {
-      if (_state.adjustFrenchIntervention(rollD6())) {
-        logLine('> France recognizes the Confederacy.');
+      int die = rollD6();
+      logD6(die);
+      if (_state.adjustFrenchIntervention(die)) {
+        logLine('>France recognizes the Confederacy.');
         _state.setPieceLocation(Piece.generalFrench2, Location.poolCsaGenerals);
       }
     }
@@ -3057,8 +3095,9 @@ class Game {
       return;
     }
     logLine('### Missouri');
-    logLine('> Missouri Governor attempts to join the CSA.');
+    logLine('>Missouri Governor attempts to join the CSA.');
     int die = rollD6();
+    logD6(die);
     for (int i = 1; 2 * i <= die; ++i) {
       _state.setPieceLocation(PieceType.missouriRebel2.pieces[i - 1], Location.regionCairo);
     }
@@ -3086,6 +3125,7 @@ class Game {
     var piece = lossPieces[index];
     if (piece == null) {
       int die = rollD6();
+      logD6(die);
       switch (die) {
       case 1:
       case 2:
@@ -3147,7 +3187,7 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> ${bushwhacker.desc} is placed in ${region.desc}.');
+      logLine('>${bushwhacker.desc} is placed in ${region.desc}.');
       _state.setPieceLocation(bushwhacker, region);
       return;
     }
@@ -3162,6 +3202,7 @@ class Game {
     }
     logLine('### Money from Mexico');
     int die = rollD6();
+    logD6(die);
     adjustTreasury(die);
   }
 
@@ -3189,17 +3230,17 @@ class Game {
         }
       }
       if (newPositive) {
-        logLine('> Union supply lines are cut in ${newRegion.desc}.');
+        logLine('>Union supply lines are cut in ${newRegion.desc}.');
       } else {
-        logLine('> Confederate supply lines are cut in ${newRegion.desc}.');
+        logLine('>Confederate supply lines are cut in ${newRegion.desc}.');
       }
       _state.setPieceLocation(newLineCut!, newRegion);
     } else {
       final oldRegion = _state.pieceLocation(oldLineCut);
       if (oldPositive) {
-        logLine('> Union supply lines are restored in ${oldRegion.desc}.');
+        logLine('>Union supply lines are restored in ${oldRegion.desc}.');
       } else {
-        logLine('> Confederate supply lines are restored in ${oldRegion.desc}.');
+        logLine('>Confederate supply lines are restored in ${oldRegion.desc}.');
       }
       _state.setPieceLocation(oldLineCut, Location.trayStrategic);
     }
@@ -3256,7 +3297,7 @@ class Game {
     }
     _state.setPieceLocation(Piece.nextCampaign, Location.values[_state.pieceLocation(Piece.nextCampaign).index + 1]);
     if (checkChoiceAndClear(Choice.concedeCampaign)) {
-      logLine('> The Confederacy concedes ${campaignBox.desc}.');
+      logLine('>The Confederacy concedes ${campaignBox.desc}.');
       _state.setPieceLocation(failure, campaignBox);
       return (false, 0, 0);
     }
@@ -3267,23 +3308,29 @@ class Game {
     }
     final dice = roll2D6();
     int modifiers = 0;
+
+    logTableHeader();
+    log2D6InTable(dice);
     for (final campaignModifier in _state.piecesInLocation(PieceType.campaignModifier, campaignBox)) {
       if (campaignModifier.isType(PieceType.campaignModifierP1)) {
-        logLine('> ${campaignModifier.desc}: +1');
+        logLine('>|${campaignModifier.desc}|+1|');
         modifiers += 1;
       } else {
-        logLine('> ${campaignModifier.desc}: -1');
+        logLine('>|${campaignModifier.desc}|-1|');
         modifiers -= 1;
       }
     }
     int total = dice.$3 + amount + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logLine('>${campaignBox.desc}|$victoryThreshold|');
+    logTableFooter();
+
     if (total >= victoryThreshold) {
-      logLine('> The Confederacy wins ${campaignBox.desc}.');
+      logLine('>The Confederacy wins ${campaignBox.desc}.');
       _state.setPieceLocation(success, campaignBox);
       return (true, dice.$3, amount);
     } else {
-      logLine('> The Confederacy loses ${campaignBox.desc}.');
+      logLine('>The Confederacy loses ${campaignBox.desc}.');
       _state.setPieceLocation(failure, campaignBox);
       return (false, dice.$3, amount);
     }
@@ -3297,7 +3344,7 @@ class Game {
     if (_subStep == 1) {
       final results = campaign(Location.campaignNewMexico, 12);
       if (results.$1 && results.$2 >= 11) {
-        logLine('> Success in New Mexico encourages Mormons to revolt.');
+        logLine('>Success in New Mexico encourages Mormons to revolt.');
         _state.setPieceLocation(Piece.campaignResultMormonRebels, Location.campaignNewMexico);
       }
     }
@@ -3318,11 +3365,12 @@ class Game {
       logLine('### Heartland Offensive');
       if (_state.kentuckyNeutral) {
         int die = rollD6();
+        logD6(die);
         if (die <= 4) {
-          logLine('> Kentucky joins the Union.');
+          logLine('>Kentucky joins the Union.');
           kentuckyJoinsTheUnion();
         } else {
-          logLine('> Kentucky joins the Confederacy.');
+          logLine('>Kentucky joins the Confederacy.');
           kentuckyJoinsTheConfederacy();
         }
       }
@@ -3344,6 +3392,7 @@ class Game {
         logLine('> Successful raid by Morgan reaps rewards.');
         final amount = results.$3;
         int die = rollD6();
+        logD6(die);
         adjustTreasury(amount + die);
       }
       _state.setPieceLocation(Piece.objective, Location.regionMarylandAndPennsylvania);
@@ -3358,7 +3407,7 @@ class Game {
     if (_subStep == 1) {
       final results = campaign(Location.campaignIndianTerritory, 13);
       if (results.$1) {
-        logLine('> Indian units provide assistance in Missouri and Arkansas.');
+        logLine('>Indian units provide assistance in Missouri and Arkansas.');
         final indians = PieceType.campaignModifierP1Indian.pieces;
         indians.shuffle(_random);
         _state.setPieceLocation(indians[0], Location.campaignPriceInMissouri);
@@ -3375,7 +3424,7 @@ class Game {
     if (_subStep == 1) {
       final results = campaign(Location.campaignArkansas, 11);
       if (results.$1) {
-        logLine('> Shelby begins operations in Missouri.');
+        logLine('>Shelby begins operations in Missouri.');
         _state.setPieceLocation(Piece.campaignModifierShelbyP1, Location.campaignPriceInMissouri);
       }
       _state.setPieceLocation(Piece.objective, Location.regionWashingtonDC);
@@ -3389,10 +3438,10 @@ class Game {
     }
     if (_subStep == 1) {
       campaign(Location.campaignKirksRaiders, 10);
-      logLine('> Sheridan transfers to the Eastern Theater.');
+      logLine('>Sheridan transfers to the Eastern Theater.');
       _state.flipPiece(Piece.armyMiddleDepartment);
       if (_state.pieceLocation(Piece.armyGulf).isType(LocationType.region)) {
-        logLine('> Banks takes command of the Army of the Gulf.');
+        logLine('>Banks takes command of the Army of the Gulf.');
         _state.flipPiece(Piece.armyGulf);
       }
     }
@@ -3415,6 +3464,7 @@ class Game {
     logLine('### Economic Disaster');
     Piece? piece;
     int die = rollD6();
+    logD6(die);
     switch (die) {
     case 1:
     case 2:
