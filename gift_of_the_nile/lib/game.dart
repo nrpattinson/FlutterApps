@@ -2483,16 +2483,19 @@ class PhaseStateEndOfTurn extends PhaseState {
 }
 
 class IsisRerollState {
-  int? d6;
+  int? die0;
+  int? die1;
 
   IsisRerollState();
 
-  IsisRerollState.fromJson(Map<String, dynamic> json) {
-    d6 = json['d6'] as int?;
-  }
+  IsisRerollState.fromJson(Map<String, dynamic> json)
+    : die0 = json['die0'] as int?
+    , die1 = json['die1'] as int?
+    ;
 
   Map<String, dynamic> toJson() => {
-    'd6': d6
+    'die0': die0,
+    'die1': die1,
   };
 }
 
@@ -2630,39 +2633,70 @@ class Game {
     _log += '$line  \n';
   }
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  void logTableHeader(String titleLeft, String titleRight) {
+    logLine('>|$titleLeft|$titleRight|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
+  // Randomness
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
+  }
+
+  (int,int) rollD6x2() {
+    int value = _random.nextInt(36);
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
+    return (d0, d1);
+  }
+
+  void logD6x2((int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   (int,int,int,int) roll3D6() {
@@ -2675,8 +2709,23 @@ class Game {
     d0 += 1;
     d1 += 1;
     d2 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
     return (d0, d1, d2, d0 + d1 + d2);
+  }
+
+  void log3D6((int,int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    int d2 = results.$3;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}');
+    logLine('>');
+  }
+
+  void lod3D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)} ${dieFace(d2)}|${d0 + d1 + d2}');
   }
 
   int randInt(int max) {
@@ -2818,31 +2867,31 @@ class Game {
 
   void discoverSepat(Location land, Piece sepat) {
     final goods = _state.sepatGoods(sepat);
-    logLine('> ${goods.desc} is discovered in ${land.desc}.');
+    logLine('>${goods.desc} is discovered in ${land.desc}.');
     _state.setPieceLocation(sepat, land);
   }
 
   void templeSepat(Location land, Piece sepat) {
     _state.templeSepat(sepat);
     final templedSepat = _state.pieceInLocation(PieceType.sepatTempled, land)!;
-    logLine('> A Temple dedicated to ${_state.templedSepatGod(templedSepat).desc} is built at ${land.desc}.');
+    logLine('>A Temple dedicated to ${_state.templedSepatGod(templedSepat).desc} is built at ${land.desc}.');
   }
 
   void adjustActionPoints(int delta) {
     _state.adjustActionPoints(delta);
     if (delta > 0) {
-      logLine('> AP: +$delta => ${_state.actionPoints}');
+      logLine('>AP: +$delta → ${_state.actionPoints}');
     } else if (delta < 0) {
-      logLine('> AP: $delta => ${_state.actionPoints}');
+      logLine('>AP: $delta → ${_state.actionPoints}');
     }
   }
 
   void adjustGold(int delta) {
     _state.adjustGold(delta);
     if (delta > 0) {
-      logLine('> Gold: +$delta => ${_state.gold}');
+      logLine('>Gold: +$delta → ${_state.gold}');
     } else if (delta < 0) {
-      logLine('> Gold: $delta => ${_state.gold}');
+      logLine('>Gold: $delta → ${_state.gold}');
     }
   }
 
@@ -2862,9 +2911,9 @@ class Game {
   void adjustRomanDebt(int delta) {
     _state.adjustRomanDebt(delta);
     if (delta > 0) {
-      logLine('> Roman Debt: +$delta => ${_state.romanDebt}');
+      logLine('>Roman Debt: +$delta → ${_state.romanDebt}');
     } else if (delta < 0) {
-      logLine('> Roman Debt: $delta => ${_state.romanDebt}');
+      logLine('>Roman Debt: $delta → ${_state.romanDebt}');
     }
   }
 
@@ -3067,10 +3116,12 @@ class Game {
   int calculateSurvivalPoints() {
     logLine('### Survival Points');
     int total = 0;
+
+    logTableHeader('Effect', 'Survival Points');
     int templedSepatCount = 0;
     for (final path in Path.values) {
       int landCount = _state.pathControlledLandCount(path);
-      logLine('> ${path.desc}: $landCount');
+      logLine('>|${path.desc}|$landCount|');
       total += landCount;
       for (int sequence = 0; sequence < landCount; ++sequence) {
         final land = _state.pathSequenceLand(path, sequence);
@@ -3082,60 +3133,63 @@ class Game {
     for (final path in Path.values) {
       final country = _state.pathHomeCountry(path);
       if (_state.piecesInLocationCount(PieceType.egyptianRule, country) > 0) {
-        logLine('> Egyptian Rule in ${country.desc}: 5');
+        logLine('>|Egyptian Rule in ${country.desc}|5|');
         total += 5;
       }
     }
     if (templedSepatCount > 0) {
-      logLine('> Templed Sepats: $templedSepatCount');
+      logLine('>|Templed Sepats|$templedSepatCount|');
       total += templedSepatCount;
     }
     for (final box in LocationType.megaprojectBox.locations) {
       final megaproject = _state.pieceInLocation(PieceType.megaproject, box);
       if (megaproject != null) {
         int megaprojectValue = megaproject.isType(PieceType.megaprojectUnlooted) ? 5 : 2;
-        logLine('> ${megaproject.desc}: $megaprojectValue');
+        logLine('>|${megaproject.desc}|$megaprojectValue|');
         total += megaprojectValue;
       }
     }
     for (final piece in [Piece.greeks, Piece.jews]) {
       if (_state.pieceLocation(piece) == Location.landMenNefer) {
-        logLine('> ${piece.desc}: 3');
+        logLine('>|${piece.desc}|3|');
         total += 3;
       }
     }
     if (_state.pieceLocation(Piece.literacy) == Location.literacyCoptic) {
-      logLine('> Coptic Literacy: 5');
+      logLine('>|Coptic Literacy|5|');
       total += 5;
     }
     if (_state.actionPoints > 0) {
       int actionPointsValue = 2 * _state.actionPoints;
-      logLine('> Action Points: $actionPointsValue');
+      logLine('>|Action Points|$actionPointsValue|');
       total += actionPointsValue;
     }
     if (_state.gold > 0) {
       int goldValue = 2 * _state.gold;
-      logLine('> Gold: $goldValue');
+      logLine('>|Gold|$goldValue|');
       total += goldValue;
     }
     final inbreeding = _state.pieceLocation(Piece.inbreeding);
     if (inbreeding.isType(LocationType.granary)) {
       int inbreedingValue = inbreeding.index - Location.granary0.index;
-      logLine('> Inbreeding: $inbreedingValue');
+      logLine('>|Inbreeding|$inbreedingValue|');
       total += inbreedingValue;
     }
     int maatCount = 2 - _state.piecesInLocationCount(PieceType.maatUnused, Location.trayPolitical);
     if (maatCount > 0) {
       int maatValue = 2 * maatCount;
-      logLine('> Maʼat Tiles: $maatValue');
+      logLine('>|Maʼat Tiles|$maatValue|');
       total += maatValue;
     }
     int revivalCount = _state.piecesInLocationCount(PieceType.revival, Location.boxRevival);
     if (revivalCount > 0) {
       int revivalValue = 7 * revivalCount;
-      logLine('> Revival Chits: $revivalValue');
+      logLine('>|Revival Chits|$revivalValue|');
       total += revivalValue;
     }
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     return total;
   }
 
@@ -3172,12 +3226,12 @@ class Game {
   int isisRollD6() {
     if (_isisRerollState == null) {
       _isisRerollState = IsisRerollState();
-      _isisRerollState!.d6 = rollD6();
+      _isisRerollState!.die0 = rollD6();
     }
     final localState = _isisRerollState!;
     while (true) {
       if (choicesEmpty()) {
-        final die = localState.d6!;
+        final die = localState.die0!;
         if (_state.presidingGod != Piece.godIsis || _state.isisRerollCount >= _state.controlledTempleToGodCount(Piece.godIsis)) {
           _isisRerollState = null;
           return die;
@@ -3186,57 +3240,63 @@ class Game {
           _isisRerollState = null;
           return die;
         }
-        setPrompt('Reroll die?');
+        setPrompt('Petition Isis to Reroll $die?');
         choiceChoosable(Choice.yes, true);
         choiceChoosable(Choice.no, true);
         throw PlayerChoiceException();
       }
       if (checkChoiceAndClear(Choice.no)) {
-        final die = localState.d6!;
+        final die = localState.die0!;
         _isisRerollState = null;
         return die;
       }
       clearChoices();
       _state.isisRerollCount += 1;
-      logLine('> Isis intervenes.');
+      logD6(localState.die0!);
+      logLine('>Isis intervenes.');
       spendActionPoints(2);
-      localState.d6 = rollD6();
+      localState.die0 = rollD6();
     }
   }
 
-  int isisRoll2D6() {
+  int isisRollD6x2() {
     if (_isisRerollState == null) {
-      final results = roll2D6();
+      final results = rollD6x2();
+      logD6x2(results);
       _isisRerollState = IsisRerollState();
-      _isisRerollState!.d6 = max(results.$1, results.$2);
+      _isisRerollState!.die0 = max(results.$1, results.$2);
+      _isisRerollState!.die1 = min(results.$1, results.$2);
     }
     final localState = _isisRerollState!;
     while (true) {
       if (choicesEmpty()) {
-        final die = localState.d6!;
+        final die0 = localState.die0!;
+        final die1 = localState.die1!;
         if (_state.presidingGod != Piece.godIsis || _state.isisRerollCount >= _state.controlledTempleToGodCount(Piece.godIsis)) {
           _isisRerollState = null;
-          return die;
+          return die0;
         }
         if (_state.actionPointsAndGold < 2) {
           _isisRerollState = null;
-          return die;
+          return die0;
         }
-        setPrompt('Reroll die?');
+        setPrompt('Petition Isis to Reroll $die1?');
         choiceChoosable(Choice.yes, true);
         choiceChoosable(Choice.no, true);
         throw PlayerChoiceException();
       }
+      final die = localState.die0!;
       if (checkChoiceAndClear(Choice.no)) {
-        final die = localState.d6!;
         _isisRerollState = null;
         return die;
       }
       clearChoices();
       _state.isisRerollCount += 1;
-      logLine('> Isis intervenes.');
+      logLine('>Isis intervenes.');
       spendActionPoints(2);
-      localState.d6 = rollD6();
+      final dice = (die, rollD6());
+      logD6x2(dice);
+      localState.die1 = dice.$2;
     }
   }
 
@@ -3317,74 +3377,74 @@ class Game {
             throw PlayerChoiceException();
           }
           if (checkChoiceAndClear(Choice.blockAdvanceRevival)) {
-            logLine('> Revival Chit is sacrificed.');
+            logLine('>Revival Chit is sacrificed.');
             final revivalChits = _state.piecesInLocation(PieceType.revival, Location.boxRevival);
             _state.setPieceLocation(revivalChits[0], Location.discarded);
-            logLine('> ${khasti.desc} ceases its Advance.');
+            logLine('>${khasti.desc} ceases its Advance.');
             _khastiAdvanceState = null;
             return;
           } else if (checkChoiceAndClear(Choice.blockAdvanceMarriage)) {
             localState.subStep = 2;
           } else if (checkChoiceAndClear(Choice.blockAdvanceGreekMercenaries)) {
-            logLine('> Greek Mercenary Self-Defense');
+            logLine('>Greek Mercenary Self-Defense');
             adjustRomanDebt(1);
             localState.attackChoice = Choice.blockAdvanceGreekMercenaries;
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceEgyptianRule)) {
-            logLine('> Egyptian Rule');
-            logLine('> ${khasti.desc} eliminates Egyptian Rule in ${fromLand.desc}.');
+            logLine('>Egyptian Rule');
+            logLine('>${khasti.desc} eliminates Egyptian Rule in ${fromLand.desc}.');
             final egyptianRule = _state.pieceInLocation(PieceType.egyptianRule, fromLand)!;
             _state.setPieceLocation(egyptianRule, Location.trayPolitical);
-            logLine('> ${khasti.desc} ceases its Advance.');
+            logLine('>${khasti.desc} ceases its Advance.');
             _khastiAdvanceState = null;
             return;
           } else if (checkChoiceAndClear(Choice.blockAdvancePharaoh)) {
-            logLine('> Pharaohʼs Reaction');
+            logLine('>Pharaohʼs Reaction');
             localState.attackChoice = Choice.blockAdvancePharaoh;
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceWalls)) {
-            logLine('> Walls of the Ruler');
-            logLine('> ${khasti.desc} destroys Walls of the Ruler in ${toLand.desc}.');
+            logLine('>Walls of the Ruler');
+            logLine('>${khasti.desc} destroys Walls of the Ruler in ${toLand.desc}.');
             final walls = _state.pieceInLocation(PieceType.wallsOfTheRuler, toLand)!;
             _state.setPieceLocation(walls, Location.trayMilitary);
-            logLine('> ${khasti.desc} ceases its Advance.');
+            logLine('>${khasti.desc} ceases its Advance.');
             _khastiAdvanceState = null;
             return;
           } else if (checkChoiceAndClear(Choice.blockAdvanceNubianArchers)) {
-            logLine('> Nubian Archers');
+            logLine('>Nubian Archers');
             localState.attackChoice = Choice.blockAdvanceNubianArchers;
             final nubianArchesLocation = _state.pieceLocation(Piece.heroesNubianArchers);
             if (nubianArchesLocation != toLand) {
-              logLine('> Nubian Archers react to ${khasti.desc} Advance');
+              logLine('>Nubian Archers react to ${khasti.desc} Advance');
               spendGold(toLand == Location.landMenNefer ? 4 : 2);
               _state.setPieceLocation(Piece.heroesNubianArchers, toLand);
             }
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceMeraFleet)) {
-            logLine('> Mera Fleet');
+            logLine('>Mera Fleet');
             localState.attackChoice = Choice.blockAdvanceMeraFleet;
             final meraFleetLocation = _state.pieceLocation(Piece.heroesMeraFleet);
             if (meraFleetLocation != toLand) {
-              logLine('> Mera Fleet reacts to ${khasti.desc} Advance');
+              logLine('>Mera Fleet reacts to ${khasti.desc} Advance');
               spendGold(toLand == Location.landMenNefer ? 4 : 2);
               _state.setPieceLocation(Piece.heroesMeraFleet, toLand);
             }
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceRivalCapital)) {
-            logLine('> Rival Dynasty Capital');
+            logLine('>Rival Dynasty Capital');
             localState.attackChoice = Choice.blockAdvanceRivalCapital;
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceRivalMilitia)) {
-            logLine('> Rival Dynasty Militia Defense');
+            logLine('>Rival Dynasty Militia Defense');
             spendActionPoints(1);
             localState.attackChoice = Choice.blockAdvanceRivalMilitia;
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceMilitia)) {
-            logLine('> Militia Defense');
+            logLine('>Militia Defense');
             localState.attackChoice = Choice.blockAdvanceMilitia;
             localState.subStep = 4;
           } else if (checkChoiceAndClear(Choice.blockAdvanceCede)) {
-            logLine('> ${khasti.desc} captures ${toLand.desc}.');
+            logLine('>${khasti.desc} captures ${toLand.desc}.');
             _state.setPieceLocation(khasti, toLand);
             localState.marriageAPAmount = 0;
             localState.militiaUsed = false;
@@ -3393,7 +3453,7 @@ class Game {
               if (_state.piecesInLocationCount(PieceType.khasti, Location.landMenNefer) == 1) {
                 if (_state.piecesInLocationCount(PieceType.revival, Location.boxRevival) == 0) {
                   if (_state.limitedEventCount(LimitedEvent.rome) > 0) {
-                    logLine(' # Romans annex Egypt');
+                    logLine('# Romans annex Egypt');
                     int survivalPoints = calculateSurvivalPoints();
                     throw GameOverException(GameResult.romeMenNefer, survivalPoints);
                   } else {
@@ -3424,7 +3484,7 @@ class Game {
           }
           final granaryBox = selectedLocation()!;
           final amount = granaryBox.index - Location.granary0.index;
-          logLine('> Marriage Blocks Advance.');
+          logLine('>Marriage Blocks Advance.');
           spendActionPoints(amount);
           clearChoices();
           localState.marriageAPAmount = amount;
@@ -3433,50 +3493,57 @@ class Game {
 
         if (localState.subStep == 3) { // Marriage Roll
           int die = isisRollD6();
+
+          logTableHeader('Effect', 'Value');
+          logD6InTable(die);
+          logLine('>|Dowry|${localState.marriageAPAmount}|');
+          logTableFooter();
+
           if (localState.marriageAPAmount >= die) {
-            logLine('> ${khasti.desc} Advance is blocked.');
+            logLine('>${khasti.desc} Advance is blocked.');
             _khastiAdvanceState = null;
             return;
           }
-          logLine('> ${khasti.desc} continues to Advance.');
+          logLine('>${khasti.desc} continues to Advance.');
           localState.subStep = 1;
         }
 
-        if (localState.subStep >= 4 && localState.subStep <= 5) { // Attack
+        if (localState.subStep == 4) { // Attack
           final attackChoice = localState.attackChoice!;
+          int die = isisRollD6();
+          int dieModifiers = 0;
+
+          logTableHeader('Effect', 'Value');
           int value = _state.khastiValue(khasti);
-          if (localState.subStep == 4) {
-            logLine('> ${khasti.desc} Value: $value');
-          }
+          logLine('>|${khasti.desc}|$value|');
           int valueModifiers = 0;
           if (_state.pathRise(path)) {
-            if (localState.subStep == 4) {
-              logLine('> Rise: +1');
-            }
+            logLine('>|Rise|+1|');
             valueModifiers += 1;
           }
           if (_state.pathDecline(path)) {
-            if (localState.subStep == 4) {
-              logLine('> Decline: -1');
-            }
+            logLine('>|Decline|-1|');
             valueModifiers -= 1;
           }
           int valueTotal = value + valueModifiers;
-          localState.subStep = 5;
-          int die = isisRollD6();
-          int dieModifiers = 0;
+          logLine('>|Khasti Total|$valueTotal|');
+          logLine('>|||');
+          logD6InTable(die);
           if ([Choice.blockAdvanceRivalMilitia, Choice.blockAdvanceMilitia].contains(attackChoice)) {
             final sepat = _state.pieceInLocation(PieceType.sepatTempled, toLand);
             if (sepat != null && _state.templedSepatElite(sepat)) {
-              logLine('> Élite: +1');
+              logLine('>|Élite|+1|');
               dieModifiers += 1;
             }
           }
           if (_state.haveIronWeapons) {
-            logLine('> Iron: +1');
+            logLine('>|Iron|+1|');
             dieModifiers += 1;
           }
           int dieTotal = die + dieModifiers;
+          logLine('>|Egypt Total|$dieTotal|');
+          logTableFooter();
+
           switch (attackChoice) {
           case Choice.blockAdvancePharaoh:
             _state.pharaohAvailable = false;
@@ -3492,7 +3559,7 @@ class Game {
           default:
           }
           if (dieTotal > valueTotal) {
-            logLine('> Counterattack is successful, ${khasti.desc} Advance is halted.');
+            logLine('>Counterattack is successful, ${khasti.desc} Advance is halted.');
             _khastiAdvanceState = null;
             return;
           }
@@ -3500,8 +3567,8 @@ class Game {
           case Choice.blockAdvanceRivalCapital:
             {
               final rival = _state.pieceInLocation(PieceType.rivalDynasty, toLand)!;
-              logLine('> Counterattack fails, Rival Dynasty is conquered');
-              logLine('> ${khasti.desc} continues to Advance.');
+              logLine('>Counterattack fails, Rival Dynasty is conquered');
+              logLine('>${khasti.desc} continues to Advance.');
               _state.setPieceLocation(rival, Location.trayMilitary);
             }
           case Choice.blockAdvancePharaoh:
@@ -3511,7 +3578,7 @@ class Game {
           case Choice.blockAdvanceRivalMilitia:
           case Choice.blockAdvanceMilitia:
           default:
-            logLine('> Counterattack fails, ${khasti.desc} continues to Advance.');
+            logLine('>Counterattack fails, ${khasti.desc} continues to Advance.');
           }
           localState.subStep = 1;
         }
@@ -3526,10 +3593,10 @@ class Game {
       return;
     }
     logLine('### Alexander');
-    logLine('> Alexander the Great conquers Egypt.');
-    logLine('> Alexandria is founded.');
+    logLine('>Alexander the Great conquers Egypt.');
+    logLine('>Alexandria is founded.');
     _state.setPieceLocation(Piece.alexandria, Location.boxAlexandria);
-    logLine('> Ptolemaic Dynasty is established.');
+    logLine('>Ptolemaic Dynasty is established.');
     var oldDynastyTile = _state.pieceInLocation(PieceType.dynasty, _state.currentTurnDynastyBox)!;
     if (oldDynastyTile != Piece.dynastyH) {
       if (!oldDynastyTile.isType(PieceType.egyptianDynastyFront)) {
@@ -3551,13 +3618,13 @@ class Game {
       final countryLand = _state.pathHomeCountry(path);
       if (land != countryLand) {
         final retreatLand = Location.values[min(land.index + 3, countryLand.index)];
-        logLine('> ${khasti.desc} retreats to ${retreatLand.desc}.');
+        logLine('>${khasti.desc} retreats to ${retreatLand.desc}.');
         _state.setPieceLocation(khasti, retreatLand);
       }
     }
     final oldKhasti = _state.pathCurrentKhasti(Path.retjenu)!;
     final land = _state.pieceLocation(oldKhasti);
-    logLine('> ${Piece.khastiSeleucids.desc} replaces ${oldKhasti.desc} in ${land.desc}.');
+    logLine('>${Piece.khastiSeleucids.desc} replaces ${oldKhasti.desc} in ${land.desc}.');
     _state.setPieceLocation(oldKhasti, Location.trayRetjenu);
     _state.setPieceLocation(Piece.khastiSeleucids, land);
     _state.setPieceLocation(Piece.inbreeding, _state.granaryBox(lowestLandCount));
@@ -3567,7 +3634,7 @@ class Game {
   void eventGoldenAge() {
     logLine('### Golden Age');
     _state.currentEventOccurred(CurrentEvent.goldenAge);
-    logLine('> All Paths Decline');
+    logLine('>All Paths Decline');
     _state.setPieceLocation(Piece.decline, Location.boxRiseDeclineAllPaths);
   }
 
@@ -3576,27 +3643,27 @@ class Game {
     switch (hebrewLocation) {
     case Location.trayPeople:
       logLine('### Hebrews');
-      logLine('> Hebrews arrive in Egypt.');
+      logLine('>Hebrews arrive in Egypt.');
       _state.setPieceLocation(Piece.hebrewPeople, Location.landMenNefer);
       return;
     case Location.landMenNefer:
       logLine('### Hebrews');
-      logLine('> Moses moves the Hebrews to the Wilderness.');
+      logLine('>Moses moves the Hebrews to the Wilderness.');
       _state.setPieceLocation(Piece.hebrewPeople, Location.boxWilderness);
       spendActionPoints(2);
       if (_state.pharaohAvailable) {
-        logLine('> Pharaoh vacations at the Red Sea.');
+        logLine('>Pharaoh vacations at the Red Sea.');
         _state.pharaohAvailable = false;
       }
       return;
     case Location.boxWilderness:
       logLine('### Hebrews');
-      logLine('> Hebrews enter the Promised Land');
+      logLine('>Hebrews enter the Promised Land');
       _state.setPieceLocation(Piece.hebrewPeople, Location.boxPromisedLand);
       return;
     case Location.boxPromisedLand:
       logLine('### Hebrews');
-      logLine('> Kingdom of Israel is established.');
+      logLine('>Kingdom of Israel is established.');
       _state.setPieceLocation(Piece.hebrewPeople, Location.discarded);
       _state.setPieceLocation(Piece.israel0, Location.countryRetjenu);
       return;
@@ -3604,7 +3671,7 @@ class Game {
     }
     if (_state.pieceLocation(Piece.israel0) == Location.countryRetjenu) {
       logLine('### Hebrews');
-      logLine('> Kingdom of Israel turns against Egypt.');
+      logLine('>Kingdom of Israel turns against Egypt.');
       _state.setPieceLocation(Piece.israeln1, Location.countryRetjenu);
       return;
     }
@@ -3615,7 +3682,7 @@ class Game {
       return;
     }
     logLine('### High Priests of Amun');
-    logLine('> High Priests put a drain on the treasury.');
+    logLine('>High Priests put a drain on the treasury.');
     _state.setPieceLocation(Piece.highPriests, Location.landWast);
     spendActionPoints(1);
   }
@@ -3645,7 +3712,7 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoiceAndClear(Choice.yes)) {
-          logLine('> Pharaoh tries to negate Intermediate Period.');
+          logLine('>Pharaoh tries to negate Intermediate Period.');
           _subStep = 2;
         } else {
           _subStep = 3;
@@ -3657,23 +3724,24 @@ class Game {
     }
 
     if (_subStep == 2) {
-      int die = isisRollD6();
       _state.pharaohAvailable = false;
+      int die = isisRollD6();
+      logD6(die);
       if (die >= 4) {
-        logLine('> Intermediate Period is negated.');
+        logLine('>Intermediate Period is negated.');
         return;
       } else {
-        logLine('> Intermediate Period could not be prevented.');
+        logLine('>Intermediate Period could not be prevented.');
       }
       _subStep = 3;
     }
 
     if (_subStep == 3) {
       if (dynasty.isType(PieceType.egyptianDynastyFront)) {
-        logLine('> Dynastic Skills are lost.');
+        logLine('>Dynastic Skills are lost.');
         _state.flipPiece(dynasty);
       }
-      logLine('> All Paths Rise.');
+      logLine('>All Paths Rise.');
       _state.setPieceLocation(Piece.rise, Location.boxRiseDeclineAllPaths);
     }
   }
@@ -3682,7 +3750,7 @@ class Game {
     final location = _state.pieceLocation(Piece.libyanMigrants);
     if (location == Location.trayPeople) {
       logLine('### Libyan Migrations');
-      logLine('> Libyans migrate into Tjehenu Country.');
+      logLine('>Libyans migrate into Tjehenu Country.');
       _state.setPieceLocation(Piece.libyanMigrants, Location.countryTjehenu);
       return;
     }
@@ -3719,7 +3787,7 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.yes)) {
-        logLine('> Bribe Libyan Migrants.');
+        logLine('>Bribe Libyan Migrants.');
         spendGold(1);
         _subStep = 2;
       } else {
@@ -3730,8 +3798,9 @@ class Game {
 
     if (_subStep == 2) {
       int die = isisRollD6();
+      logD6(die);
       if (die >= 4) {
-        logLine('> Libyan Migrants remain in ${location.desc}.');
+        logLine('>Libyan Migrants remain in ${location.desc}.');
         return;
       }
       _subStep = 3;
@@ -3739,7 +3808,7 @@ class Game {
 
     if (_subStep == 3) {
       if (toLand == Location.landMenNefer) {
-        logLine('> Migrants establish new Libyan Dynasty.');
+        logLine('>Migrants establish new Libyan Dynasty.');
         _state.setPieceLocation(Piece.dynastyH, Location.values[_state.currentTurnDynastyBox.index + 1]);
         var oldDynastyTile = _state.pieceInLocation(PieceType.dynasty, _state.currentTurnDynastyBox)!;
         if (!oldDynastyTile.isType(PieceType.egyptianDynastyFront)) {
@@ -3753,7 +3822,7 @@ class Game {
         _state.advanceTurn();
         _step = 0;
       } else {
-        logLine('> Libyan Migrants move to ${toLand.desc}.');
+        logLine('>Libyan Migrants move to ${toLand.desc}.');
         _state.setPieceLocation(Piece.libyanMigrants, toLand);
       }
     }
@@ -3764,14 +3833,14 @@ class Game {
       return;
     }
     logLine('### The Maccabees');
-    logLine('> Jewish rebels restore Israel’s independence.');
+    logLine('>Jewish rebels restore Israel’s independence.');
     _state.setPieceLocation(Piece.israel0, Location.countryRetjenu);
     _state.limitedEventOccurred(LimitedEvent.maccabees);
   }
 
   void eventMonotheism() {
     logLine('### Monotheism');
-    logLine('> Traditional Egyptian Gods are abandoned.');
+    logLine('>Traditional Egyptian Gods are abandoned.');
     _state.currentEventOccurred(CurrentEvent.monotheism);
   }
 
@@ -3786,7 +3855,7 @@ class Game {
           if (total == 0) {
             logLine('### ${goods.desc} Bonus');
           }
-          logLine('> ${land.desc}');
+          logLine('>${land.desc}');
           total += 1;
         }
       }
@@ -3838,7 +3907,7 @@ class Game {
 
   void eventRome() {
     logLine('### Rome');
-    logLine('> Rome takes control of Israel.');
+    logLine('>Rome takes control of Israel.');
     _state.setPieceLocation(Piece.israel0, Location.discarded);
     _state.limitedEventOccurred(LimitedEvent.rome);
   }
@@ -3855,18 +3924,19 @@ class Game {
     if (_subStep == 1) {
       if (_state.pieceLocation(Piece.medjaiPolice) == Location.boxRevival) {
         int die = isisRollD6();
+        logD6(die);
         if (die < 6) {
-          logLine('> Medjai Police thwart Tomb Robbers.');
+          logLine('>Medjai Police thwart Tomb Robbers.');
           return;
         }
-        logLine('> Medjai Police prove incapable of stopping Tomb Robbers.');
+        logLine('>Medjai Police prove incapable of stopping Tomb Robbers.');
         _state.setPieceLocation(Piece.medjaiPolice, Location.trayMilitary);
       }
       _subStep = 2;
     }
 
     if (_subStep == 2) {
-      logLine('> Tomb Robbers defile Egyptian monuments.');
+      logLine('>Tomb Robbers defile Egyptian monuments.');
       _state.setPieceLocation(revivals[0], Location.discarded);
     }
   }
@@ -3910,21 +3980,21 @@ class Game {
       final newEra = [8,15,23].contains(_state.currentTurn);
       if (newEra || conquered) {
         if (conquered) {
-          logLine('> Egypt Revived.');
+          logLine('>Egypt Revives.');
           final revivalChits = _state.piecesInLocation(PieceType.revival, Location.boxRevival);
           _state.setPieceLocation(revivalChits[0], Location.discarded);
         }
         if (newEra) {
           final era = _state.eraPiece(_state.era);
-          logLine('> ${era.desc} is established.');
+          logLine('>${era.desc} is established.');
           _state.setPieceLocation(era, Location.boxEra);
         }
         final marriageLocation = _state.pieceLocation(Piece.marriage);
         if (marriageLocation != Location.trayPolitical) {
-          logLine('> Marriage ties with ${marriageLocation.desc} are broken.');
+          logLine('>Marriage ties with ${marriageLocation.desc} are broken.');
           _state.setPieceLocation(Piece.marriage, Location.trayPolitical);
         }
-        logLine('> Dynasty Tile: ${Piece.dynastyA.desc}');
+        logLine('>Dynasty Tile: ${Piece.dynastyA.desc}');
         _state.setDynastyTile(Piece.dynastyA);
         if (_state.era == Era.middleKingdom) {
           for (final path in Path.values) {
@@ -3937,7 +4007,7 @@ class Game {
               khastiLand = _state.pathDieLand(path, 1);
             }
             final khasti = _state.pathKhastiSequence(path)[0];
-            logLine('> ${khasti.desc} occupy ${khastiLand.desc}.');
+            logLine('>${khasti.desc} occupy ${khastiLand.desc}.');
             _state.setPieceLocation(khasti, khastiLand);
             _state.setPieceLocation(_state.pieceFlipSide(troops)!, Location.trayMilitary);
           }
@@ -3947,12 +4017,12 @@ class Game {
             final khastiLand = _state.pieceLocation(khasti);
             if (khastiLand == Location.landMenNefer) {
               final country = _state.pathHomeCountry(path);
-              logLine('> ${khasti.desc} retreat to ${country.desc}.');
+              logLine('>${khasti.desc} retreat to ${country.desc}.');
               _state.setPieceLocation(khasti, country);
             } else {
               final targetLand = _state.pathDieLand(path, 4);
               if (khastiLand.index < targetLand.index) {
-                logLine('> ${khasti.desc} retreat to ${targetLand.desc}.');
+                logLine('>${khasti.desc} retreat to ${targetLand.desc}.');
                 _state.setPieceLocation(khasti, targetLand);
               }
             }
@@ -3964,7 +4034,7 @@ class Game {
       } else {
         final cupTiles = _state.piecesInLocation(PieceType.egyptianDynastyFront, Location.cupDynasty);
         final dynastyTile = randPiece(cupTiles)!;
-        logLine('> Dynasty Tile: ${dynastyTile.desc}');
+        logLine('>Dynasty Tile: ${dynastyTile.desc}');
         _state.setDynastyTile(dynastyTile);
         _subStep = 3;
       }
@@ -3986,7 +4056,7 @@ class Game {
       } else if (checkChoice(Choice.dynastyG)) {
         dynastyTile = Piece.dynastyG;
       }
-      logLine('> Dynasty Tile: ${dynastyTile!.desc}');
+      logLine('>Dynasty Tile: ${dynastyTile!.desc}');
       _state.setDynastyTile(dynastyTile);
       clearChoices();
       _subStep = 3;
@@ -4037,7 +4107,7 @@ class Game {
           final land = _state.pieceLocation(sepat);
           final templedSepat = _state.pieceFlipSide(sepat)!;
           final god = _state.templedSepatGod(templedSepat);
-          logLine('> Temple dedicated to ${god.desc} is built in ${land.desc}.');
+          logLine('>Temple dedicated to ${god.desc} is built in ${land.desc}.');
           _state.templeSepat(sepat);
           clearChoices();
         }
@@ -4083,7 +4153,7 @@ class Game {
       final okToLoot = _state.pieceFlipSide(egyptianRule)!;
       _state.setPieceLocation(okToLoot, Location.boxHeroes);
     }
-    logLine('> Megaprojects may be looted.');
+    logLine('>Megaprojects may be looted.');
   }
 
   void nilePhaseBegin() {
@@ -4106,6 +4176,7 @@ class Game {
       logLine('### Nile Roll');
       if (_state.era == Era.oldKingdom) {
         final rolls = roll3D6();
+        log3D6(rolls);
         final dice = [rolls.$1, rolls.$2, rolls.$3];
         int? high;
         int? mid;
@@ -4129,6 +4200,7 @@ class Game {
         _subStep = 1;
       } else {
         final rolls = roll2D6();
+        log2D6(rolls);
         final dice = [rolls.$1, rolls.$2];
         phaseState.high = max(dice[0], dice[1]);
         phaseState.low = min(dice[0], dice[1]);
@@ -4145,7 +4217,7 @@ class Game {
       }
       if (checkChoice(Choice.yes)) {
         phaseState.mid = null;
-        logLine('> Pharaoh modifies the Nile Roll.');
+        logLine('>Pharaoh modifies the Nile Roll.');
         _state.pharaohAvailable = false;
       }
       if (checkChoice(Choice.no)) {
@@ -4157,24 +4229,22 @@ class Game {
     }
 
     if (_subStep == 2) {
-      logLine('> Nile Roll: **${dieFaceCharacter(phaseState.high!)}** **${dieFaceCharacter(phaseState.low!)}**');
+      logLine('>Nile Roll ${dieFace(phaseState.high!)} ${dieFace(phaseState.low!)}');
+
+      logTableHeader('Effect', 'Action Points');
       int level = phaseState.high! - phaseState.low!;
-      logLine('> Nile Level: +$level AP');
-      phaseState.actionPoints += level;
+      logLine('>|Nile Level|+$level|');
+      phaseState.actionPoints = level;
       final goods = _state.tradeGoods(phaseState.high! + phaseState.low!);
-      String goodsDesc = '';
-      int accessibleGoodsCount = 0;
       for (final good in goods) {
-        if (goodsDesc.isNotEmpty) {
-          goodsDesc += ', ';
-        }
-        goodsDesc += good.desc;
         if (_state.goodsAccessible(good)) {
-          accessibleGoodsCount += 1;
+          logLine('>|${good.desc}|1|');
+          phaseState.actionPoints += 1;
         }
       }
-      logLine('> Trade Goods: $goodsDesc: +$accessibleGoodsCount AP');
-      phaseState.actionPoints += accessibleGoodsCount;
+      logLine('>|Total|${phaseState.actionPoints}|');
+      logTableFooter();
+
       adjustActionPoints(phaseState.actionPoints);
     }
   }
@@ -4182,18 +4252,22 @@ class Game {
   void nilePhaseGold() {
     int landCount = _state.pathControlledLandCount(Path.taSeti);
     if (landCount >= 6) {
-      logLine('> Irtjet: +1 Gold');
-      adjustGold(1);
-    }
-    if (landCount >= 7) {
-      logLine('> Wawat: +1 Gold');
-      adjustGold(1);
+      int gold = 1;
+      logLine('>Gold');
+
+      logTableHeader('Land', 'Gold');
+      logLine('>|Irtjet|1|');
+      if (landCount >= 7) {
+        logLine('>|Wawat|1|');
+        gold += 1;
+      }
+      adjustGold(gold);
     }
   }
 
   void nilePhaseEmergency() {
     if (_state.actionPoints == 0) {
-      logLine('> Emergency: +1 AP');
+      logLine('>Emergency: +1 AP');
       adjustActionPoints(1);
     }
   }
@@ -4203,10 +4277,10 @@ class Game {
       int landCount = _state.pathControlledLandCount(Path.taSeti);
       if (landCount >= 3) {
         if (_state.gold > 0) {
-          logLine('> High Priests: -1 Gold');
+          logLine('>High Priests: -1 Gold');
           spendGold(1);
         } else {
-          logLine('> High Priests: -1 AP.');
+          logLine('>High Priests: -1 AP');
           spendActionPoints(1);
         }
       }
@@ -4237,7 +4311,7 @@ class Game {
     final godFront = randPiece(godFronts)!;
     int side = randInt(2);
     final god = side == 0 ? godFront : _state.pieceFlipSide(godFront)!;
-    logLine('> Presiding God: ${god.desc}');
+    logLine('>Presiding God: ${god.desc}');
     _state.setPresidingGod(god);
   }
 
@@ -4252,10 +4326,10 @@ class Game {
           }
         }
         if (paths.isEmpty) {
-          logLine('> ${god.desc} is appeased, no Path Rises.');
+          logLine('>${god.desc} is appeased, no Path Rises.');
         } else {
           final path = randPath(paths)!;
-          logLine('> ${god.desc} is angry, ${path.desc} Rises.');
+          logLine('>${god.desc} is angry, ${path.desc} Rises.');
           final box = _state.pathRiseDeclineBox(path);
           _state.setPieceLocation(Piece.rise, box);
         }
@@ -4272,7 +4346,7 @@ class Game {
           }
         }
         if (choosableLocationCount == 0) {
-          logLine('> ${god.desc} is angry, no Path Declines.');
+          logLine('>${god.desc} is angry, no Path Declines.');
           return;
         }
         setPrompt('Select Path to Decline');
@@ -4280,7 +4354,7 @@ class Game {
       }
       final land = selectedLocation()!;
       final path = _state.landPath(land)!;
-      logLine('> ${path.desc} Declines.');
+      logLine('>${path.desc} Declines.');
       final box = _state.pathRiseDeclineBox(path);
       _state.setPieceLocation(Piece.decline, box);
       clearChoices();
@@ -4303,14 +4377,14 @@ class Game {
         }
       }
       if (paths.isEmpty) {
-        logLine('> ${god.desc} is appeased, no Land Revolts.');
+        logLine('>${god.desc} is appeased, no Land Revolts.');
         return;
       }
       final path = randPath(paths)!;
       int die = rollD6();
       final land = _state.pathDieLand(path, die);
       if (_state.piecesInLocationCount(PieceType.maatUnused, land) > 0) {
-        logLine('> Maʼat prevents Revolt in ${land.desc}.');
+        logLine('>Maʼat prevents Revolt in ${land.desc}.');
         return;
       }
       phaseState.revoltPath = path;
@@ -4329,7 +4403,7 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.yes)) {
-        logLine('> Pharaoh prevents Revolt in ${land.desc}.');
+        logLine('>Pharaoh prevents Revolt in ${land.desc}.');
         _state.pharaohAvailable = false;
         clearChoices();
         return;
@@ -4339,18 +4413,18 @@ class Game {
     }
 
     if (_subStep == 2) {
-      logLine('> ${land.desc} Revolts.');
+      logLine('>${land.desc} Revolts.');
       if (_state.era == Era.oldKingdom) {
         if (_state.landIsControlled(land)) {
           final troops = _state.pathTroops(path);
           final troopsLand = _state.pieceLocation(troops);
           final retreatLand = _state.pathPrevLand(path, troopsLand);
-          logLine('> Medjai Troops retreat to ${retreatLand.desc}.');
+          logLine('>Medjai Troops retreat to ${retreatLand.desc}.');
           _state.setPieceLocation(troops, retreatLand);
           return;
         }
         if (_state.piecesInLocationCount(PieceType.sepat, land) > 0 || !_state.landSupportsSepat(land, false)) {
-          logLine('> Revolt has no impact.');
+          logLine('>Revolt has no impact.');
           return;
         }
         final sepat = drawSepat();
@@ -4360,7 +4434,7 @@ class Game {
           final khasti = _state.pathCurrentKhasti(path)!;
           final khastiLand = _state.pieceLocation(khasti);
           if (khastiLand != land) {
-            logLine('> ${khasti.desc} retreats to ${land.desc}.');
+            logLine('>${khasti.desc} retreats to ${land.desc}.');
             _state.setPieceLocation(khasti, land);
           }
         } else {
@@ -4380,7 +4454,7 @@ class Game {
               }
             }
           }
-          logLine('> A Rival Dynasty of strength ${_state.rivalDynastyStrength(rivalDynasty!)} rises in ${land.desc}.');
+          logLine('>A Rival Dynasty of strength ${_state.rivalDynastyStrength(rivalDynasty!)} rises in ${land.desc}.');
           _state.setPieceLocation(rivalDynasty, land);
           if (sepat == null) {
             sepat = drawSepat();
@@ -4393,7 +4467,7 @@ class Game {
           final khasti = _state.pathCurrentKhasti(path)!;
           final khastiLand = _state.pieceLocation(khasti);
           if (khastiLand.index < nextLand.index) {
-            logLine('> ${khasti.desc} retreats to ${nextLand.desc}.');
+            logLine('>${khasti.desc} retreats to ${nextLand.desc}.');
             _state.setPieceLocation(khasti, nextLand);
           }
           _subStep = 3;
@@ -4435,11 +4509,11 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoiceAndClear(Choice.blockAdvanceNubianArchers)) {
-          logLine('> Nubian Archers');
+          logLine('>Nubian Archers');
           phaseState.attackChoice = Choice.blockAdvanceNubianArchers;
           final nubianArchesLocation = _state.pieceLocation(Piece.heroesNubianArchers);
           if (nubianArchesLocation != revoltLand) {
-            logLine('> Nubian Archers react to Rival Dynasty');
+            logLine('>Nubian Archers react to Rival Dynasty');
             if (_state.landPath(nubianArchesLocation) != revoltPath) {
               spendGold(2);
             }
@@ -4447,11 +4521,11 @@ class Game {
           }
           _subStep = 4;
         } else if (checkChoiceAndClear(Choice.blockAdvanceMeraFleet)) {
-          logLine('> Mera Fleet');
+          logLine('>Mera Fleet');
           phaseState.attackChoice = Choice.blockAdvanceMeraFleet;
           final meraFleetLocation = _state.pieceLocation(Piece.heroesMeraFleet);
           if (meraFleetLocation != revoltLand) {
-            logLine('> Mera Fleet reacts to Rival Dynasty');
+            logLine('>Mera Fleet reacts to Rival Dynasty');
             if (_state.landPath(meraFleetLocation) != revoltPath) {
               spendGold(2);
               _state.setPieceLocation(Piece.heroesMeraFleet, revoltLand);
@@ -4459,39 +4533,41 @@ class Game {
           }
           _subStep = 4;
         } else if (checkChoiceAndClear(Choice.blockAdvanceCede)) {
-          logLine('> Rival Dynasty in ${land.desc} is firmly established.');
+          logLine('>Rival Dynasty in ${land.desc} is firmly established.');
           return;
         }
       }
 
-      if (_subStep >= 4 && _subStep <= 5) { // Attack
+      if (_subStep == 4) { // Attack
         final attackChoice = phaseState.attackChoice!;
+
+        int die = isisRollD6();
+
+        logTableHeader('Effect', 'Value');
         int value = _state.rivalDynastyStrength(rivalDynasty);
-        if (_subStep == 4) {
-          logLine('> Rival Dynasty Value: $value');
-        }
+        logLine('>|Rival Dynasty Value|$value|');
         int valueModifiers = 0;
         if (_state.pathRise(path)) {
-          if (_subStep == 4) {
-            logLine('> Rise: +1');
-          }
+          logLine('>|Rise|+1|');
           valueModifiers += 1;
         }
         if (_state.pathDecline(path)) {
-          if (_subStep == 4) {
-            logLine('> Decline: -1');
-          }
+          logLine('>|Decline|-1|');
           valueModifiers -= 1;
         }
         int valueTotal = value + valueModifiers;
-        _subStep = 5;
-        int die = isisRollD6();
+        logLine('>|Rival Dynasty Total|$valueTotal|');
+        logLine('>|||');
+        logD6InTable(die);
         int dieModifiers = 0;
         if (_state.haveIronWeapons) {
-          logLine('> Iron: +1');
+          logLine('>|Iron|+1|');
           dieModifiers += 1;
         }
         int dieTotal = die + dieModifiers;
+        logLine('>|Egype Total|$dieTotal|');
+        logTableFooter();
+
         switch (attackChoice) {
         case Choice.blockAdvanceNubianArchers:
           _state.setPieceLocation(Piece.heroesNubianArchersBack, Location.boxHeroes);
@@ -4500,11 +4576,11 @@ class Game {
         default:
         }
         if (dieTotal > valueTotal) {
-          logLine('> Counterattack is successful, Rival Dynasty is crushed.');
+          logLine('>Counterattack is successful, Rival Dynasty is crushed.');
           _state.setPieceLocation(rivalDynasty, Location.trayMilitary);
           return;
         }
-        logLine('> Counterattack fails, Rival Dynasty endures.');
+        logLine('>Counterattack fails, Rival Dynasty endures.');
         _subStep = 3;
       }
     }
@@ -4563,8 +4639,9 @@ class Game {
     }
     if (_subStep == 1) {
       final die = isisRollD6();
+      logD6(die);
       if (die < 4) {
-        logLine('> ${oldKhasti.desc} remain in control of ${country.desc}.');
+        logLine('>${oldKhasti.desc} remain in control of ${country.desc}.');
         return;
       }
       phaseState.evolved[pathIndex] = true;
@@ -4573,7 +4650,7 @@ class Game {
 
     if (_subStep == 2) {
       final land = _state.pieceLocation(oldKhasti);
-      logLine('> ${newKhasti!.desc} replaces ${oldKhasti.desc} in ${country.desc}.');
+      logLine('>${newKhasti!.desc} replaces ${oldKhasti.desc} in ${country.desc}.');
       Location? tray;
       if (path == Path.retjenu) {
         tray = Location.trayRetjenu;
@@ -4585,7 +4662,7 @@ class Game {
       _state.setPieceLocation(oldKhasti, tray);
       _state.setPieceLocation(newKhasti, land);
       if (newKhasti == Piece.khastiHyksos) {
-        logLine('> Knowledge of Chariots reaches Egypt.');
+        logLine('>Knowledge of Chariots reaches Egypt.');
         _state.setPieceLocation(Piece.heroesChariotsP2, Location.boxHeroes);
       } else if (newKhasti == Piece.khastiAssyria) {
         _subStep = 3;
@@ -4605,11 +4682,11 @@ class Game {
       }
       if (checkChoice(Choice.yes)) {
         if (newKhasti == Piece.khastiAssyria) {
-          logLine('> Greek Mercenaries hired.');
+          logLine('>Greek Mercenaries hired.');
           spendGold(1);
           _state.setPieceLocation(Piece.greeks, Location.landMenNefer);
          } else {
-          logLine('> Jewish Refugees arrive in Egypt.');
+          logLine('>Jewish Refugees arrive in Egypt.');
           spendGold(1);
           _state.setPieceLocation(Piece.jews, Location.landMenNefer);
         }
@@ -4621,7 +4698,7 @@ class Game {
     if (_subStep == 4) {  // Israel
       if ([Piece.khastiBabylon, Piece.khastiPersia].contains(newKhasti)) {
         if (_state.piecesInLocationCount(PieceType.israel, Location.countryRetjenu) > 0) {
-          logLine('> ${newKhasti!.desc} conquers Israel.');
+          logLine('>${newKhasti!.desc} conquers Israel.');
           _state.setPieceLocation(Piece.israel0, Location.trayMilitary);
         }
       }
@@ -4688,8 +4765,12 @@ class Game {
   void chroniclesOfManethoPhaseRoll() {
     logLine('### Random Events Roll');
     int die = rollD6();
+
+    logTableHeader('Effect', 'Value');
+    logD6InTable(die);
+    logLine('>|Dynasty|${_state.currentTurn + 3}|');
     int total = die + _state.currentTurn + 3;
-    logLine('> Result: $total');
+    logLine('>|Total|$total|');
     _state.manethoTotal = total;
   }
 
@@ -4786,7 +4867,7 @@ class Game {
     }
     final oldKhasti = _state.pathCurrentKhasti(Path.retjenu)!;
     final land = _state.pieceLocation(oldKhasti);
-    logLine('> ${Piece.khastiRomans.desc} replace ${oldKhasti.desc} in ${land.desc}.');
+    logLine('>${Piece.khastiRomans.desc} replace ${oldKhasti.desc} in ${land.desc}.');
     _state.setPieceLocation(oldKhasti, Location.trayRetjenu);
     _state.setPieceLocation(Piece.khastiRomans, land);
     
@@ -4803,9 +4884,10 @@ class Game {
       }
       if (_subStep == 1) {
         int die = isisRollD6();
+        logD6(die);
         adjustRomanDebt(-die);
         if (_state.romanDebt == 0) {
-          logLine('> Egypt fends off Rome.');
+          logLine('>Egypt fends off Rome.');
         }
       }
     }
@@ -5110,7 +5192,7 @@ class Game {
           logLine('### Recruit Medjai Troops');
           spendActionPoints(1);
           final troops = _state.piecesInLocation(PieceType.medjaiTroops, Location.trayMilitary);
-          logLine('> Medjai Troops are built in Men-Nefer.');
+          logLine('>Medjai Troops are built in Men-Nefer.');
           _state.setPieceLocation(troops[0], Location.landMenNefer);
         } else if (checkChoice(Choice.templeSepat) || checkChoice(Choice.templeSepatReligiousSkill) || checkChoice(Choice.templeSepatPtah) || checkChoice(Choice.templeSepatPharaoh) || checkChoice(Choice.templeSepatMaat)) {
           phaseState.templeSepatUseReligiousSkill = checkChoice(Choice.templeSepatReligiousSkill);
@@ -5146,7 +5228,7 @@ class Game {
           int cost = _state.presidingGod == Piece.godThoth ? 4 : 5;
           logLine('### Advance Literacy');
           final newLiteracy = Location.values[_state.pieceLocation(Piece.literacy).index + 1];
-          logLine('> ${newLiteracy.desc} script is introduced.');
+          logLine('>${newLiteracy.desc} script is introduced.');
           spendActionPoints(cost);
           _state.setPieceLocation(Piece.literacy, newLiteracy);
         } else if (checkChoiceAndClear(Choice.withdrawFromCountry)) {
@@ -5161,12 +5243,12 @@ class Game {
           _subStep = 8;
         } else if (checkChoiceAndClear(Choice.reorientIsrael)) {
           logLine('### Reorient Israel');
-          logLine('> Kingdom of Israel realigns with Egypt');
+          logLine('>Kingdom of Israel realigns with Egypt');
           spendActionPoints(1);
           _state.flipPiece(Piece.israeln1);
         } else if (checkChoiceAndClear(Choice.suppressHighPriests)) {
           logLine('### Suppress High Priests');
-          logLine('> High Priests of Amun corruption is suppressed.');
+          logLine('>High Priests of Amun corruption is suppressed.');
           spendActionPoints(1);
           _state.setPieceLocation(Piece.highPriests, Location.trayEconomic);
         } else if (checkChoiceAndClear(Choice.undermineRivalDynasty)) {
@@ -5251,22 +5333,27 @@ class Game {
         final path = _state.landPath(land)!;
         if (phaseState.templeSepatUseMaat) {
           int die = isisRollD6();
+
+          logTableHeader('Effect', 'Value');
           final maat = _state.piecesInLocation(PieceType.maatUnused, Location.boxHouseOfLife)[0];
           _state.flipPiece(maat);
-          logLine('> Sepat Value: $value');
+          logLine('>|Sepat|$value|');
           int valueModifiers = 0;
           if (_state.pathRise(path)) {
-            logLine('> Rise: +1');
+            logLine('>|Rise|+1|');
             valueModifiers += 1;
           }
           if (_state.pathDecline(path)) {
-            logLine('> Decline: -1');
+            logLine('>|Decline|-1|');
             valueModifiers -= 1;
           }
           final total = value + valueModifiers;
-          logLine('> Total: $total');
+          logLine('>|Total|$total|');
+          logD6InTable(die);
+          logTableFooter();
+
           if (die <= total) {
-            logLine('> Temple is not built.');
+            logLine('>Temple is not built.');
             clearChoices();
             _subStep = 0;
             continue;
@@ -5275,22 +5362,22 @@ class Game {
         final templedSepat = _state.pieceFlipSide(sepat)!;
         final god = _state.templedSepatGod(templedSepat);
         if (phaseState.templeSepatUseMaat) {
-          logLine('> Temple dedicated to ${god.desc} is built in ${land.desc} using Maʽat.');
+          logLine('>Temple dedicated to ${god.desc} is built in ${land.desc} using Maʽat.');
           phaseState.templeSepatUseMaat = false;
         } else if (phaseState.templeSepatUseReligiousSkill) {
-          logLine('> Temple dedicated to ${god.desc} is built in ${land.desc} using Religious Skill.');
+          logLine('>Temple dedicated to ${god.desc} is built in ${land.desc} using Religious Skill.');
           spendActionPoints(1);
           phaseState.templeSepatUseReligiousSkill = false;
           phaseState.religiousSkill = false;
         } else if (phaseState.templeSepatUsePtah) {
-          logLine('> Temple dedicated to ${god.desc} is built in ${land.desc} using Ptah Bonus.');
+          logLine('>Temple dedicated to ${god.desc} is built in ${land.desc} using Ptah Bonus.');
           if (god != Piece.godPtah) {
             spendActionPoints(1);
           }
           phaseState.templeSepatUsePtah = false;
           phaseState.ptahBonus = false;
         } else if (phaseState.templeSepatUsePharaoh) {
-          logLine('> Pharaoh builds Temple dedicated to ${god.desc} in ${land.desc}.');
+          logLine('>Pharaoh builds Temple dedicated to ${god.desc} in ${land.desc}.');
           spendActionPoints(1);
           phaseState.templeSepatUsePharaoh = false;
           _state.pharaohAvailable = false;
@@ -5298,7 +5385,7 @@ class Game {
           final path = _state.landPath(land)!;
           final modifier = _state.pathModifier(path);
           final cost = value + modifier;
-          logLine('> Temple dedicated to ${god.desc} is built in ${land.desc}.');
+          logLine('>Temple dedicated to ${god.desc} is built in ${land.desc}.');
           spendActionPoints(cost);
         }
         _state.setPieceLocation(templedSepat, land);
@@ -5350,24 +5437,29 @@ class Game {
         spendActionPoints(amount!);
         final path = _state.landPath(land)!;
         final sepat = drawSepat();
+
+        logTableHeader('Effect', 'Value');
         final value = _state.sepatValue(sepat);
-        logLine('> Sepat Value: $value');
+        logLine('>|Sepat|$value|');
         int valueModifiers = 0;
         if (_state.pathRise(path)) {
-          logLine('> Rise: +1');
+          logLine('>|Rise|+1|');
           valueModifiers += 1;
         }
         if (_state.pathDecline(path)) {
-          logLine('> Decline: -1');
+          logLine('>|Decline|-1|');
           valueModifiers -= 1;
         }
         final total = value + valueModifiers;
-        logLine('> Total: $total');
+        logLine('>|Total|$total|');
+        logLine('>Action Points|$amount|');
+        logTableFooter();
+
         if (amount > total) {
-          logLine('> ${land.desc} is successfully colonized.');
+          logLine('>${land.desc} is successfully colonized.');
           discoverSepat(land, sepat);
         } else {
-          logLine('> Colonization attempt fails.');
+          logLine('>Colonization attempt fails.');
         }
         _subStep = 0;
       }
@@ -5400,9 +5492,9 @@ class Game {
         _state.setPieceLocation(megaproject, _state.megaprojectBox(megaproject));
         if (amount > 0) {
           if (amount == 2) {
-            logLine('> $amount Revival Chits are purchased.');
+            logLine('>$amount Revival Chits are purchased.');
           } else {
-            logLine('> A Revival Chit is purchased.');
+            logLine('>A Revival Chit is purchased.');
           }
           spendActionPoints(amount);
           final revivalChits = _state.piecesInLocation(PieceType.revival, Location.trayRevival);
@@ -5432,7 +5524,7 @@ class Game {
         }
         final land = selectedLocation()!;
         logLine('### Build Walls of the Ruler');
-        logLine('> Walls of the Ruler are built in ${land.desc}.');
+        logLine('>Walls of the Ruler are built in ${land.desc}.');
         int cost = cheaperLands.contains(land) ? 5 : 6;
         spendActionPoints(cost);
         final walls = _state.piecesInLocation(PieceType.wallsOfTheRuler, Location.trayMilitary);
@@ -5456,7 +5548,7 @@ class Game {
         }
         final country = selectedLocation()!;
         logLine('### Withdraw from Country');
-        logLine('> Egypt withdraws from ${country.desc}.');
+        logLine('>Egypt withdraws from ${country.desc}.');
         final egyptianRule = _state.pieceInLocation(PieceType.egyptianRule, country)!;
         _state.setPieceLocation(egyptianRule, Location.trayPolitical);
         clearChoices();
@@ -5479,7 +5571,7 @@ class Game {
         }
         final country = selectedLocation()!;
         logLine('### Dynastic Marriage');
-        logLine('> Egypt makes dynastic Marriage with ${country.desc}.');
+        logLine('>Egypt makes dynastic Marriage with ${country.desc}.');
         spendActionPoints(2);
         _state.setPieceLocation(Piece.marriage, country);
         clearChoices();
@@ -5514,23 +5606,28 @@ class Game {
         int die = isisRollD6();
         final maat = _state.piecesInLocation(PieceType.maatUnused, Location.boxHouseOfLife)[0];
         _state.flipPiece(maat);
-        logLine('> Rival Dynasty Strength: $value');
+
+        logTableHeader('Effect', 'Value');
+        logLine('>|Rival Dynasty|$value|');
         int valueModifiers = 0;
         if (_state.pathRise(path)) {
-          logLine('> Rise: +1');
+          logLine('>|Rise|+1|');
           valueModifiers += 1;
         }
         if (_state.pathDecline(path)) {
-          logLine('> Decline: -1');
+          logLine('>|Decline|-1|');
           valueModifiers -= 1;
         }
         final total = value + valueModifiers;
-        logLine('> Total: $total');
+        logLine('>|Total|$total|');
+        logD6InTable(die);
+        logTableFooter();
+
         if (die > total) {
-          logLine('> Rival Dynasty in ${land.desc} collapses.');
+          logLine('>Rival Dynasty in ${land.desc} collapses.');
           _state.setPieceLocation(rivalDynasty, Location.trayMilitary);
         } else {
-          logLine('> Rival Dynasty remains in power.');
+          logLine('>Rival Dynasty remains in power.');
         }
         _subStep = 0;
       }
@@ -5551,7 +5648,7 @@ class Game {
         final sepat = selectedPiece()!;
         final land = _state.pieceLocation(sepat);
         logLine('#### Boost Morale');
-        logLine('> Morale is Boosted by Maʽat in ${land.desc}.');
+        logLine('>Morale is Boosted by Maʽat in ${land.desc}.');
         _state.setPieceLocation(_state.piecesInLocation(PieceType.maatUnused, Location.boxHouseOfLife)[0], land);
         clearChoices();
         _subStep = 0;
@@ -5579,17 +5676,19 @@ class Game {
       }
       if (_subStep == 13) { // Loot Megaproject roll
         int die = isisRollD6();
+        logD6(die);
         adjustActionPoints(die);
         _subStep = 0;
       }
 
       if (_subStep == 14) { // Plunder Greeks/Jews
         int die = isisRollD6();
+        logD6(die);
         if (die >= 3) {
-          logLine('> Plundering is successful.');
+          logLine('>Plundering is successful.');
           _state.adjustActionPoints(die);
         } else {
-          logLine('> Plundering is unsuccessful.');
+          logLine('>Plundering is unsuccessful.');
         }
         _subStep = 0;
       }
@@ -5609,7 +5708,7 @@ class Game {
         }
         final land = selectedLocation()!;
         logLine('### Move Nubian Archers');
-        logLine('> Nubian Archers move to ${land.desc}.');
+        logLine('>Nubian Archers move to ${land.desc}.');
         int cost = land == Location.landMenNefer ? 3 : 1;
         spendActionPoints(cost);
         _state.setPieceLocation(Piece.heroesNubianArchers, land);
@@ -5633,7 +5732,7 @@ class Game {
         }
         final land = selectedLocation()!;
         logLine('### Move Mera Fleet');
-        logLine('> Mera Fleet moves to ${land.desc}.');
+        logLine('>Mera Fleet moves to ${land.desc}.');
         int baseCost = _state.pieceLocation(Piece.heroesMeraFleet) == Location.boxHeroes && !_state.landIsControlled(Location.landSharuhen) ? 2 : 1;
         int cost = baseCost + (land == Location.landMenNefer ? 2 : 0);
         spendActionPoints(cost);
@@ -5646,48 +5745,46 @@ class Game {
       if (_subStep >= 20 && _subStep <= 22) { // Medjai Troops Advance
         final land = phaseState.selectedLand!;
         final path = _state.landPath(land)!;
+        final sepat = _state.pieceInLocation(PieceType.sepat, land);
         if (_subStep == 20) {
           logLine('### Medjai Troops Advance');
           if (phaseState.militarySkill) {
             phaseState.militarySkill = false;
-            logLine('> Military Skill Free Attack');
+            logLine('>Military Skill Free Attack');
           } else {
             spendActionPoints(1);
           }
-          logLine('> Medjai Troops Advance into ${land.desc}');
-        }
-        final sepat = _state.pieceInLocation(PieceType.sepat, land);
-        if (sepat != null && sepat.isType(PieceType.sepatUntempled)) {
-          int value = _state.sepatValue(sepat);
-          if (_subStep == 20) {
-            logLine('> Sepat Value: $value');
-          }
-          int valueModifiers = 0;
-          if (_state.pathRise(path)) {
-            if (_subStep == 20) {
-              logLine('> Rise: +1');
-            }
-            valueModifiers += 1;
-          }
-          if (_state.pathDecline(path)) {
-            if (_subStep == 20) {
-              logLine('> Decline: -1');
-            }
-            valueModifiers -= 1;
-          }
-          int valueTotal = value + valueModifiers;
-          _subStep = 21;
-          int die = isisRoll2D6();
-          if (die <= valueTotal) {
-            logLine('> Sepat repels Medjai Troops Advance.');
-            phaseState.selectedLand = null;
-            _subStep = 0;
-            continue;
-          }
-        } else {
+          logLine('>Medjai Troops Advance into ${land.desc}');
           _subStep = 21;
         }
         if (_subStep == 21) {
+          if (sepat != null && sepat.isType(PieceType.sepatUntempled)) {
+            int die = isisRollD6x2();
+
+            logTableHeader('Effect', 'Value');
+            int value = _state.sepatValue(sepat);
+            logLine('>Sepat|$value|');
+            int valueModifiers = 0;
+            if (_state.pathRise(path)) {
+              logLine('>|Rise|+1|');
+              valueModifiers += 1;
+            }
+            if (_state.pathDecline(path)) {
+              logLine('>|Decline|-1|');
+              valueModifiers -= 1;
+            }
+            int valueTotal = value + valueModifiers;
+            logLine('>|Sepat Total|$valueTotal|');
+            logD6InTable(die);
+            logTableFooter();
+
+            if (die <= valueTotal) {
+              logLine('>Sepat repels Medjai Troops Advance.');
+              phaseState.selectedLand = null;
+              _subStep = 0;
+              continue;
+            }
+          }
           final troops = _state.pathTroops(path);
           if (_state.pieceLocation(troops) == Location.trayMilitary) {
             final menNeferTroops = _state.piecesInLocation(PieceType.medjaiTroops, Location.landMenNefer);
@@ -5702,7 +5799,7 @@ class Game {
             if (_state.piecesInLocationCount(PieceType.sepat, nextLand) == 0) {
               final nextSepat = drawSepatForLand(nextLand);
               final goods = _state.sepatGoods(nextSepat);
-              logLine('> ${goods.desc} is discovered in ${nextLand.desc}.');
+              logLine('>${goods.desc} is discovered in ${nextLand.desc}.');
               _state.setPieceLocation(nextSepat, nextLand);
             }
           }
@@ -5764,6 +5861,13 @@ class Game {
         bool meraFleet = phaseState.attackPieces.contains(Piece.heroesMeraFleet);
         bool chariotsP1 = phaseState.attackPieces.contains(Piece.heroesChariotsP1);
         bool chariotsP2 = phaseState.attackPieces.contains(Piece.heroesChariotsP2);
+        Piece? chariots = _state.pieceLocation(Piece.heroesChariotsP1) != Location.flipped ? Piece.heroesChariotsP1 : Piece.heroesChariotsP2;
+        if (!chariotsP1 && !chariotsP2) {
+          if (_state.chariotsPath != path) {
+            chariots = null;
+          }
+        }
+
         if (_subStep == 31) {
           if (pharaoh) {
             logLine('### Pharaoh leads Campaign against ${army.desc} in ${land.desc}');
@@ -5792,100 +5896,96 @@ class Game {
           } else {
             spendActionPoints(cost);
           }
+          _subStep = 32;
         }
+        if (_subStep == 32) {
+          int die = pharaoh ? isisRollD6x2() : isisRollD6();
 
-        Piece? chariots = _state.pieceLocation(Piece.heroesChariotsP1) != Location.flipped ? Piece.heroesChariotsP1 : Piece.heroesChariotsP2;
-        if (!chariotsP1 && !chariotsP2) {
-          if (_state.chariotsPath != path) {
-            chariots = null;
+          logTableHeader('Effect', 'Value');
+          int value = army.isType(PieceType.khasti) ? _state.khastiValue(army) : _state.rivalDynastyStrength(army);
+          logLine('>|${army.desc}|$value|');
+          int valueModifiers = 0;
+          if (path != null && _state.pathRise(path)) {
+            logLine('>|Rise|+1|');
+            valueModifiers += 1;
           }
-        }
+          if (path != null && _state.pathDecline(path)) {
+            logLine('>|Decline|-1|');
+            valueModifiers -= 1;
+          }
+          int valueTotal = value + valueModifiers;
+          logLine('>|${army.isType(PieceType.khasti) ? 'Khasti' : 'Rival Dynasty'} Total|$valueTotal|');
+          logLine('>|||');
+          logD6InTable(die);
+          int dieModifiers = 0;
+          if (nubianArchers) {
+            logLine('>|Nubian Archers|+1|');
+            dieModifiers += 1;
+          }
+          if (meraFleet) {
+            logLine('>|Mera Fleet|+1|');
+            dieModifiers += 1;
+          }
+          if (chariots == Piece.heroesChariotsP1) {
+            logLine('>|Chariots|+1|');
+            dieModifiers += 1;
+          } else if (chariots == Piece.heroesChariotsP2) {
+            logLine('>|Chariots|+2|');
+            dieModifiers += 2;
+          }
+          if (_state.haveIronWeapons) {
+            logLine('>|Iron|+1|');
+            dieModifiers += 1;
+          }
+          if (path == Path.retjenu && _state.pieceLocation(Piece.israeln1) == Location.countryRetjenu) {
+            logLine('>|Israel|-1|');
+            dieModifiers -= 1;
+          }
+          int dieTotal = die + dieModifiers;
+          logLine('>|Egypt Total|4dieTotal|');
+          logTableFooter();
 
-        int value = army.isType(PieceType.khasti) ? _state.khastiValue(army) : _state.rivalDynastyStrength(army);
-        if (_subStep == 31) {
-          logLine('> ${army.desc} Value: $value');
-        }
-        int valueModifiers = 0;
-        if (path != null && _state.pathRise(path)) {
-          if (_subStep == 31) {
-            logLine('> Rise: +1');
-          }
-          valueModifiers += 1;
-        }
-        if (path != null && _state.pathDecline(path)) {
-          if (_subStep == 31) {
-            logLine('> Decline: -1');
-          }
-          valueModifiers -= 1;
-        }
-        int valueTotal = value + valueModifiers;
-        _subStep = 32;
-        int die = pharaoh ? isisRoll2D6() : isisRollD6();
-        int dieModifiers = 0;
-        if (nubianArchers) {
-          logLine('> Nubian Archers: +1');
-          dieModifiers += 1;
-        }
-        if (meraFleet) {
-          logLine('> Mera Fleet: +1');
-          dieModifiers += 1;
-        }
-        if (chariots == Piece.heroesChariotsP1) {
-          logLine('> Chariots: +1');
-          dieModifiers += 1;
-        } else if (chariots == Piece.heroesChariotsP2) {
-          logLine('> Chariots: +2');
-          dieModifiers += 2;
-        }
-        if (_state.haveIronWeapons) {
-          logLine('> Iron: +1');
-          dieModifiers += 1;
-        }
-        if (path == Path.retjenu && _state.pieceLocation(Piece.israeln1) == Location.countryRetjenu) {
-          logLine('> Israel: -1');
-          dieModifiers -= 1;
-        }
-        int dieTotal = die + dieModifiers;
-        if (dieTotal > valueTotal) {
-          if (army.isType(PieceType.rivalDynasty)) {
-            logLine('> Rival Dynasty is defeated.');
-            _state.setPieceLocation(army, Location.trayMilitary);
-          } else {
-            if (_state.landIsCountry(land)) {
-              logLine('> Invasion of ${land.desc} is successful.');
-              logLine('> Egyptian Rule is established in ${land.desc}.');
-              final egyptianRules = _state.piecesInLocation(PieceType.egyptianRule, Location.trayPolitical);
-              _state.setPieceLocation(egyptianRules[0], land);
+          if (dieTotal > valueTotal) {
+            if (army.isType(PieceType.rivalDynasty)) {
+              logLine('>Rival Dynasty is defeated.');
+              _state.setPieceLocation(army, Location.trayMilitary);
             } else {
-              logLine('> Attack on ${army.desc} is successful.');
-              final retreatLand = _state.pathNextLand(path!, land)!;
-              logLine('> ${army.desc} retreats to ${retreatLand.desc}.');
-              _state.setPieceLocation(army, retreatLand);
+              if (_state.landIsCountry(land)) {
+                logLine('>Invasion of ${land.desc} is successful.');
+                logLine('>Egyptian Rule is established in ${land.desc}.');
+                final egyptianRules = _state.piecesInLocation(PieceType.egyptianRule, Location.trayPolitical);
+                _state.setPieceLocation(egyptianRules[0], land);
+              } else {
+                logLine('>Attack on ${army.desc} is successful.');
+                final retreatLand = _state.pathNextLand(path!, land)!;
+                logLine('>${army.desc} retreats to ${retreatLand.desc}.');
+                _state.setPieceLocation(army, retreatLand);
+              }
             }
+          } else {
+            logLine('> Attack is repulsed.');
           }
-        } else {
-          logLine('> Attack is repulsed.');
+          if (pharaoh) {
+            _state.pharaohAvailable = false;
+          }
+          if (nubianArchers) {
+            phaseState.nubianArchersMoved = true;
+            _state.setPieceLocation(Piece.heroesNubianArchersBack, Location.boxHeroes);
+          }
+          if (meraFleet) {
+            phaseState.meraFleetMoved = true;
+            _state.setPieceLocation(Piece.heroesMeraFleetBack, Location.boxHeroes);
+          }
+          if (chariotsP1 || chariotsP2) {
+            _state.setPieceLocation(chariots!, Location.boxHeroes);
+          } else if (chariots != null && die == 1) {
+            logLine('>|Chariots suffer losses.');
+            _state.setPieceLocation(Piece.heroesChariotsP1, Location.boxHeroes);
+          }
+          phaseState.selectedLand = null;
+          phaseState.attackPieces = <Piece>[];
+          _subStep = 0;
         }
-        if (pharaoh) {
-          _state.pharaohAvailable = false;
-        }
-        if (nubianArchers) {
-          phaseState.nubianArchersMoved = true;
-          _state.setPieceLocation(Piece.heroesNubianArchersBack, Location.boxHeroes);
-        }
-        if (meraFleet) {
-          phaseState.meraFleetMoved = true;
-          _state.setPieceLocation(Piece.heroesMeraFleetBack, Location.boxHeroes);
-        }
-        if (chariotsP1 || chariotsP2) {
-          _state.setPieceLocation(chariots!, Location.boxHeroes);
-        } else if (chariots != null && die == 1) {
-          logLine('> Chariots suffer losses.');
-          _state.setPieceLocation(Piece.heroesChariotsP1, Location.boxHeroes);
-        }
-        phaseState.selectedLand = null;
-        phaseState.attackPieces = <Piece>[];
-        _subStep = 0;
       }
     }
   }
@@ -5959,7 +6059,7 @@ class Game {
         if (selectedPiece() != null) {
           final sepat = selectedPiece()!;
           final land = _state.pieceLocation(sepat);
-          logLine('> Protect ${land.desc} from Degradation');
+          logLine('>Protect ${land.desc} from Degradation');
           spendActionPoints(1);
           phaseState.degradeSepats.remove(sepat);
           clearChoices();
@@ -5976,12 +6076,12 @@ class Game {
         final land = _state.pieceLocation(sepat);
         if (sepat.isType(PieceType.sepatTempled)) {
           final god = _state.templedSepatGod(sepat);
-          logLine('> Temple dedicated to ${god.desc} in ${land.desc} falls into disuse.');
+          logLine('>Temple dedicated to ${god.desc} in ${land.desc} falls into disuse.');
           _state.flipPiece(sepat);
         } else {
           final path = _state.landPath(land)!;
           final khasti = _state.pathCurrentKhasti(path)!;
-          logLine('> Sepat in ${land.desc} is devasted by ${khasti.desc}.');
+          logLine('>Sepat in ${land.desc} is devasted by ${khasti.desc}.');
           _state.setPieceLocation(sepat, Location.cupSepat);
         }
       }
@@ -6019,7 +6119,7 @@ class Game {
       for (final hero in relocateHeroes) {
         final relocationCandidates = heroRelocationCandidates(hero);
         if (relocationCandidates.isEmpty) {
-          logLine('> ${hero.desc} returns to the Heroes Box');
+          logLine('>${hero.desc} returns to the Heroes Box');
           _state.setPieceLocation(hero, Location.boxHeroes);
         } else {
           if (choicesEmpty()) {
@@ -6030,7 +6130,7 @@ class Game {
             throw PlayerChoiceException();
           }
           final land = selectedLocation()!;
-          logLine('> ${hero.desc} moves to ${land.desc}.');
+          logLine('>${hero.desc} moves to ${land.desc}.');
           _state.setPieceLocation(hero, land);
           clearChoices();
         }
@@ -6040,7 +6140,7 @@ class Game {
     if (_subStep == 2) {
       if (chariots != null) {
         if (chariotsLocation != Location.boxHeroes) {
-          logLine('> ${chariots.desc} moves to ${Location.landMenNefer.desc}.');
+          logLine('>${chariots.desc} moves to ${Location.landMenNefer.desc}.');
           _state.setPieceLocation(chariots, Location.landMenNefer);
         } else {
           if (choicesEmpty()) {
@@ -6050,7 +6150,7 @@ class Game {
             throw PlayerChoiceException();
           }
           if (checkChoice(Choice.yes)) {
-            logLine('> ${chariots.desc} are built.');
+            logLine('>${chariots.desc} are built.');
             spendActionPoints(1);
             _state.setPieceLocation(chariots, Location.landMenNefer);
           }
@@ -6068,7 +6168,7 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoice(Choice.yes)) {
-          logLine('> Chariot force is strengthened.');
+          logLine('>Chariot force is strengthened.');
           spendActionPoints(2);
           _state.flipPiece(Piece.heroesChariotsP1);
         }
@@ -6129,7 +6229,7 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> Maʽat Tile Moves from ${oldLocation.desc} to ${location.desc}.');
+      logLine('>Maʽat Tile Moves from ${oldLocation.desc} to ${location.desc}.');
       _state.setPieceLocation(maat, location);
       clearChoices();
     }
