@@ -500,6 +500,8 @@ class GamePageState extends State<GamePage> {
     _mapStackChildren.clear();
     _mapStackChildren.add(_mapImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 

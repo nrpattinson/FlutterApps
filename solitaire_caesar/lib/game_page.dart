@@ -384,6 +384,8 @@ class GamePageState extends State<GamePage> {
     _referenceStackChildren.clear();
     _referenceStackChildren.add(_referenceImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 

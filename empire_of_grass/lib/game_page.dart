@@ -480,6 +480,8 @@ class GamePageState extends State<GamePage> {
     _trackStackChildren.clear();
     _trackStackChildren.add(_trackImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 

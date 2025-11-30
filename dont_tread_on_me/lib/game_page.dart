@@ -514,6 +514,8 @@ class GamePageState extends State<GamePage> {
     _turnTrackStackChildren.clear();
     _turnTrackStackChildren.add(_turnTrackImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 

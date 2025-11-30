@@ -2978,55 +2978,62 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  int dieWithDrm(int die, int drm) {
+    if (die == 1 || die == 6) {
+      return die;
+    }
+    return die + drm;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
   }
 
-  (int,int,int,int) roll3D6() {
-    int value = _random.nextInt(216);
-    int d0 = value ~/ 36;
-    value -= d0 * 36;
-    int d1 = value ~/ 6;
-    value -= d1 * 6;
-    int d2 = value;
-    d0 += 1;
-    d1 += 1;
-    d2 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
-    return (d0, d1, d2, d0 + d1 + d2);
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -3158,66 +3165,66 @@ class Game {
     int futureTurn = _state.currentTurn + turnCount;
     _state.churchillInUse(turnCount);
     if (futureTurn <= 27) {
-      logLine('> Churchill preoccupied until ${_state.turnName(futureTurn)}.');
+      logLine('>Churchill preoccupied until ${_state.turnName(futureTurn)}.');
     } else {
-      logLine('> Churchill preoccupied for the duration.');
+      logLine('>Churchill preoccupied for the duration.');
     }
   }
 
   void adjustDollars(int delta) {
     _state.adjustDollars(delta);
     if (delta > 0) {
-      logLine('> Dollars: +$delta → ${_state.dollars}');
+      logLine('>Dollars: +$delta → ${_state.dollars}');
     } else {
-      logLine('> Dollars: $delta → ${_state.dollars}');
+      logLine('>Dollars: $delta → ${_state.dollars}');
     }
   }
 
   void adjustAidToChina(int delta) {
     _state.adjustAidToChina(delta);
     if (delta > 0) {
-      logLine('> Cannon Meat: +$delta → ${_state.aidToChina}');
+      logLine('>Aid to China: +$delta → ${_state.aidToChina}');
     } else {
-      logLine('> Cannon Meat: $delta → ${_state.aidToChina}');
+      logLine('>Aid to China: $delta → ${_state.aidToChina}');
     }
   }
 
   void adjustCannonMeat(int delta) {
     _state.adjustCannonMeat(delta);
     if (delta > 0) {
-      logLine('> Cannon Meat: +$delta → ${_state.cannonMeat}');
+      logLine('>Cannon Meat: +$delta → ${_state.cannonMeat}');
     } else {
-      logLine('> Cannon Meat: $delta → ${_state.cannonMeat}');
+      logLine('>Cannon Meat: $delta → ${_state.cannonMeat}');
     }
   }
 
   void adjustNavalActions(int delta) {
     _state.adjustNavalActions(delta);
     if (delta > 0) {
-      logLine('> Naval Actions: +$delta → ${_state.navalActions}');
+      logLine('>Naval Actions: +$delta → ${_state.navalActions}');
     } else {
-      logLine('> Naval Actions: $delta → ${_state.navalActions}');
+      logLine('>Naval Actions: $delta → ${_state.navalActions}');
     }
   }
 
   void adjustManhattanProject(int delta) {
     _state.adjustManhattanProject(delta);
     if (delta > 0) {
-      logLine('> Manhattan Project: +$delta → ${_state.manhattanProject}');
+      logLine('>Manhattan Project: +$delta → ${_state.manhattanProject}');
     } else {
-      logLine('> Manhattan Project: $delta → ${_state.manhattanProject}');
+      logLine('>Manhattan Project: $delta → ${_state.manhattanProject}');
     }
   }
 
   void cityToLowMorale(Piece city) {
-    logLine('> Morale in ${city.desc} falls.');
+    logLine('>Morale in ${city.desc} falls.');
     _state.setPieceLocation(city, Location.boxCitiesLowMorale);
     if (_state.piecesInLocationCount(PieceType.alliedCity, Location.boxCitiesHighMorale) == 0) {
-      logLine('> Allied morale collapses.');
+      logLine('>Allied morale collapses.');
       throw GameOverException(GameResult.lostAlliedMoraleCollapse);
     }
     if (_state.piecesInLocationCount(PieceType.sovietCity, Location.boxCitiesHighMorale) == 0) {
-      logLine('> Soviet morale collapses.');
+      logLine('>Soviet morale collapses.');
       throw GameOverException(GameResult.lostSovietMoraleCollapse);
     }
   }
@@ -3225,14 +3232,14 @@ class Game {
   // High-Level functions
   
   void operationBarbarossa() {
-    logLine('> Germany launches Operation Barbarossa.');
+    logLine('>Germany launches Operation Barbarossa.');
     _state.setPieceLocation(Piece.policyRussia, Location.boxSovietPolicyWarVsGermany);
-    logLine('> Soviet Russia is at war with Germany.');
+    logLine('>Soviet Russia is at war with Germany.');
   }
 
   void pearlHarbor() {
-    logLine('> Japan attacks Pearl Harbor.');
-    logLine('> America is at war with the Axis Powers.');
+    logLine('>Japan attacks Pearl Harbor.');
+    logLine('>America is at war with the Axis Powers.');
     _state.setPieceLocation(Piece.capitalThailand, Location.frontSoutheastAsia);
     _state.setPieceLocation(Piece.armySingapore, Location.frontSoutheastAsia);
     _state.setPieceLocation(Piece.armyBataan, Location.frontSouthPacific);
@@ -3240,21 +3247,22 @@ class Game {
     _state.setPieceLocation(Piece.armyJapanese31, Location.frontSouthPacific);
     _state.setPieceLocation(_state.usPresident, Location.boxAlliedLeadershipAmerican);
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> Brazil remains neutral.');
+      logLine('>Brazil remains neutral.');
     } else {
-      logLine('> Brazil joins the allies.');
-      logLine('> Its Navy begins patrolling the Brazilian coast.');
+      logLine('>Brazil joins the allies.');
+      logLine('>Its Navy begins patrolling the Brazilian coast.');
       _state.setPieceLocation(Piece.escortSaoPaulo, Location.seaZone1B);
     }
     final carriers = _state.piecesInLocation(PieceType.carrier, Location.cupCarrier);
     final carrier = randPiece(carriers)!;
-    logLine('> ${carrier.desc} is damaged in the attack on Pearl Harbor.');
+    logLine('>${carrier.desc} is damaged in the attack on Pearl Harbor.');
     _state.setPieceLocation(carrier, Location.trayUnNaval);
   }
 
   void italyJoinsTheAxis() {
-    logLine('> Italy');
+    logLine('>Italy joins the Axis.');
     _state.setPieceLocation(Piece.policyItaly, Location.trayItalian);
     _state.setPieceLocation(Piece.armyItalianEastAfrica, Location.regionItalianEastAfrica);
     _state.setPieceLocation(Piece.armyYugoslavian, Location.regionBalkans);
@@ -3281,45 +3289,45 @@ class Game {
       _state.setPieceLocation(Piece.armyPolish2, Location.frontWestern);
     case Piece.armyPolish2:
       _state.setPieceLocation(propArmy, Location.discarded);
-      logLine('> Germany conquers Poland.');
+      logLine('>Germany conquers Poland.');
     case Piece.armyDanish:
       _state.setPieceLocation(Piece.armyNorwegian, Location.frontWestern);
-      logLine('> Germany conquers Denmark.');
+      logLine('>Germany conquers Denmark.');
     case Piece.armyNorwegian:
       _state.setPieceLocation(propArmy, Location.discarded);
-      logLine('> Germany conquers Norway.');
+      logLine('>Germany conquers Norway.');
     case Piece.armyDutch:
       _state.setPieceLocation(Piece.armyBelgian, Location.frontWestern);
-      logLine('> Germany conquers the Netherlands.');
+      logLine('>Germany conquers the Netherlands.');
     case Piece.armyBelgian:
       _state.setPieceLocation(propArmy, Location.discarded);
-      logLine('> Germany conquers Belgium.');
+      logLine('>Germany conquers Belgium.');
     case Piece.armyFrench1:
       _state.setPieceLocation(Piece.armyFrench2, Location.frontWestern);
     case Piece.armyFrench2:
       _state.setPieceLocation(propArmy, Location.discarded);
-      logLine('> France surrenders to Germany.');
+      logLine('>France surrenders to Germany.');
       franceFalls();
     case Piece.armyYugoslavian:
       _state.setPieceLocation(Piece.armyGreek, Location.regionBalkans);
-      logLine('> Germany conquers Yugoslavia.');
+      logLine('>Germany conquers Yugoslavia.');
      case Piece.armyGreek:
       _state.setPieceLocation(propArmy, Location.discarded);
-      logLine('> German conquers Greece.');
+      logLine('>German conquers Greece.');
       greeceSurrenders();
     case Piece.armyWarsaw:
       _state.setPieceLocation(propArmy, Location.discarded);
     case Piece.armyTito:
       _state.setPieceLocation(propArmy, Location.discarded);
     case Piece.armySingapore:
-      logLine('> Japan captures Singapore.');
+      logLine('>Japan captures Singapore.');
       _state.setPieceLocation(Piece.armyKnil, Location.regionDutchEastIndies);
     case Piece.armyKnil:
-      logLine('> Japan captures the Dutch East Indies.');
+      logLine('>Japan captures the Dutch East Indies.');
       _state.setPieceLocation(propArmy, Location.discarded);
       _state.setPieceLocation(Piece.occupiedDutchEastIndies, Location.regionDutchEastIndies);
     case Piece.armyBataan:
-      logLine('> Bataan surrenders.');
+      logLine('>Bataan surrenders.');
       _state.setPieceLocation(propArmy, Location.discarded);
     default:
     }
@@ -3328,15 +3336,15 @@ class Game {
   void regionalArmyEliminated(Piece army) {
     switch (army) {
     case Piece.armyCongo:
-      logLine('> Rexist separatists defeated.');
-      logLine('> Uranium supply restored.');
+      logLine('>Rexist separatists in the Congo are defeated.');
+      logLine('>Uranium supply is restored.');
       _state.setPieceLocation(Piece.congoUN, Location.regionBelgianCongo);
     case Piece.armyFinnish:
-      logLine('> Finnish Army surrenders.');
-      logLine('> Finland returns to neutrality.');
+      logLine('>Finnish Army surrenders.');
+      logLine('>Finland returns to neutrality.');
       _state.setPieceLocation(Piece.finlandUN, Location.regionFinland);
     case Piece.armySinkiang:
-      logLine('> Pro-Japan forces in Sinkiang eliminated.');
+      logLine('>Pro-Japan forces in Sinkiang are eliminated.');
       _state.setPieceLocation(Piece.sinkiangUssr, Location.regionSinkiang);
     case Piece.armyGermanArnim:
     case Piece.armyGermanIraq:
@@ -3350,7 +3358,7 @@ class Game {
     case Piece.armyVichyAlger:
     case Piece.armyVichyMalg:
     case Piece.armyVichySyria:
-      logLine('> ${army.desc} eliminated.');
+      logLine('>${army.desc} eliminated.');
       _state.setPieceLocation(army, Location.discarded);
     default:
     }
@@ -3358,16 +3366,17 @@ class Game {
 
   void resolveUNAttackOnPiece(Piece piece, bool shock, bool marines, bool partisanUprising, int operationKutuzovModifier) {
     final location = _state.pieceLocation(piece);
-    logLine('> UN Attacks ${piece.desc} in ${location.desc}.');
+    logLine('>UN Attacks ${piece.desc} in ${location.desc}.');
     int die = 0;
     int lowDie = 0;
     if (shock || marines) {
       if (shock) {
-        logLine('> Shock Attack');
+        logLine('>Shock Attack');
       } else {
-        logLine('> Marines Attack');
+        logLine('>Marines Attack');
       }
       final rolls = roll2D6();
+      log2D6(rolls);
       die = max(rolls.$1, rolls.$2);
       lowDie = min(rolls.$1, rolls.$2);
     } else {
@@ -3375,101 +3384,104 @@ class Game {
       lowDie = die;
     }
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     Location militaryEvent = _state.pieceLocation(Piece.militaryEvent);
     switch (location) {
     case Location.frontWestern:
       if (militaryEvent == Location.eventGalland) {
         if (piece.isType(PieceType.proAxisArmy) && _state.pieceLocation(Piece.capitalGoring) == location) {
-          logLine('> Galland: -1');
+          logLine('>|Galland|-1|');
           modifiers -= 1;
         } else if (militaryEvent == Location.eventPatton) {
-          logLine('> Patton: +1');
+          logLine('>|Patton|+1|');
           modifiers += 1;
         }
       }
     case Location.frontEastern:
     if (operationKutuzovModifier > 0) {
-      logLine('> Operation Kutuzov: +$operationKutuzovModifier');
+      logLine('>|Operation Kutuzov|+$operationKutuzovModifier|');
       modifiers += operationKutuzovModifier;
     } else if (militaryEvent == Location.eventZhukov) {
-      logLine('> Zhukov: +1');
+      logLine('>|Zhukov|+1|');
       modifiers += 1;
     } else if (militaryEvent == Location.eventManstein) {
-      logLine('> Manstein: -1');
+      logLine('>|Manstein|-1|');
       modifiers -= 1;
     }
     if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionFinland) > 0) {
-      logLine('> Finland: -1');
+      logLine('>|Finland|-1|');
       modifiers -= 1;
     }
     if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionCaucasus) > 0) {
-      logLine('> The Caucasus: -1');
+      logLine('>|The Caucasus|-1|');
       modifiers -= 1;
     }
     if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionNearEast) > 0) {
-      logLine('> The Near East: -1');
+      logLine('>|The Near East|-1|');
       modifiers -= 1;
     }
     case Location.frontMed:
       if (militaryEvent == Location.eventRommel) {
-        logLine('> Rommel: -1');
+        logLine('>|Rommel|-1|');
         modifiers -= 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionNearEast) > 0) {
-        logLine('> The Near East: -1');
+        logLine('>|The Near East|-1|');
         modifiers -= 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionItalianEastAfrica) > 0) {
-        logLine('> Italian East Africa: -1');
+        logLine('>|Italian East Africa|-1|');
         modifiers -= 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionFrenchMadagascar) > 0) {
-        logLine('> French Madagascar: -1');
+        logLine('>|French Madagascar|-1|');
         modifiers -= 1;
       }
     case Location.frontChina:
       if (militaryEvent == Location.eventOperationIchiGo) {
-        logLine('> Operation Ichi-Go: -1');
+        logLine('>|Operation Ichi-Go|-1|');
         modifiers -= 1;
       } else if (militaryEvent == Location.event4thWarArea) {
-        logLine('> 4th War Area: +1');
+        logLine('>|4th War Area|+1|');
         modifiers += 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionSinkiang) > 0) {
-        logLine('> Sinkiang: -1');
+        logLine('>|Sinkiang|-1|');
         modifiers -= 1;
       }
       if (_state.burmaRoadClosed) {
-        logLine('> Burma Road Closed: -1');
+        logLine('>|Burma Road Closed|-1|');
         modifiers -= 1;
       }
       if (_state.pieceLocation(Piece.policyRussia) == Location.boxSovietPolicyWarVJapan) {
-        logLine('> Soviet attack on Manchuria: +1');
+        logLine('>|Soviet attack on Manchuria|+1|');
         modifiers += 1;
       }
     case Location.frontSoutheastAsia:
       if (militaryEvent == Location.eventYamashita) {
-        logLine('> Yamashita: -1');
+        logLine('>|Yamashita|-1|');
         modifiers -= 1;
       } else if (militaryEvent == Location.eventSlim) {
-        logLine('> Slim: +1');
+        logLine('>|Slim|+1|');
         modifiers += 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionItalianEastAfrica) > 0) {
-        logLine('> Italian East Africa: -1');
+        logLine('>|Italian East Africa|-1|');
         modifiers -= 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionIndia) > 0) {
-        logLine('> India: -1');
+        logLine('>|India|-1|');
         modifiers -= 1;
       }
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionFrenchMadagascar) > 0) {
-        logLine('> French Madagascar: -1');
+        logLine('>|French Madagascar|-1|');
         modifiers -= 1;
       }
     case Location.frontSouthPacific:
       final armyCount = _state.piecesInLocationCount(PieceType.proAxisArmy, location);
-      logLine('> Armies: +$armyCount');
+      logLine('>|Armies|+$armyCount|');
       modifiers += armyCount;
       int shipCount = 0;
       for (final sea in LocationType.sea.locations) {
@@ -3479,58 +3491,61 @@ class Game {
         }
       }
       if (shipCount > 0) {
-        logLine('> Ships: -$shipCount');
+        logLine('>|Ships|-$shipCount|');
         modifiers -= shipCount;
       }
       if (militaryEvent == Location.eventMacArthur) {
-        logLine('> MacArthur: +1');
+        logLine('>|MacArthur|+1|');
         modifiers += 1;
       }
     case Location.regionFrenchNorthAfrica:
       if (_state.pieceLocation(Piece.ricksPlace) == location) {
-        logLine('> Rick’s Place: +1');
+        logLine('>|Rick’s Place|+1|');
         modifiers += 1;
       }
     default:
     }
     if (militaryEvent == Location.eventWavell) {
       if (piece.isType(PieceType.italianArmy) || piece.isType(PieceType.italianCapital)) {
-        logLine('> Wavell: +1');
+        logLine('>|Wavell|+1|');
         modifiers += 1;
       }
     }
     if (piece.isType(PieceType.japaneseArmy) || piece.isType(PieceType.japaneseCapital)) {
-      logLine('> Banzai Attacks: -1');
+      logLine('>|Banzai Attack|-1|');
       modifiers -= 1;
     }
     if (partisanUprising) {
       final armyCount = _state.piecesInLocationCount(PieceType.proAxisArmy, location);
-      logLine('> Partisan Uprising: +$armyCount');
+      logLine('>|Partisan Uprising|+$armyCount|');
       modifiers += armyCount;
     }
     int total = die + modifiers;
-    logLine('> Total: total');
+    logLine('>|Total|$total|');
     int strength = _state.armyStrength(piece);
+    logLine('>|${piece.desc}|$strength|');
+    logTableFooter();
+
     if (die == 1 || (die != 6 && total <= strength)) {
-      logLine('> Attack fails.');
+      logLine('>Attack fails.');
     } else {
-      logLine('> Attack succeeds.');
+      logLine('>Attack succeeds.');
       if (piece.isType(PieceType.proAxisOrVichyArmy)) {
         if (location.isType(LocationType.front)) {
           final reservesBox = _state.frontReservesBox(location);
-          logLine('> ${piece.desc} is withdrawn to ${location.desc}.');
+          logLine('>${piece.desc} is withdrawn to ${location.desc}.');
           _state.setPieceLocation(piece, reservesBox);
         } else {
           regionalArmyEliminated(piece);
         }
       } else if (piece == Piece.panzerPza) {
-        logLine('> ${piece.desc} is withdrawn.');
+        logLine('>${piece.desc} is withdrawn.');
         _state.setPieceLocation(piece, Location.discarded); // Should be tray, but use this to indicate removed this turn.
       } else if (piece == Piece.panzerTiger) {
-        logLine('> ${piece.desc} is eliminated.');
+        logLine('>${piece.desc} is eliminated.');
         _state.setPieceLocation(piece, Location.discarded);
       } else if (piece.isType(PieceType.siegeInitial)) {
-        logLine('> ${piece.desc} Tightens.');
+        logLine('>${piece.desc} Tightens.');
         _state.setPieceLocation(_state.pieceFlipSide(piece)!, location);
       }
     }
@@ -3560,15 +3575,15 @@ class Game {
 
   void sinkUboat(Piece piece) {
     if (piece.isType(PieceType.raider)) {
-      logLine('> ${piece.desc} is sunk.');
+      logLine('>${piece.desc} is sunk.');
       if (piece == Piece.raiderBismarck) {
-        logLine('> ${Piece.raiderPrinzEugen.desc} remains at sea.');
+        logLine('>${Piece.raiderPrinzEugen.desc} remains at sea.');
         _state.setPieceLocation(Piece.raiderPrinzEugen, _state.pieceLocation(piece));
       } else {
         _state.setPieceLocation(piece, Location.discarded);
       }
     } else {
-      logLine('> U-Boats are sunk.');
+      logLine('>U-Boats are sunk.');
       final delay = _state.currentTurnUboatDelay;
       if (delay != null && !_state.germanEconomyCollapsed) {
         final calendarBox = _state.futureCalendarBox(delay);
@@ -3626,17 +3641,17 @@ class Game {
 
   void sinkShip(Piece ship) {
     if (ship == Piece.shipYamamoto) {
-      logLine('> Admiral Yamamoto is killed.');
-      logLine('> US submarines become increasingly effective.');
+      logLine('>Admiral Yamamoto is killed.');
+      logLine('>US submarines become increasingly effective.');
       _state.setPieceLocation(Piece.submarineCampaign, Location.boxHawaii);
       return;
     }
     Piece? replacementShip;
     if (ship.isType(PieceType.shipFront)) {
       replacementShip = _state.pieceFlipSide(ship)!;
-      logLine('> ${ship.desc} is sunk and replaced by ${replacementShip.desc}.');
+      logLine('>${ship.desc} is sunk and replaced by ${replacementShip.desc}.');
     } else {
-      logLine('> ${ship.desc} is sunk and replaced.');
+      logLine('>${ship.desc} is sunk and replaced.');
       replacementShip = ship;
     }
     _state.setPieceLocation(replacementShip, Location.boxKureNavalBase);
@@ -3736,7 +3751,7 @@ class Game {
       }
     }
     if (localState.subStep == 2) {
-      logLine('> UN Attacks ${piece.desc} in ${location.desc}.');
+      logLine('>UN Attacks ${piece.desc} in ${location.desc}.');
       if (localState.dollars) {
         adjustDollars(-1);
       }
@@ -3823,7 +3838,7 @@ class Game {
       localState.subStep = 2;
     }
     if (localState.subStep == 2) {
-      logLine('> UN Attacks ${piece.desc} in ${location.desc}.');
+      logLine('>UN Attacks ${piece.desc} in ${location.desc}.');
       if (localState.dollars) {
         adjustDollars(-1);
       }
@@ -3854,7 +3869,7 @@ class Game {
       if (!yamamoto) {
         final candidateShips = _state.strongestShips(_state.piecesInLocation(PieceType.ship, Location.boxKureNavalBase));
         if (candidateShips.isEmpty) {
-          logLine('> No Japanese ships available for mission in ${sea.desc}.');
+          logLine('>No Japanese ships available for mission in ${sea.desc}.');
           _japaneseNavalMissionState = null;
           return;
         }
@@ -3862,17 +3877,17 @@ class Game {
       } else {
         ship = Piece.shipYamamoto;
       }
-      logLine('> ${ship.desc} deploys to ${sea.desc}.');
+      logLine('>${ship.desc} deploys to ${sea.desc}.');
       _state.setPieceLocation(ship, sea);
       if (_state.piecesInLocationCount(PieceType.ship, sea) < 5) {
         _japaneseNavalMissionState = null;
         return;
       }
       // Kishu    
-      logLine('> Japanese Navy conducts a surprise attack in ${sea.desc}.');
+      logLine('>Japanese Navy conducts a surprise attack in ${sea.desc}.');
       final carrier = randPiece(_state.piecesInLocation(PieceType.carrier, Location.cupCarrier));
       if (carrier != null) {
-        logLine('> ${carrier.desc} is damaged.');
+        logLine('>${carrier.desc} is damaged.');
         _state.setPieceLocation(carrier, Location.trayUnNaval);
       }
       localState.subStep = 1;
@@ -3908,43 +3923,43 @@ class Game {
 
   void calendarEventVictoryAtSea3() {
     logLine('### Victory at Sea');
-    logLine('> New ${Piece.uboats1} are built.');
+    logLine('>New ${Piece.uboats1} are built.');
     _state.setPieceLocation(Piece.uboats1, Location.boxGermanUboats);
   }
 
   void calendarEventVictoryAtSea4() {
     logLine('### Victory at Sea');
-    logLine('> ${Piece.raiderBismarck} is operational.');
+    logLine('>${Piece.raiderBismarck} is operational.');
     _state.setPieceLocation(Piece.raiderBismarck, Location.boxGermanUboats);
   }
 
   void calendarEventVictoryAtSea5() {
     logLine('### Victory at Sea');
-    logLine('> ${Piece.raiderKormoran} is operational.');
+    logLine('>${Piece.raiderKormoran} is operational.');
     _state.setPieceLocation(Piece.raiderKormoran, Location.boxGermanUboats);
   }
 
   void calendarEventVictoryAtSea8() {
     logLine('### Victory at Sea');
-    logLine('> New ${Piece.uboats2} are built.');
+    logLine('>New ${Piece.uboats2} are built.');
     _state.setPieceLocation(Piece.uboats2, Location.boxGermanUboats);
   }
 
   void calendarEventVictoryAtSea12() {
     logLine('### Victory at Sea');
-    logLine('> ${Piece.asw} becomes effective.');
+    logLine('>${Piece.asw} becomes effective.');
     _state.setPieceLocation(Piece.asw, Location.boxAvailableConvoys);
   }
 
   void calendarEventVictoryAtSea16() {
     logLine('### Victory at Sea');
-    logLine('> Craking the Enigma code helps the Allies.');
+    logLine('>Craking the Enigma code helps the Allies.');
     _state.setPieceLocation(Piece.aswEnigma, _state.pieceLocation(Piece.asw));
   }
 
   void calendarEventVictoryAtSea17() {
     logLine('### Victory at Sea');
-    logLine('> ${Piece.raiderScharnhorst} joins the Battle for the Atlantic.');
+    logLine('>${Piece.raiderScharnhorst} joins the Battle for the Atlantic.');
     final location = _state.pieceLocation(Piece.raiderGrafSpee);
      _state.setPieceLocation(Piece.raiderScharnhorst, location != Location.discarded ? location : Location.boxGermanUboats);
   }
@@ -3952,25 +3967,32 @@ class Game {
   void calendarEventUsElection() {
     logLine('### 1940 US Election');
     int die = rollD6();
+
+    logTableHeader();
+    logD6InTable(die);
     final location = _state.pieceLocation(Piece.leaderRoosevelt);
     int value = location.index - LocationType.calendar.firstIndex + 1;
+    logLine('>|Turn|$value|');
+    logTableFooter();
+
     Piece president = die > value ? Piece.leaderWilkie : Piece.leaderRoosevelt;
     if (president == Piece.leaderWilkie) {
-      logLine('> ${president.desc} becomes President.');
+      logLine('>${president.desc} becomes President.');
       _state.setPieceLocation(president, location);
     } else { 
-      logLine('> ${president.desc} remains President.');
+      logLine('>${president.desc} remains President.');
     }
   }
 
   void calendarEventBritishElection() {
     logLine('### 1945 British Election');
     int die = rollD6();
+    logD6(die);
     if (die <= 3) {
-      logLine('> Labour Party victory, ${Piece.leaderChurchill.desc} steps down.');
+      logLine('>Labour Party victory, ${Piece.leaderChurchill.desc} steps down.');
       _state.setPieceLocation(Piece.leaderChurchill, Location.discarded);
     } else {
-      logLine('> Conservative Party victory, ${Piece.leaderChurchill.desc} remains Prime Minister.');
+      logLine('>Conservative Party victory, ${Piece.leaderChurchill.desc} remains Prime Minister.');
     }
   }
 
@@ -3984,7 +4006,7 @@ class Game {
     if (_subStep == 0) {
       logLine('### Manhattan Project');
       if (_state.pieceLocation(Piece.armyCongo) == Location.regionBelgianCongo) {
-        logLine('> Uranium supply stopped by Rexist separatists.');
+        logLine('>Uranium supply stopped by Rexist separatists.');
         return;
       }
       if (choicesEmpty()) {
@@ -3994,16 +4016,17 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoiceAndClear(Choice.no)) {
-        logLine('> Manhattan Project has insufficient funding.');
+        logLine('>Manhattan Project has insufficient funding.');
         return;
       }
       clearChoices();
       _subStep = 1;
     }
     if (choicesEmpty()) {
-      logLine('> US funds Manhattan Project.');
+      logLine('>US funds Manhattan Project.');
       adjustDollars(-1);
       phaseState.die = rollD6();
+      logD6(phaseState.die);
       setPrompt('Accelerate Manahattan Project with more funding?');
       choiceChoosable(Choice.yes, _state.dollars >= 1);
       choiceChoosable(Choice.no, true);
@@ -4012,14 +4035,15 @@ class Game {
     if (checkChoice(Choice.no)) {
       adjustManhattanProject(phaseState.die);
     } else {
-      logLine('> US tries to accelerate Manhattan Project with additional funding');
+      logLine('>US tries to accelerate Manhattan Project with additional funding');
       adjustDollars(-1);
       int secondDie = rollD6();
+      logD6(secondDie);
       adjustManhattanProject(secondDie);
     }
     clearChoices();
     if (_state.pieceLocation(Piece.abombResearch) == Location.omnibus13) {
-      logLine('> Manhattan Project successfully develops an A-Bomb.');
+      logLine('>Manhattan Project successfully develops an A-Bomb.');
       _state.setPieceLocation(Piece.abombAvailable, Location.omnibus0);
     }
   }
@@ -4027,11 +4051,12 @@ class Game {
   void chitEventSouthAfrica() {
     logLine('### South Africa');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> South Africa pulls out of the war against Hitler.');
+      logLine('>South Africa pulls out of the war against Hitler.');
       _state.setPieceLocation(Piece.southAfricaNeutral, Location.regionSouthAfrica);
     } else {
-      logLine('> South Africa preserves its alliance with Britain.');
+      logLine('>South Africa preserves its alliance with Britain.');
     }
   }
 
@@ -4053,11 +4078,12 @@ class Game {
         }
         if (checkChoiceAndClear(Choice.yes)) {
           int die = rollD6();
+          logD6(die);
           churchillInUse(die);
           if (die == 1 || die == 6) {
-            logLine('> Diplomatic efforts are in vain');
+            logLine('>Diplomatic efforts are in vain');
           } else {
-            logLine('> Diplomatic efforts maintain Turkey’s neutrality.');
+            logLine('>Diplomatic efforts maintain Turkey’s neutrality.');
             return;
           }
         }
@@ -4069,45 +4095,49 @@ class Game {
     int dice = rolls.$3;
     int modifiers = 0;
     int modifier = 0;
+
+    logTableHeader();
     modifier = _state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontEastern);
-    logLine('> Axis Armies on the Eastern Front: +$modifier');
+    logLine('>|Eastern Front|+$modifier|');
     modifiers += modifier;
     modifier = _state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionCaucasus);
     if (modifier != 0) {
-      logLine('> Axis Armies in the Caucasus: +$modifier');
+      logLine('>|Caucasus|+$modifier|');
       modifiers += modifier;
     }
     modifier = _state.piecesInLocationCount(PieceType.proAxisArmy, Location.regionNearEast);
     if (modifier != 0) {
-      logLine('> Axis Armies in the Near East: +$modifier');
+      logLine('>|Near East|+$modifier|');
       modifiers += modifier;
     }
     int total = dice + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     if (total >= 16) {
-      logLine('> Turkey joins the Axis.');
-      logLine('> Turkish Army deploys in the Caucasus.');
+      logLine('>Turkey joins the Axis.');
+      logLine('>Turkish Army deploys in the Caucasus.');
       _state.setPieceLocation(Piece.armyTurkish, Location.regionCaucasus);
       if (_state.pieceLocation(Piece.armyIranianVatan) != Location.regionCaucasus && _state.piecesInLocationCount(PieceType.iranianArmy, Location.discarded) == 0) {
-        logLine('> Iranian Vatan Army deploys in the Caucasus.');
+        logLine('>Iranian Vatan Army deploys in the Caucasus.');
         _state.setPieceLocation(Piece.armyIranianVatan, Location.regionCaucasus);
       }
       if (_state.pieceLocation(Piece.armyGermanIraq) != Location.regionNearEast && _state.pieceLocation(Piece.armyIraqi) != Location.discarded && _state.pieceLocation(Piece.armyGermanIraq) != Location.discarded) {
-        logLine('> German Iraqi Army deploys in the Near East.');
+        logLine('>German Iraqi Army deploys in the Near East.');
         _state.setPieceLocation(Piece.armyGermanIraq, Location.regionNearEast);
       }
       if (_state.pieceLocation(Piece.armyGermanSyria) != Location.regionNearEast && _state.pieceLocation(Piece.armyVichySyria) != Location.discarded && _state.pieceLocation(Piece.armyGermanSyria) != Location.discarded) {
-        logLine('> German Syria Army deploys in the Near East.');
+        logLine('>German Syria Army deploys in the Near East.');
         _state.setPieceLocation(Piece.armyGermanSyria, Location.regionNearEast);
       }
     } else {
-      logLine('> Turkey remains neutral.');
+      logLine('>Turkey remains neutral.');
       if (_state.pieceLocation(Piece.armyIranianShah) == Location.trayProAxisMinors) {
-        logLine('> Iran joins the Axis.');
-        logLine('> Iranian Shah Army deploys in the Caucasus.');
+        logLine('>Iran joins the Axis.');
+        logLine('>Iranian Shah Army deploys in the Caucasus.');
         _state.setPieceLocation(Piece.armyIranianShah, Location.regionCaucasus);
       } else if (_state.pieceLocation(Piece.armyIranianShah) == Location.regionCaucasus) {
-        logLine('> Iranian Vatan Army deploys in the Caucasus.');
+        logLine('>Iranian Vatan Army deploys in the Caucasus.');
         _state.setPieceLocation(Piece.armyIranianVatan, Location.regionCaucasus);
       }
     }
@@ -4118,7 +4148,7 @@ class Game {
   void politicalEventAreaBombing() {
     if (_state.politicalEventCount(PoliticalEvent.areaBombing) == 0) {
       logLine('### Area Bombing');
-      logLine('> British Bombers commence strategic bombing.');
+      logLine('>British Bombers commence strategic bombing.');
       _state.setPieceLocation(Piece.airBaseBritish, Location.boxAlliedAirBases);
       _state.setPoliticalEventOccurred(PoliticalEvent.areaBombing);
     }
@@ -4128,16 +4158,17 @@ class Game {
     if (_state.politicalEventCount(PoliticalEvent.argentina) == 0) {
       logLine('### Argentina');
       int die = rollD6();
+      logD6(die);
       if (die == 6) {
-        logLine('> Fascist colonels seize power in Argentina.');
-        logLine('> Argentine battleships joint the Battle for the Atlantic.');
+        logLine('>Fascist colonels seize power in Argentina.');
+        logLine('>Argentine battleships joint the Battle for the Atlantic.');
         var location = _state.pieceLocation(Piece.raiderKormoran);
         if (location == Location.trayGermanNavy || location == Location.discarded) {
           location = Location.boxGermanUboats;
         }
         _state.setPieceLocation(Piece.raiderRivadavia, location);
       } else {
-        logLine('> Argentina remains neutral.');
+        logLine('>Argentina remains neutral.');
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.argentina);
     }
@@ -4146,7 +4177,7 @@ class Game {
   void politicalEventAungSan() {
     if (_state.pieceLocation(Piece.armyJapaneseBurmese) != Location.discarded && _state.pieceLocation(Piece.armyJapaneseBurmese) != Location.frontSoutheastAsia) {
       logLine('### Aung San');
-      logLine('> Burmese patriots ditch their Japanese allies.');
+      logLine('>Burmese patriots ditch their Japanese allies.');
       _state.setPieceLocation(Piece.armyJapaneseBurmese, Location.discarded);
       _state.setPoliticalEventOccurred(PoliticalEvent.aungSan);
     }
@@ -4156,11 +4187,12 @@ class Game {
     if (_state.politicalEventCount(PoliticalEvent.congo) == 0) {
       logLine('### Congo');
       int die = rollD6();
+      logD6(die);
       if (die == 6) {
-        logLine('> Pro-Axis settlers take over the Congo and cut off uranium shipments.');
+        logLine('>Pro-Axis settlers take over the Congo and cut off uranium shipments.');
         _state.setPieceLocation(Piece.armyCongo, Location.regionBelgianCongo);
       } else {
-        logLine('> Belgian Administration in Congo remains pro-UN.');
+        logLine('>Belgian Administration in Congo remains pro-UN.');
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.congo);
     }
@@ -4169,7 +4201,7 @@ class Game {
   void politicalEventFinland() {
     if (_state.pieceLocation(Piece.finlandUN) == Location.regionFinland) {
       logLine('### Finland');
-      logLine('> Finland becomes actively pro-Axis.');
+      logLine('>Finland becomes actively pro-Axis.');
       _state.setPieceLocation(Piece.armyFinnish, Location.regionFinland);
       _state.setPoliticalEventOccurred(PoliticalEvent.finland);
     }
@@ -4178,7 +4210,7 @@ class Game {
   void politicalEventGandhi() {
     if (_state.politicalEventCount(PoliticalEvent.gandhi) == 0) {
       logLine('### Gandhi');
-      logLine('> Gandhi leads Indian resistance.');
+      logLine('>Gandhi leads Indian resistance.');
       _state.setPieceLocation(Piece.indiaGandhi, Location.regionIndia);
       _state.setPoliticalEventOccurred(PoliticalEvent.gandhi);
     }
@@ -4187,7 +4219,7 @@ class Game {
   void politicalEventGuadalcanal() {
     if (_state.politicalEventCount(PoliticalEvent.guadalcanal) == 0) {
       logLine('### Guadalcanal');
-      logLine('> Siege of Guadalcanal commences.');
+      logLine('>Siege of Guadalcanal commences.');
       _state.setPieceLocation(Piece.siegeGuadalcanal, Location.frontSouthPacific);
       _state.setPoliticalEventOccurred(PoliticalEvent.guadalcanal);
     }
@@ -4196,7 +4228,7 @@ class Game {
   void politicalEventImphal() {
     if (_state.politicalEventCount(PoliticalEvent.imphal) == 0) {
       logLine('### Imphal');
-      logLine('> Siege of Imphal commences.');
+      logLine('>Siege of Imphal commences.');
       _state.setPieceLocation(Piece.siegeImphal, Location.frontSoutheastAsia);
       _state.setPoliticalEventOccurred(PoliticalEvent.imphal);
     }
@@ -4207,14 +4239,14 @@ class Game {
     if (count == 0) {
       if (_state.pieceLocation(Piece.armyIraqi) == Location.trayProAxisMinors) {
         logLine('### Iraq');
-        logLine('> Iraq joins the Axis.');
+        logLine('>Iraq joins the Axis.');
         _state.setPieceLocation(Piece.armyIraqi, Location.regionNearEast);
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.iraq);
     } else if (count == 1) {
       if (_state.pieceLocation(Piece.armyIraqi) == Location.regionNearEast) {
         logLine('### Iraq');
-        logLine('> Iraqi army strengthened by German advisors.');
+        logLine('>Iraqi army strengthened by German advisors.');
         _state.setPieceLocation(Piece.armyGermanIraq, Location.regionNearEast);
         _state.setPoliticalEventOccurred(PoliticalEvent.iraq);
       }
@@ -4234,7 +4266,7 @@ class Game {
   void politicalEventMadagascar() {
     if (_state.politicalEventCount(PoliticalEvent.madagascar) == 0) {
       logLine('### Madagascar');
-      logLine('> Japan establishes bases in Vichy Madagascar.');
+      logLine('>Japan establishes bases in Vichy Madagascar.');
       _state.setPieceLocation(Piece.armyJapaneseMadag, Location.regionFrenchMadagascar);
       _state.setPoliticalEventOccurred(PoliticalEvent.madagascar);
     }
@@ -4249,8 +4281,8 @@ class Game {
     if (location != Location.flipped && location != Location.frontEastern) {
       if (_state.airSuperiority && _state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontEastern) <= 2) {
         logLine('### Romanian Coup');
-        logLine('> Ani-fascist coup knocks Romania out of the war.');
-        logLine('> USSTAF is formed.');
+        logLine('>Anti-fascist coup knocks Romania out of the war.');
+        logLine('>USSTAF is formed.');
         _state.setPieceLocation(Piece.airBaseUsstaf, Location.boxAlliedAirBases);
         _state.setPieceLocation(Piece.armyHungarian, _state.pieceLocation(Piece.armyGermanSouth));
         _state.setPoliticalEventOccurred(PoliticalEvent.romanianCoup);
@@ -4292,7 +4324,7 @@ class Game {
   void politicalEventSinkiang() {
     if (_state.pieceLocation(Piece.sinkiangUssr) == Location.regionSinkiang) {
       logLine('### Sinkiang');
-      logLine('> Pro-Japan factions take power in Sinkiang');
+      logLine('>Pro-Japan factions take power in Sinkiang');
       _state.setPieceLocation(Piece.armySinkiang, Location.regionSinkiang);
       _state.setPoliticalEventOccurred(PoliticalEvent.sinkiang);
     }
@@ -4301,7 +4333,7 @@ class Game {
   void politicalEventStalingrad() {
     if (_state.politicalEventCount(PoliticalEvent.stalingrad) == 0) {
       logLine('### Stalingrad');
-      logLine('> Siege of Stalingrad commences.');
+      logLine('>Siege of Stalingrad commences.');
       _state.setPieceLocation(Piece.siegeStalingrad, Location.frontEastern);
       _state.setPoliticalEventOccurred(PoliticalEvent.stalingrad);
     }
@@ -4311,7 +4343,7 @@ class Game {
     if (_state.politicalEventCount(PoliticalEvent.syria) == 0) {
       if (_state.pieceLocation(Piece.armyVichySyria) == Location.regionNearEast) {
         logLine('### Syria');
-        logLine('> Vichy Syria joins the Axis.');
+        logLine('>Vichy Syria joins the Axis.');
         _state.setPieceLocation(Piece.armyGermanSyria, Location.regionNearEast);
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.syria);
@@ -4321,7 +4353,7 @@ class Game {
   void politicalEventTito() {
     if (_state.pieceLocation(Piece.armyTito) == Location.boxTito) {
       logLine('### Tito');
-      logLine('> Tito’s partisans activate in the Balkans.');
+      logLine('>Tito’s partisans activate in the Balkans.');
       _state.setPieceLocation(Piece.armyTito, Location.regionBalkans);
       _state.setPoliticalEventOccurred(PoliticalEvent.tito);
     }
@@ -4332,11 +4364,11 @@ class Game {
       if (_state.pieceLocation(Piece.armyGermanAfrikaKorps) == Location.reservesMed) {
         logLine('### Torch');
         if (!_state.franceHasFallen) {
-          logLine('> France has not fallen, UN Victory!');
+          logLine('>France has not fallen, UN Victory!');
           throw GameOverException(GameResult.unVictory);
         }
         final army = _state.pieceLocation(Piece.armyVichyAlger) == Location.flipped ? Piece.armyGermanArnim : Piece.armyVichyAlger;
-        logLine('> ${army.desc} deploys to French North Africa.');
+        logLine('>${army.desc} deploys to French North Africa.');
         _state.setPieceLocation(army, Location.regionFrenchNorthAfrica);
         _state.setPoliticalEventOccurred(PoliticalEvent.torch);
       }
@@ -4347,7 +4379,7 @@ class Game {
     if (_state.politicalEventCount(PoliticalEvent.typeXxiUboats) == 0) {
       if (_state.frontActive(Location.frontWestern)) {
         logLine('### Type XXI U-Boats');
-        logLine('> Existing ASW technology is ineffective.');
+        logLine('>Existing ASW technology is ineffective.');
         if (_state.pieceLocation(Piece.asw) != Location.flipped) {
           _state.setPieceLocation(Piece.asw, Location.discarded);
         } else {
@@ -4361,7 +4393,7 @@ class Game {
   void politicalEventV1BuzzBombs() {
     if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontWestern) >= 2) {
       logLine('### V-1 Buzz Bombs');
-      logLine('> Threat preoccupies British Prime Minister.');
+      logLine('>Threat preoccupies British Prime Minister.');
       _state.churchillInUse(2);
       _state.setPoliticalEventOccurred(PoliticalEvent.v1BuzzBombs);
     }
@@ -4387,7 +4419,7 @@ class Game {
     clearChoices();
     cityToLowMorale(city);
     if (_state.piecesInLocationCount(PieceType.alliedCity, Location.boxCitiesHighMorale) == 0) {
-      logLine('> Allied morale collapses');
+      logLine('>Allied morale collapses');
       throw GameOverException(GameResult.lostAlliedMoraleCollapse);
     }
   }
@@ -4395,7 +4427,7 @@ class Game {
   void politicalEventVlasov() {
     if (_state.politicalEventCount(PoliticalEvent.vlasov) == 0) {
       logLine('### Vlasov');
-      logLine('> Stalin preoccupied with defection.');
+      logLine('>Stalin preoccupied with defection.');
       var location = _state.pieceLocation(Piece.leaderStalin);
       if (location == Location.flipped) {
         location = _state.pieceLocation(Piece.leaderStalinUsed);
@@ -4410,7 +4442,7 @@ class Game {
       final weakestArmies = _state.weakestArmies(armies);
       if (weakestArmies.isNotEmpty) {
         final army = weakestArmies[0];
-        logLine('> ${army.desc} removed from Western Front Reserves.');
+        logLine('>${army.desc} removed from Western Front Reserves.');
         _state.setPieceLocation(weakestArmies[0], Location.traySiege);
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.vlasov);
@@ -4422,7 +4454,7 @@ class Game {
       logLine('### Warsaw Uprising');
       if (_state.cannonMeat > 0) {
         adjustCannonMeat(-_state.cannonMeat);
-        logLine('> Warsaw Uprising Army forms on the Eastern Front.');
+        logLine('>Warsaw Uprising Army forms on the Eastern Front.');
         _state.setPieceLocation(Piece.armyWarsaw, Location.frontEastern);
       }
       _state.setPoliticalEventOccurred(PoliticalEvent.warsawUprising);
@@ -4464,7 +4496,7 @@ class Game {
           logLine('### No Axis Attacks on ${front.desc}');
           final siegeTightens = _state.pieceInLocation(PieceType.siegeTightens, front);
           if (siegeTightens != null) {
-            logLine('> UN win the ${siegeTightens.desc}');
+            logLine('>UN win the ${siegeTightens.desc}');
             _state.setPieceLocation(siegeTightens, Location.discarded);
             if (siegeTightens == Piece.siegeTightensNormandy) {
               _state.setPieceLocation(Piece.strategyWestern, Location.frontWestern);
@@ -4507,11 +4539,11 @@ class Game {
       if (piece.isType(PieceType.city)) {
         cityToLowMorale(piece);
         if (_state.piecesInLocationCount(PieceType.alliedCity, Location.boxCitiesHighMorale) == 0) {
-          logLine('> Allied morale collapses');
+          logLine('>Allied morale collapses');
           throw GameOverException(GameResult.lostAlliedMoraleCollapse);
         }
         if (_state.piecesInLocationCount(PieceType.sovietCity, Location.boxCitiesHighMorale) == 0) {
-          logLine('> Soviet morale collapses');
+          logLine('>Soviet morale collapses');
           throw GameOverException(GameResult.lostSovietMoraleCollapse);
         }
         final blitz = _state.pieceInLocation(PieceType.blitz, front);
@@ -4537,7 +4569,7 @@ class Game {
         if (propArmy != null) {
           int cost = _state.propArmyCost(propArmy);
           if (choicesEmpty()) {
-            logLine('> Axis Attack ${propArmy.desc}.');
+            logLine('>Axis Attack ${propArmy.desc}.');
             setPrompt('Support ${propArmy.desc}?');
             choiceChoosable(Choice.yes, _state.dollars >= cost);
             choiceChoosable(Choice.no, true);
@@ -4545,25 +4577,31 @@ class Game {
           }
           PieceType? cityType;
           if (checkChoice(Choice.yes)) {
-            logLine('> ${propArmy.desc} is Supported.');
+            logLine('>${propArmy.desc} is Supported.');
             if (propArmy == Piece.armyWarsaw) {
               cityType = PieceType.sovietCity;
             }
             adjustDollars(-cost);
             int strength = _state.propArmyStrength(propArmy);
             int die = rollD6();
+
+            logTableHeader();
+            logD6InTable(die);
+            logLine('>|${propArmy.desc}|$strength|');
+            logTableFooter();
+
             if (die > strength) {
-              logLine('> Axis Attack successful, ${propArmy.desc} eliminated.');
+              logLine('>Axis Attack successful, ${propArmy.desc} eliminated.');
               propArmyEliminated(propArmy);
             } else {
-              logLine('> Axis Attack unsuccessful.');
+              logLine('>Axis Attack unsuccessful.');
             }
           } else {
-            logLine('> ${propArmy.desc} receives no Support.');
+            logLine('>${propArmy.desc} receives no Support.');
             if (propArmy == Piece.armyWarsaw) {
               cityType = PieceType.alliedCity;
             }
-            logLine('> Axis Attack successful, ${propArmy.desc} eliminated.');
+            logLine('>Axis Attack successful, ${propArmy.desc} eliminated.');
             propArmyEliminated(propArmy);
           }
           phaseState.frontAttacksRemaining[frontIndex] -= 1;
@@ -4577,19 +4615,19 @@ class Game {
           }
         } else if (siegeTightens != null) {
           if (phaseState.frontAttacksRemaining[frontIndex] == 1) {
-            logLine('> The ${siegeTightens.desc} continues.');
+            logLine('>The ${siegeTightens.desc} continues.');
             phaseState.frontAttacksRemaining[frontIndex] -= 1;
             return;
           }
-          logLine('> Axis regain the upper hand in the ${siegeTightens.desc}.');
+          logLine('>Axis regain the upper hand in the ${siegeTightens.desc}.');
           _state.setPieceLocation(_state.pieceFlipSide(siegeTightens)!, front);
           phaseState.frontAttacksRemaining[frontIndex] -= 2;
         } else if (siege == null && partisans == Piece.maltaBesieged) {
-          logLine('> Malta falls to an Italo-Germain air-naval assault!');
+          logLine('>Malta falls to an Italo-Germain air-naval assault!');
           _state.setPieceLocation(Piece.maltaBesieged, Location.discarded);
           final location = _state.pieceLocation(Piece.armyVichyAlger);
           if (location != Location.trayFrench && location != Location.discarded) {
-            logLine('> ${Piece.armyGermanArnim.desc} deploys to ${location.desc}.');
+            logLine('>${Piece.armyGermanArnim.desc} deploys to ${location.desc}.');
           }
           _state.setPieceLocation(Piece.armyGermanArnim, location);
           phaseState.frontAttacksRemaining[frontIndex] -= 1;
@@ -4598,14 +4636,15 @@ class Game {
             if (partisans == Piece.malta) {
               final outcomes = [(false, false), (false, false)];
               if (choicesEmpty()) {
-                logLine('> Malta');
+                logLine('>Malta');
                 final rolls = roll2D6();
+                log2D6(rolls);
                 final dice = [rolls.$1, rolls.$2];
                 for (int i = 0; i < 2; ++i) {
                   int die = dice[i];
                   bool attack = die < 5;
-                  bool malta = die > armyCount;
-                  outcomes[i] = (attack, malta);
+                  bool maltaBesieged = die > armyCount;
+                  outcomes[i] = (attack, maltaBesieged);
                 }
                 if (outcomes[1] != outcomes[0]) {
                   for (final outcome in outcomes) {
@@ -4640,10 +4679,10 @@ class Game {
               bool attackSucceeds = outcome.$1;
               bool maltaBesieged = outcome.$2;
               if (!attackSucceeds) {
-                logLine('> Malta prevents deployment.');
+                logLine('>Malta prevents deployment.');
               }
               if (maltaBesieged) {
-                logLine('> Malta Besieged.');
+                logLine('>Malta Besieged.');
                 _state.setPieceLocation(Piece.maltaBesieged, partisansBox);
               }
               if (!attackSucceeds) {
@@ -4651,13 +4690,14 @@ class Game {
                 continue;
               }
             } else {
-              logLine('> Partisans');
+              logLine('>Partisans');
               int die = rollD6();
+              logD6(die);
               if (die >= 5) {
-                logLine('> Partisans prevent deployment.');
+                logLine('>Partisans prevent deployment.');
               }
               if (die > armyCount) {
-                logLine('> Partisans eliminated.');
+                logLine('>Partisans eliminated.');
                 _state.setPieceLocation(partisans, Location.boxPartisansPool);
               }
               if (die >= 5) {
@@ -4668,7 +4708,7 @@ class Game {
           }
           if (armyCount < 5) {
             if (reserveArmyCount == 0) {
-              logLine('> No Axis Army in Reserve.');
+              logLine('>No Axis Army in Reserve.');
               return;
             }
             if (choicesEmpty()) {
@@ -4682,17 +4722,24 @@ class Game {
             }
             final army = selectedPiece()!;
             clearChoices();
-            logLine('> ${army.desc} Attacks on ${front.desc}');
+            logLine('>${army.desc} Attacks on ${front.desc}');
             _state.setPieceLocation(army, front);
             phaseState.frontAttacksRemaining[frontIndex] -= 1;
           } else {
-            logLine('> Blitz!');
+            logLine('>Blitz!');
             final blitz = _state.pieceInLocation(PieceType.blitz, reservesBox)!;
             _state.setPieceLocation(blitz, front);
             final rolls = roll2D6();
+
+            logTableHeader();
+            log2D6InTable(rolls);
+            int highMoraleCount = _state.piecesInLocationCount(PieceType.city, Location.boxCitiesHighMorale);
+            logLine('>|Cities|$highMoraleCount|');
+            logTableFooter();
+
             int dice = rolls.$3;
-            if (dice > _state.piecesInLocationCount(PieceType.city, Location.boxCitiesHighMorale)) {
-              logLine('> Defeat succeeds.');
+            if (dice > highMoraleCount) {
+              logLine('>Defeat succeeds.');
               setPrompt('Select High Morale City');
               for (final city in _state.piecesInLocation(PieceType.alliedUsaCity, Location.boxCitiesHighMorale)) {
                 pieceChoosable(city);
@@ -4703,7 +4750,7 @@ class Game {
               _subStep = 2;
               throw PlayerChoiceException();
             } else {
-              logLine('> Defeat fizzles.');
+              logLine('>Defeat fizzles.');
               _subStep = 2;
             }
           }
@@ -4714,7 +4761,7 @@ class Game {
         _state.setPieceLocation(blitz, reservesBox);
         final panzer = _state.pieceInLocation(PieceType.panzer, front);
         if (panzer != null) {
-          logLine('> ${panzer.desc} is withdrawn to ${reservesBox.desc}.');
+          logLine('>${panzer.desc} is withdrawn to ${reservesBox.desc}.');
           _state.setPieceLocation(panzer, reservesBox);
         }
         setPrompt('Select High Morale City');
@@ -4760,10 +4807,11 @@ class Game {
     logLine('### Hunt ${raider.desc}');
     adjustDollars(-1);
     int die = rollD6();
+    logD6(die);
     if (die > _state.raiderStrength(raider)) {
       sinkUboat(raider);
     } else {
-      logLine('> ${raider.desc} survives.');
+      logLine('>${raider.desc} survives.');
     }
   }
 
@@ -4771,11 +4819,12 @@ class Game {
     logLine('### Gandhi');
     adjustDollars(-1);
     int die = rollD6();
+    logD6(die);
     if (die >= 4) {
-      logLine('> Gandhi is arrested.');
+      logLine('>Gandhi is arrested.');
       _state.setPieceLocation(Piece.indiaGandhi, Location.discarded);
     } else {
-      logLine('> Gandhi remains at large.');
+      logLine('>Gandhi remains at large.');
     }
   }
 
@@ -4784,9 +4833,9 @@ class Game {
     logLine('### Air Superiority');
     final armyCount = _state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontWestern);
     adjustDollars(-armyCount);
-    logLine('> Air Superiority is achieved.');
+    logLine('>Air Superiority is achieved.');
     _state.setPieceLocation(Piece.airBaseUsaaf, Location.boxAlliedAirBases);
-    logLine('> Operation Overlord commences.');
+    logLine('>Operation Overlord commences.');
     _state.setPieceLocation(Piece.siegeNormandy, Location.frontWestern);
     final vlasovArmy = _state.pieceInLocation(PieceType.proAxisArmy, Location.traySiege);
     if (vlasovArmy != null) {
@@ -4835,7 +4884,7 @@ class Game {
     } else {
       final turnChits = _state.piecesInLocation(PieceType.turnChit, Location.cupTurn);
       turnChit = randPiece(turnChits)!;
-      logLine('> ${turnChit.desc} is drawn.');
+      logLine('>${turnChit.desc} is drawn.');
     }
     _state.setPieceLocation(turnChit, box);
     if (currentTurn == 3) {
@@ -4867,23 +4916,23 @@ class Game {
     logLine('### Calendar Deployments');
     for (final piece in pieces) {
       if (piece.isType(PieceType.uboats)) {
-        logLine('> ${piece.desc} deploys.');
+        logLine('>${piece.desc} deploys.');
         _state.setPieceLocation(piece, Location.boxGermanUboats);
       }
       if (piece.isType(PieceType.leader)) {
-        logLine('> ${piece.desc} is available.');
+        logLine('>${piece.desc} is available.');
         _state.setPieceLocation(piece, _state.leadershipBox(piece));
       }
       if (piece.isType(PieceType.spruance) || piece == Piece.usMarines) {
-        logLine('> ${piece.desc} deploys.');
+        logLine('>${piece.desc} deploys.');
         _state.setPieceLocation(piece, Location.boxHawaii);
       }
       if (piece.isType(PieceType.carrier)) {
-        logLine('> ${piece.desc} deploys.');
+        logLine('>${piece.desc} deploys.');
         _state.setPieceLocation(piece, Location.cupCarrier);
       }
       if (piece.isType(PieceType.convoy) || piece.isType(PieceType.asw)) {
-        logLine('> ${piece.desc} deploys.');
+        logLine('>${piece.desc} deploys.');
         _state.setPieceLocation(piece, Location.boxAvailableConvoys);
       }
     }
@@ -4947,7 +4996,7 @@ class Game {
     }
     final location = _state.pieceLocation(Piece.leaderStalinUsed);
     if (location != Location.flipped) {
-      logLine('> Stalin returns to work.');
+      logLine('>Stalin returns to work.');
       _state.setPieceLocation(Piece.leaderStalin, location);
     }
   }
@@ -4972,10 +5021,16 @@ class Game {
 
   void eveningTelegraphPhaseRoll() {
     final phaseState = _phaseState as PhaseStateEveningTelegraph;
-    logLine('> Evening Telegraph');
+    logLine('>Evening Telegraph');
     int die = rollD6();
+
+    logTableHeader();
+    logD6InTable(die);
+    logLine('>|Turn|${_state.currentTurn}');
     int total = _state.currentTurn + die;
-    logLine('> Result: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     phaseState.result = total;
   }
 
@@ -5003,7 +5058,7 @@ class Game {
       '4th War Area',
       'Banzai Attacks!',
     ];
-    logLine('> ${eventNames[index]} in effect.');
+    logLine('>${eventNames[index]} in effect.');
   }
 
   void eveningTelegraphPhasePoliticalEvent0() {
@@ -5174,10 +5229,10 @@ class Game {
       logLine('### ${commando.desc}');
       final armyCount = _state.piecesInLocationCount(PieceType.proAxisArmy, front);
       if (!_state.frontActive(front) || armyCount == 1) {
-        logLine('> No armies on ${front.desc}');
+        logLine('>No armies on ${front.desc}');
         final otherCommando = _state.pieceFlipSide(commando)!;
         _state.setPieceLocation(otherCommando, Location.boxAxisCommandos);
-        logLine('> ${otherCommando.desc} ready for action.');
+        logLine('>${otherCommando.desc} ready for action.');
         return;
       }
       _subStep = 1;
@@ -5191,7 +5246,7 @@ class Game {
       throw PlayerChoiceException();
     }
     final army = selectedPiece()!;
-    logLine('> ${commando!.desc} assists ${army.desc}');
+    logLine('>${commando!.desc} assists ${army.desc}');
     _state.setCommandoAssistedArmy(army);
     _state.setPieceLocation(commando, front!);
     clearChoices();
@@ -5236,11 +5291,11 @@ class Game {
       if (western || eastern) {
         logLine('### Quislings');
         if (western) {
-          logLine('> Collaborators assist Axis Attacks on the Western Front.');
+          logLine('>Collaborators assist Axis Attacks on the Western Front.');
           frontQuislingAttackCounts[0] += 1;
         }
         if (eastern) {
-          logLine('> Collaborators assist Axis Attacks on the Eastern Front.');
+          logLine('>Collaborators assist Axis Attacks on the Eastern Front.');
           frontQuislingAttackCounts[1] += 1;
         }
       }
@@ -5253,7 +5308,7 @@ class Game {
           for (final front in LocationType.front.locations) {
             int index = front.index - LocationType.front.firstIndex;
             if (frontSieges[index]) {
-              logLine('> Random Axis Attack targets ${front.desc}.');
+              logLine('>Random Axis Attack targets ${front.desc}.');
               frontRandomAttackCounts[index] += 1;
             }
           }
@@ -5262,10 +5317,10 @@ class Game {
           int index = die - 1;
           final front = Location.values[LocationType.front.firstIndex + index];
           if (_state.frontActive(front)) {
-            logLine('> Random Axis Attack targets ${front.desc}.');
+            logLine('>Random Axis Attack targets ${front.desc}.');
             frontRandomAttackCounts[index] += 1;
           } else {
-            logLine('> ${front.desc} Inactive, no Axis Attack takes place.');
+            logLine('>${front.desc} Inactive, no Axis Attack takes place.');
           }
         }
       }
@@ -5325,14 +5380,14 @@ class Game {
       if (_state.currentTurnRussianWinter) {
         final panzer = _state.pieceInLocation(PieceType.panzer, Location.frontEastern);
         if (panzer != null) {
-          logLine('> ${panzer.desc} is withdrawn due to the Russian Winter.');
+          logLine('>${panzer.desc} is withdrawn due to the Russian Winter.');
           _state.setPieceLocation(panzer, Location.reservesEastern);
         }
       } else {
         for (final panzer in PieceType.panzer.pieces) {
           final location = _state.pieceLocation(panzer);
           if (location == Location.trayGermanGround || location == Location.reservesEastern) {
-            logLine('> ${panzer.desc} deploys to ${Location.frontEastern.desc}.');
+            logLine('>${panzer.desc} deploys to ${Location.frontEastern.desc}.');
             _state.setPieceLocation(panzer, Location.frontEastern);
             break;
           }
@@ -5348,7 +5403,7 @@ class Game {
   void axisPowersAttackPhaseCheckBurmaRoadStatus() {
     if (_state.pieceLocation(Piece.burmaRoadOpen) == Location.regionBurmaRoad) {
       if (_state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontSoutheastAsia) >= 3) {
-        logLine('> Burma Road is Closed.');
+        logLine('>Burma Road is Closed.');
         _state.setPieceLocation(Piece.burmaRoadClosed, Location.regionBurmaRoad);
       }
     }
@@ -5455,7 +5510,7 @@ class Game {
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
       }
-      logLine('> ${piece.desc} placed in ${location.desc}.');
+      logLine('>${piece.desc} placed in ${location.desc}.');
       _state.setPieceLocation(piece, location);
       clearChoices();
     }
@@ -5525,12 +5580,13 @@ class Game {
       ],
     ];
     final rolls = roll2D6();
+    log2D6(rolls);
     int dice = rolls.$3;
     final seaZones = tables[strongest.length - 1][dice - 2];
     for (int i = 0; i < strongest.length; ++i) {
       final piece = strongest[i];
       final seaZone = mostValuableSeaZone(seaZones)!;
-      logLine('> ${piece.desc} patrols ${seaZone.desc}.');
+      logLine('>${piece.desc} patrols ${seaZone.desc}.');
       _state.setPieceLocation(piece, seaZone);
       seaZones.remove(seaZone);
     }
@@ -5563,7 +5619,7 @@ class Game {
       throw PlayerChoiceException();
     }
     final seaZone = selectedLocation()!;
-    logLine('> ${Piece.aswEnigma.desc} placed in ${seaZone.desc}.');
+    logLine('>${Piece.aswEnigma.desc} placed in ${seaZone.desc}.');
     _state.setPieceLocation(Piece.aswEnigma, seaZone);
     clearChoices();
   }
@@ -5597,10 +5653,11 @@ class Game {
     }
     final piece = selectedPiece()!;
     int die = rollD6();
+    logD6(die);
     if (die >= 4) {
       sinkUboat(piece);
     } else {
-      logLine('> {Attack fails.}');
+      logLine('>{Attack fails.}');
     }
     clearChoices();
   }
@@ -5620,7 +5677,7 @@ class Game {
         }
       }
     }
-    logLine('> Haul: \$$haul');
+    logLine('>Haul: \$$haul');
     if (haul == 0) {
       return;
     }
@@ -5683,34 +5740,36 @@ class Game {
       }
       final piece = selectedPiece()!;
       final seaZone = _state.pieceLocation(piece);
-      logLine('> ${seaZone.desc}');
+      logLine('>${seaZone.desc}');
       final convoy = _state.pieceInLocation(PieceType.convoy, seaZone)!;
       final uboats = _state.piecesInLocation(PieceType.raiderOrUboat, seaZone);
       final aswZone = _state.seaZoneAsw(seaZone);
       if (convoy.isType(PieceType.escortedConvoy) && uboats.length == 1) {
         if (aswZone) {
           int die = rollD6();
+          logD6(die);
           if (die >= 5) {
             sinkUboat(piece);
           } else {
-            logLine('> ${piece.desc} survives.');
+            logLine('>${piece.desc} survives.');
           }
         }
       } else if (uboats.length == 2 && !convoy.isType(PieceType.escortedConvoy)) {
-        logLine('> ${convoy.desc} is sunk.');
+        logLine('>${convoy.desc} is sunk.');
         _state.setPieceLocation(convoy, Location.boxUSEastCoast);
       } else {
         if (checkChoice(Choice.scatter)) {
-          logLine('> ${convoy.desc} Scatters.');
+          logLine('>${convoy.desc} Scatters.');
           _state.setPieceLocation(convoy, Location.boxUSEastCoast);
         } else if (checkChoice(Choice.fight)) {
           int die = rollD6();
+          logD6(die);
           if (die >= 5) {
             sinkUboat(piece);
           } else {
-            logLine('> ${piece.desc} survives.');
+            logLine('>${piece.desc} survives.');
           }
-          logLine('> ${convoy.desc} is sunk.');
+          logLine('>${convoy.desc} is sunk.');
           _state.setPieceLocation(_state.pieceFlipSide(convoy)!, Location.boxUSEastCoast);
         } else {
           setPrompt('Scatter or Fight?');
@@ -5779,19 +5838,25 @@ class Game {
       final piece = selectedPiece()!;
       final front = _state.pieceLocation(piece);
       final bomber = _state.frontBomber(front)!;
-      logLine('> Bomb ${piece.desc}.');
+      logLine('>Bomb ${piece.desc}.');
       int die = rollD6();
+
+      logTableHeader();
+      logD6InTable(die);
       int minDie = _state.bomberMinDie(bomber);
+      logLine('>|${bomber.desc}|$minDie|');
+      logTableFooter();
+
       if (die >= minDie) {
         if (piece == Piece.panzerTiger) {
-          logLine('> Bombing is successful, ${piece.desc} is eliminated.');
+          logLine('>Bombing is successful, ${piece.desc} is eliminated.');
           _state.setPieceLocation(piece, Location.discarded);
         } else {
-          logLine('> Bombing is successful, ${piece.desc} is withdrawn to reserves.');
+          logLine('>Bombing is successful, ${piece.desc} is withdrawn to reserves.');
           _state.setPieceLocation(piece, _state.frontReservesBox(front));
         }
       } else {
-        logLine('> Bombing is unsuccessful.');
+        logLine('>Bombing is unsuccessful.');
       }
       if ([Location.frontWestern, Location.frontEastern, Location.frontMed].contains(front)) {
         phaseState.outstandingEuropeBombing = false;
@@ -5846,32 +5911,33 @@ class Game {
     final piece = selectedPiece()!;
     if (piece.isType(PieceType.proAxisOrVichyNonCapitalArmy) || piece.isType(PieceType.panzer) || piece.isType(PieceType.siegeInitial)) {
       logLine('### British Commando Raid');
-      logLine('> British Commandos conduct Raid on ${piece.desc}.');
+      logLine('>British Commandos conduct Raid on ${piece.desc}.');
     } else if (piece.isType(PieceType.uboats)) {
       logLine('### Raid on St. Nazaire');
     } else if (piece.isType(PieceType.raider)) {
       logLine('### Sink the ${piece.desc}!');
     }
     int die = rollD6();
+    logD6(die);
     if (die >= 2 && die <= 5) {
       if (piece.isType(PieceType.raider)) {
         sinkUboat(piece);
       } else if (piece.isType(PieceType.uboats)) {
-        logLine('> Raid is successful, U-Boat operations are hindered.');
+        logLine('>Raid is successful, U-Boat operations are hindered.');
         _state.setPieceLocation(piece, _state.futureCalendarBox(die));
       } else {
-        logLine('> Raid on ${piece.desc} is successful.');
+        logLine('>Raid on ${piece.desc} is successful.');
         final location = _state.pieceLocation(piece);
         if (location.isType(LocationType.front)) {
           if (piece.isType(PieceType.siegeInitial)) {
-            logLine('> ${piece.desc} Tightens.');
+            logLine('>${piece.desc} Tightens.');
             _state.setPieceLocation(_state.pieceFlipSide(piece)!, location);
           } else if (piece == Piece.panzerTiger) {
-            logLine('> ${piece.desc} is eliminated.');
+            logLine('>${piece.desc} is eliminated.');
             _state.setPieceLocation(piece, Location.discarded);
           } else {
             final reservesBox = _state.frontReservesBox(location);
-            logLine('> ${piece.desc} is withdrawn to ${reservesBox.desc}.');
+            logLine('>${piece.desc} is withdrawn to ${reservesBox.desc}.');
             _state.setPieceLocation(piece, reservesBox);
           }
         } else {
@@ -5880,15 +5946,15 @@ class Game {
       }
     } else if (die == 1) {
       if (piece.isType(PieceType.raider)) {
-        logLine('> Attempt to sink the ${piece.desc} is unsuccessful.');
+        logLine('>Attempt to sink the ${piece.desc} is unsuccessful.');
       } else {
-        logLine('> Raid is unsuccessful.');
+        logLine('>Raid is unsuccessful.');
       }
     } else if (die == 6) {
       if (piece.isType(PieceType.raider)) {
-        logLine('> Attempt to sink the ${piece.desc} is a fiasco.');
+        logLine('>Attempt to sink the ${piece.desc} is a fiasco.');
       } else {
-        logLine('> Raid is a fiasco.');
+        logLine('>Raid is a fiasco.');
       }
     }
     _state.churchillInUse(die);
@@ -5917,13 +5983,13 @@ class Game {
     }
     logLine('### Using Stalin');
     if (checkChoice(Choice.raiseCannonMeat)) {
-      logLine('> Military Comissariats');
+      logLine('>Military Comissariats');
       adjustCannonMeat(1);
     } else {
-      logLine('> Great Patriotic War');
+      logLine('>Great Patriotic War');
       final city = selectedPiece()!;
       final flippedCity = _state.pieceFlipSide(city)!;
-      logLine('> ${flippedCity.desc} replaces ${city.desc}.');
+      logLine('>${flippedCity.desc} replaces ${city.desc}.');
       _state.setPieceLocation(flippedCity, Location.boxCitiesHighMorale);
     }
     _state.stalinUsed();
@@ -5964,30 +6030,30 @@ class Game {
       final lendLease = selectedPiece()!;
       switch (lendLease) {
       case Piece.lendLeaseJeepsTrucks:
-        logLine('> Enact Jeeps & Trucks');
+        logLine('>Enact Jeeps & Trucks');
         adjustDollars(3);
         _state.setPieceLocation(Piece.lendLeaseAidToRussia, Location.boxUSEastCoast);
       case Piece.lendLeaseAidToRussia:
-        logLine('> Enact Aid to Russia');
+        logLine('>Enact Aid to Russia');
         adjustCannonMeat(4);
         _state.setPieceLocation(lendLease, Location.discarded);
       case Piece.lendLeaseLibertyShips:
-        logLine('> Enact Liberty Ships');
+        logLine('>Enact Liberty Ships');
         _state.setPieceLocation(Piece.convoyAmerican0, Location.boxUSEastCoast);
         _state.setPieceLocation(Piece.convoyAmerican1, Location.boxUSEastCoast);
         _state.setPieceLocation(lendLease, Location.discarded);
       case Piece.lendLeaseDestroyerDeal:
-        logLine('> Enact Destroyer Deal');
+        logLine('>Enact Destroyer Deal');
         final carriers = _state.piecesInLocation(PieceType.carrier, Location.cupCarrier);
         final carrier = randPiece(carriers)!;
-        logLine('> ${carrier.desc} redeployed away from the Pacific.');
+        logLine('>${carrier.desc} redeployed away from the Pacific.');
         phaseState.destroyerDealDelay = max(_state.carrierStrength(carrier), 1);
         _state.setPieceLocation(carrier, Location.trayUnNaval);
         _state.setPieceLocation(lendLease, Location.discarded);
       default:
       }
       if (_state.currentTurn < 3) {
-        logLine('> Lend-Lease deal is reduces Roosevelt’s chances of re-election.');
+        logLine('>Lend-Lease deal is reduces Roosevelt’s chances of re-election.');
         _state.setPieceLocation(Piece.leaderRoosevelt, Location.values[_state.pieceLocation(Piece.leaderRoosevelt).index - 1]);
       }
       clearChoices();
@@ -6009,7 +6075,7 @@ class Game {
       throw PlayerChoiceException();
     }
     final piece = selectedPiece()!;
-    logLine('> ${piece.desc} sunk.');
+    logLine('>${piece.desc} sunk.');
     _state.setPieceLocation(piece, _state.futureCalendarBox(phaseState.destroyerDealDelay));
   }
 
@@ -6036,7 +6102,7 @@ class Game {
     if (militaryEventBox == Location.eventOperationKutuzov) {
       if (_state.pieceLocation(Piece.panzerTiger) == Location.flipped) {
         logLine('### Operation Kutuzov');
-        logLine('> ${Piece.panzerTiger.desc} available on ${Location.frontEastern.desc}.');
+        logLine('>${Piece.panzerTiger.desc} available on ${Location.frontEastern.desc}.');
         var location = _state.pieceLocation(Piece.panzerPza);
         if (location == Location.discarded) {
           location = Location.reservesEastern;
@@ -6047,7 +6113,7 @@ class Game {
       final tigerLocation = _state.pieceLocation(Piece.panzerTiger);
       if (_state.frontHasStrategy(Location.frontWestern) && tigerLocation != Location.discarded && tigerLocation != Location.frontWestern) {
         logLine('### Wacht am Rhein');
-        logLine('> ${Piece.panzerTiger.desc} deploys to ${Location.frontWestern.desc}.');
+        logLine('>${Piece.panzerTiger.desc} deploys to ${Location.frontWestern.desc}.');
         _state.setPieceLocation(Piece.panzerTiger, Location.frontWestern);
       }
     }
@@ -6066,14 +6132,14 @@ class Game {
     while (true) {
       if (_subStep == 0) {
         if (_state.burmaRoadClosed && _state.piecesInLocationCount(PieceType.proAxisArmy, Location.frontSoutheastAsia) <= 2) {
-          logLine('> Burma Road Open');
+          logLine('>Burma Road Open');
           _state.setPieceLocation(Piece.burmaRoadOpen, Location.regionBurmaRoad);
         }
         if (_state.frontHasStrategy(Location.frontSouthPacific) && _state.airSuperiority) {
           final location = _state.pieceLocation(Piece.armyJapanese31);
           if (location != Location.frontSouthPacific && location != Location.flipped) {
             logLine('### Marianas Campaign');
-            logLine('> Tinian Air Base opens.');
+            logLine('>Tinian Air Base opens.');
             _state.setPieceLocation(Piece.airBaseTinian, Location.frontSouthPacific);
           }
         }
@@ -6193,9 +6259,10 @@ class Game {
     final phaseState = _phaseState as PhaseStatePacificNaval;
     logLine('### Japanese Naval Missions');
     int die = rollD6();
+    logD6(die);
     if (_state.pieceLocation(Piece.submarineCampaign) == Location.boxHawaii) {
       if (die < _state.turnYear(_state.currentTurn) % 10) {
-        logLine('> Submarine Campaign thwarts Japanese naval activity.');
+        logLine('>Submarine Campaign thwarts Japanese naval activity.');
         phaseState.japaneseNavalMissionRoll = 0;
         return;
       }
@@ -6267,12 +6334,12 @@ class Game {
     }
     if (_state.pieceLocation(Piece.armyJapanese32) == Location.reservesSouthPacific) {
       if (_state.politicalEventCount(PoliticalEvent.aleutiansCampaign) == 0) {
-        logLine('> Japan launches the Aleutians Campaign.');
+        logLine('>Japan launches the Aleutians Campaign.');
         _state.setPieceLocation(Piece.operationAL, Location.boxAttuAndKiska);
         _state.politicalEventCurrent(PoliticalEvent.aleutiansCampaign);
       }
     } else if (_state.pieceLocation(Piece.operationAL) == Location.boxAttuAndKiska) {
-      logLine('> Japan withdraws from the Aleutians.');
+      logLine('>Japan withdraws from the Aleutians.');
       _state.setPieceLocation(Piece.armyJapanese32, Location.reservesSouthPacific);
       final carrier1 = randPiece(_state.piecesInLocation(PieceType.carrier, Location.cupCarrier))!;
       _state.setPieceLocation(carrier1, Location.trayUnNaval);
@@ -6280,10 +6347,10 @@ class Game {
       _state.setPieceLocation(carrier2, Location.trayUnNaval);
       if (_state.carrierStrength(carrier1) >= _state.carrierStrength(carrier2)) {
         _state.setPieceLocation(carrier1, Location.cupCarrier);
-        logLine('> ${carrier2.desc} is damaged.');
+        logLine('>${carrier2.desc} is damaged.');
       } else {
         _state.setPieceLocation(carrier2, Location.cupCarrier);
-        logLine('> ${carrier1.desc} is damaged.');
+        logLine('>${carrier1.desc} is damaged.');
       }
     }
   }
@@ -6299,7 +6366,7 @@ class Game {
       logLine('### US Carriers');
       final carrier = randPiece(_state.piecesInLocation(PieceType.carrier, Location.cupCarrier))!;
       int strength = _state.carrierStrength(carrier);
-      logLine('> ${carrier.desc} leads a Task Force.');
+      logLine('>${carrier.desc} leads a Task Force.');
       adjustNavalActions(strength);
       _state.setPieceLocation(carrier, Location.trayUnNaval);
     }
@@ -6338,26 +6405,32 @@ class Game {
       }
       if (selectedLocation() != null) {
         final sea = selectedLocation()!;
-        logLine('> Admiral Spruance takes command of US fleet in ${sea.desc}.');
+        logLine('>Admiral Spruance takes command of US fleet in ${sea.desc}.');
         _state.setPieceLocation(spruance, sea);
         continue;
       }
       final ship = selectedPiece()!;
       final sea = _state.pieceLocation(ship);
-      logLine('> ${ship.desc} is attacked.');
+      logLine('>${ship.desc} is attacked.');
       adjustNavalActions(-1);
       int die = rollD6();
       int modifiers = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       if (spruanceLocation == sea) {
         if (spruance == Piece.spruanceP2) {
-          logLine('> Admiral Spruance: +2');
+          logLine('>|Admiral Spruance|+2|');
           modifiers += 2;
         } else {
-          logLine('> Admiral Spruance: +1');
+          logLine('>|Admiral Spruance|+1|');
           modifiers += 1;
         }
       }
       int total = die + modifiers;
+      logLine('>|Total|$total|');
+      logTableFooter();
+
       int strength = _state.shipStrength(ship);
       if (total > strength) {
         sinkShip(ship);

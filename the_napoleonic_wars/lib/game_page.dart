@@ -837,6 +837,8 @@ class GamePageState extends State<GamePage> {
     _counterTrayStackChildren.clear();
     _counterTrayStackChildren.add(_counterTrayImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 

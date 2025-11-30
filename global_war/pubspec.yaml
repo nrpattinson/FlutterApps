@@ -332,6 +332,12 @@ flutter:
    - assets/images/turn_pearl_harbor.png
    - assets/images/uboats.png
    - assets/images/us_marines.png
+   - assets/images/d6_1.png
+   - assets/images/d6_2.png
+   - assets/images/d6_3.png
+   - assets/images/d6_4.png
+   - assets/images/d6_5.png
+   - assets/images/d6_6.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

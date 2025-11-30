@@ -10,6 +10,8 @@ enum BoardArea {
   counterTray,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -35,6 +37,10 @@ class GamePageState extends State<GamePage> {
   final _counterTrayImage = Image.asset('assets/images/tray.png', key: UniqueKey(), width: _counterTrayWidth, height: _counterTrayHeight);
   final _mapStackChildren = <Widget>[];
   final _counterTrayChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -335,6 +341,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -387,6 +397,35 @@ class GamePageState extends State<GamePage> {
       );
       borderWidth += 1.0;
     }
+
+    GestureTapCallback? onTap;
+    if (choosable) {
+      onTap = () {
+        appState.chosePiece(piece);
+      };
+    }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -459,6 +498,26 @@ class GamePageState extends State<GamePage> {
     _mapStackChildren.add(widget);
   }
 
+  void addBoxToMap(MyAppState appState, Location sea, double x, double y) {
+    var widget =
+     Positioned(
+      left: x - 10,
+      top: y - 10,
+      child: PhysicalModel(
+        shape: BoxShape.circle,
+        color: Colors.yellow,
+        child: IconButton(
+          onPressed: () {
+            appState.choseLocation(sea);
+          },
+          icon: const Icon(null, size: 20.0),
+        ),
+      ),
+    );
+
+    _mapStackChildren.add(widget);
+  }
+
   (double, double) locationCoordinates(Location location) {
     const coordinates = {
 	    Location.frontWestern: (405.0, 724.0),
@@ -488,35 +547,54 @@ class GamePageState extends State<GamePage> {
     return coordinates[location]!;
   }
 
-  void addBoxToMap(MyAppState appState, Location sea, double x, double y) {
-    var widget =
-     Positioned(
-      left: x - 10,
-      top: y - 10,
-      child: PhysicalModel(
-        shape: BoxShape.circle,
-        color: Colors.yellow,
-        child: IconButton(
-          onPressed: () {
-            appState.choseLocation(sea);
-          },
-          icon: const Icon(null, size: 20.0),
-        ),
-      ),
-    );
-
-    _mapStackChildren.add(widget);
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
   }
 
-  void layoutFront(MyAppState appState, Location front) {
-    if (!_emptyMap) {
-      final state = appState.gameState!;
-      final partisansBox = state.frontPartisansBox(front);
-      final pieces = state.piecesInLocation(PieceType.all, front);
-      Piece? partisans = state.pieceInLocation(PieceType.all, partisansBox);
-      final coordinates = locationCoordinates(front);
-      double xFront = coordinates.$1;
-      double yFront = coordinates.$2;
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, bool rowFirst, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
+      for (int colIndex = 0; colIndex < colCount; ++colIndex) {
+        int row = rowFirst ? colIndex : rowIndex;
+        int col = rowFirst ? rowIndex : colIndex;
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        final sk = (box, stackIndex);
+        if (_expandedStacks.contains(sk) == (pass == 1)) {
+          for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+            stackPieces.add(pieces[pieceIndex]);
+          }
+          if (stackPieces.isNotEmpty) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, sk, stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutFront(MyAppState appState, Location front, int pass) {
+    final state = appState.gameState!;
+    final partisansBox = state.frontPartisansBox(front);
+    final pieces = state.piecesInLocation(PieceType.all, front);
+    Piece? partisans = state.pieceInLocation(PieceType.all, partisansBox);
+    final coordinates = locationCoordinates(front);
+    double xFront = coordinates.$1;
+    double yFront = coordinates.$2;
+
+    if (pass == 0) {
       for (int i = pieces.length - 1; i >= 0; --i) {
         final piece = pieces[i];
         int col = i % 3;
@@ -538,52 +616,50 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutFronts(MyAppState appState) {
+  void layoutFronts(MyAppState appState, int pass) {
     for (final front in LocationType.front.locations) {
-      layoutFront(appState, front);
+      layoutFront(appState, front, pass);
     }
   }
 
   void layoutSeaZone(MyAppState appState, Location seaZone) {
-    if (!_emptyMap) {
-      final state = appState.gameState!;
-      final coordinates = locationCoordinates(seaZone);
-      double xZone = coordinates.$1;
-      double yZone = coordinates.$2;
-      final convoy = state.pieceInLocation(PieceType.convoy, seaZone);
-      final asw = state.pieceInLocation(PieceType.asw, seaZone);
-      final escort = state.pieceLocation(Piece.escortSaoPaulo) == seaZone ? Piece.escortSaoPaulo : null;
-      final axis = state.piecesInLocation(PieceType.raiderOrUboat, seaZone);
-      int alliedCount = 0;
-      if (convoy != null) {
-        alliedCount += 1;
-      }
-      if (asw != null) {
-        alliedCount += 1;
-      }
-      if (escort != null) {
-        alliedCount += 1;
-      }
-      if (escort != null) {
-        double x = convoy != null ? (asw != null ? xZone + 6.0 : xZone + 3.0) : xZone - 30.0;
-        double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
-        addPieceToBoard(appState, escort, BoardArea.map, x, y);
-      }
-      if (asw != null) {
-        double x = xZone + 3.0;
-        double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
-        addPieceToBoard(appState, asw, BoardArea.map, x, y);
-      }
-      if (convoy != null) {
-        double x = asw != null || escort != null ? xZone - 63.0 : xZone - 30.0;
-        double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
-        addPieceToBoard(appState, convoy, BoardArea.map, x, y);
-      }
-      for (int i = axis.length - 1; i >= 0; --i) {
-        double x = i == 1 ? xZone + 3.0 : (axis.length == 2 ? xZone - 63.0 : xZone - 30.0);
-        double y = alliedCount > 0 ? yZone + 3.0 : yZone - 30.0;
-        addPieceToBoard(appState, axis[i], BoardArea.map, x, y);
-      }
+    final state = appState.gameState!;
+    final coordinates = locationCoordinates(seaZone);
+    double xZone = coordinates.$1;
+    double yZone = coordinates.$2;
+    final convoy = state.pieceInLocation(PieceType.convoy, seaZone);
+    final asw = state.pieceInLocation(PieceType.asw, seaZone);
+    final escort = state.pieceLocation(Piece.escortSaoPaulo) == seaZone ? Piece.escortSaoPaulo : null;
+    final axis = state.piecesInLocation(PieceType.raiderOrUboat, seaZone);
+    int alliedCount = 0;
+    if (convoy != null) {
+      alliedCount += 1;
+    }
+    if (asw != null) {
+      alliedCount += 1;
+    }
+    if (escort != null) {
+      alliedCount += 1;
+    }
+    if (escort != null) {
+      double x = convoy != null ? (asw != null ? xZone + 6.0 : xZone + 3.0) : xZone - 30.0;
+      double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
+      addPieceToBoard(appState, escort, BoardArea.map, x, y);
+    }
+    if (asw != null) {
+      double x = xZone + 3.0;
+      double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
+      addPieceToBoard(appState, asw, BoardArea.map, x, y);
+    }
+    if (convoy != null) {
+      double x = asw != null || escort != null ? xZone - 63.0 : xZone - 30.0;
+      double y = axis.isNotEmpty ? yZone - 63.0 : yZone - 30.0;
+      addPieceToBoard(appState, convoy, BoardArea.map, x, y);
+    }
+    for (int i = axis.length - 1; i >= 0; --i) {
+      double x = i == 1 ? xZone + 3.0 : (axis.length == 2 ? xZone - 63.0 : xZone - 30.0);
+      double y = alliedCount > 0 ? yZone + 3.0 : yZone - 30.0;
+      addPieceToBoard(appState, axis[i], BoardArea.map, x, y);
     }
   }
 
@@ -655,7 +731,7 @@ class GamePageState extends State<GamePage> {
     Location.trayTurn: (BoardArea.counterTray, 80.0, 620.0, 16, 1, false, 10.0, 0.0),
   };
 
-  void layoutBox(MyAppState appState, Location box) {
+  void layoutBox(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
     final info = boxInfos[box]!;
     final boardArea = info.$1;
@@ -666,28 +742,12 @@ class GamePageState extends State<GamePage> {
     bool rowFirst = info.$6;
     double xGap = info.$7;
     double yGap = info.$8;
-    int cells = cols * rows;
-    final pieces = state.piecesInLocation(PieceType.all, box);
-    int layers = (pieces.length + cells - 1) ~/ cells;
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      int cell = i % cells;
-      int col = cell % cols;
-      int row = cell ~/ cols;
-      if (rowFirst) {
-        int tmp = col;
-        col = row;
-        row = tmp;
-      }
-      int depth = i ~/ cells;
-      double x = xBox + col * (60.0  + xGap) - (layers - 1) + depth * 2.0;
-      double y = yBox + row * (60.0 + yGap) - (layers - 1) + depth * 2.0;
-      addPieceToBoard(appState, pieces[i], boardArea, x, y);
-    }
+    layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, rowFirst, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     for (final location in boxInfos.keys) {
-      layoutBox(appState, location);
+      layoutBox(appState, location, pass);
     }
   }
 
@@ -729,7 +789,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutCalendarBox(MyAppState appState, Location box) {
+  void layoutCalendarBox(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
     final index = box.index - LocationType.calendar.firstIndex;
     int col = index % 6;
@@ -748,22 +808,22 @@ class GamePageState extends State<GamePage> {
         others.add(piece);
       }
     }
-    if (turnChit != null) {
+    if (pass == 0 && turnChit != null) {
       addPieceToBoard(appState, turnChit, BoardArea.map, xBox, yBox);
     }
-    for (int i = others.length - 1; i >= 0; --i) {
-      double x = xBox + 37.0 - (others.length - 1) * 3.0 + i * 6.0;
-      addPieceToBoard(appState, others[i], BoardArea.map, x, yBox);
+    final sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, others, BoardArea.map, xBox + 37.0, yBox, 6.0, 0.0);
     }
   }
 
-  void layoutCalendar(MyAppState appState) {
+  void layoutCalendar(MyAppState appState,  int pass) {
     for (final box in LocationType.calendar.locations) {
-      layoutCalendarBox(appState, box);
+      layoutCalendarBox(appState, box, pass);
     }
   }
 
-  void layoutOmnibusBox(MyAppState appState, Location box) {
+  void layoutOmnibusBox(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(Location.omnibus0);
     double xFirst = coordinates.$1;
@@ -771,17 +831,16 @@ class GamePageState extends State<GamePage> {
     int col = box.index - LocationType.omnibus.firstIndex;
     double xBox = xFirst + col * 86.8;
     double yBox = yFirst;
-    final pieces = state.piecesInLocation(PieceType.all, box);
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      double x = xBox - (pieces.length - 1) * 3.0 + i * 6.0;
-      double y = yBox - (pieces.length - 1) * 3.0 + i * 6.0;
-      addPieceToBoard(appState, pieces[i], BoardArea.map, x, y);
+
+    final sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, state.piecesInLocation(PieceType.all, box), BoardArea.map, xBox, yBox, 6.0, 6.0);
     }
   }
 
-  void layoutOmnibus(MyAppState appState) {
+  void layoutOmnibus(MyAppState appState, int pass) {
     for (final box in LocationType.omnibus.locations) {
-      layoutOmnibusBox(appState, box);
+      layoutOmnibusBox(appState, box, pass);
     }
   }
 
@@ -804,18 +863,23 @@ class GamePageState extends State<GamePage> {
     _counterTrayChildren.clear();
     _counterTrayChildren.add(_counterTrayImage);
 
+    _pieceStackKeys.clear();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     if (gameState != null) {
-      layoutFronts(appState);
       layoutSeaZones(appState);
-      layoutBoxes(appState);
       layoutCityBoxes(appState);
       layoutMilitaryEvent(appState);
-      layoutCalendar(appState);
-      layoutOmnibus(appState);
-      layoutCalendar(appState);
+      layoutCalendar(appState, 0);
+      layoutOmnibus(appState, 0);
+      layoutBoxes(appState, 0);
+      layoutFronts(appState, 0);
+      layoutCalendar(appState, 1);
+      layoutOmnibus(appState, 1);
+      layoutBoxes(appState, 1);
+      layoutFronts(appState, 1);
 
       const choiceTexts = {
         Choice.axisFailureMaltaSafe: 'Axis Attack fails, Malta safe',
