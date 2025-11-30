@@ -1332,11 +1332,20 @@ class Game {
     _log += '$line  \n';
   }
 
-  String dieFace(int die) {
-    return '![](resource:assets/images/d8_$die.png)';
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
   }
 
   // Randomness
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d8_$die.png)';
+  }
 
   int rollD8() {
     int die = _random.nextInt(8) + 1;

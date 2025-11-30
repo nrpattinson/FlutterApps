@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:charlemagne/db.dart';
-import 'package:charlemagne/game.dart';
 import 'package:charlemagne/main.dart';
 
 class CompletedGamesPage extends StatefulWidget {

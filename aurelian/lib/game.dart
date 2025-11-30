@@ -444,7 +444,7 @@ enum PieceType {
   mapBarbarian,
   mapCV,
   mapUsurper,
-  mapLeader,
+  mapEnemyLeader,
   mapAurelian,
   mapOfficer,
 }
@@ -461,7 +461,7 @@ extension PieceTypeExtension on PieceType {
     PieceType.mapCV: [Piece.red0, Piece.barbarian8],
     PieceType.mapBarbarian: [Piece.barbarian0, Piece.barbarian8],
     PieceType.mapUsurper: [Piece.usurperRed, Piece.usurperYellowZenobia],
-    PieceType.mapLeader: [Piece.leaderAurelianP1, Piece.leaderOfficer1],
+    PieceType.mapEnemyLeader: [Piece.leaderAurelianP1, Piece.leaderOfficer1],
     PieceType.mapAurelian: [Piece.leaderAurelianP1, Piece.leaderAurelianP2],
     PieceType.mapOfficer: [Piece.leaderOfficer0, Piece.leaderOfficer1],
   };
@@ -1363,12 +1363,34 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
+
+  String dieFace(int die) {
+    return '![](resource:assets/images/d8_$die.png)';
+  }
 
   int rollD8() {
     int die = _random.nextInt(8) + 1;
-    logLine('> Roll: $die');
     return die;
+  }
+
+  void logD8(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD8InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -1581,7 +1603,7 @@ class Game {
 
   List<Piece> get candidateLeaders {
     final candidates = <Piece>[];
-    for (final leader in PieceType.mapLeader.pieces) {
+    for (final leader in PieceType.mapEnemyLeader.pieces) {
       final location = _state.pieceLocation(leader);
       if (location.isType(LocationType.space)) {
         candidates.add(leader);
@@ -1710,7 +1732,7 @@ class Game {
   void cupAdjustment(Location from, Location to) {
     final piece = randPiece(_state.piecesInLocation(PieceType.all, from));
     if (piece != null) {
-      logLine('> A chit moves from ${from.desc} to ${to.desc}.');
+      logLine('>A chit moves from ${from.desc} to ${to.desc}.');
       return;
     }
     if (from == Location.cupFriendly) {
@@ -1726,16 +1748,16 @@ class Game {
     int resistanceCount = _state.piecesInLocationCount(PieceType.mapResistance, space);
     int cvCount = _state.piecesInLocationCount(PieceType.mapCV, space);
     if (resistanceCount == 1 && cvCount == 0) {
-      logLine('> Resistance breaks out in ${space.desc}.');
+      logLine('>Resistance breaks out in ${space.desc}.');
     } else {
-      logLine('> Resistance increases in ${space.desc}.');
+      logLine('>Resistance increases in ${space.desc}.');
     }
-    final leader = _state.pieceInLocation(PieceType.mapLeader, space);
+    final leader = _state.pieceInLocation(PieceType.mapEnemyLeader, space);
     if (leader != null) {
       if (resistanceCount == 1 && cvCount == 0) {
-        logLine('> Resistance in ${space.desc} is put down by ${leader.desc}.');
+        logLine('>Resistance in ${space.desc} is put down by ${leader.desc}.');
       } else {
-        logLine('> ${leader.desc} puts down the new outbreak.');
+        logLine('>${leader.desc} puts down the new outbreak.');
       }
       _state.setPieceLocation(resistance, Location.poolDead);
       resistanceCount -= 1;
@@ -1744,9 +1766,9 @@ class Game {
     if (resistanceCount + cvCount >= 3 || usurper != null) {
       if (resistanceCount > 0) {
         if (cvCount > 0) {
-          logLine('> Revolt in ${space.desc} grows.');
+          logLine('>Revolt in ${space.desc} grows.');
         } else {
-          logLine('> Revolt breaks out in ${space.desc}.');
+          logLine('>Revolt breaks out in ${space.desc}.');
         }
         for (final resistance in _state.piecesInLocation(PieceType.mapResistance, space)) {
           final cv = _state.pieceFlipSide(resistance)!;
@@ -1755,7 +1777,7 @@ class Game {
       }
     } else if (resistanceCount + cvCount <= 2 && usurper == null) {
       if (cvCount > 0) {
-        logLine('> Open revolt in ${space.desc} ceases.');
+        logLine('>Open revolt in ${space.desc} ceases.');
         for (final cv in _state.piecesInLocation(PieceType.mapCV, space)) {
           final resistance = _state.pieceFlipSide(cv)!;
           _state.setPieceLocation(resistance, space);
@@ -1769,8 +1791,9 @@ class Game {
     if (localState.subStep == 0) {
       logLine('### Barbarian');
       int die = rollD8();
+      logD8(die);
       if (die <= 2 && _state.regionUsurper(Region.blue) != null) {
-        logLine('> Usurper handles the Barbarian incursion.');
+        logLine('>Usurper handles the Barbarian incursion.');
         localState.subStep = 1;
       } else {
         
@@ -1835,20 +1858,25 @@ class Game {
       final resistance = _state.spaceTopmostResistancePiece(space)!;
       int rating = _state.resistanceRating(resistance);    
       int die = rollD8();
-      logLine('> ${resistance.desc}: $rating');
+
+      logTableHeader();
+      logD8InTable(die);
+      logLine('>|${resistance.desc}|$rating|');
+      logTableFooter();
+
       if (die > rating) {
         final pieces = _state.piecesInLocation(PieceType.mapEnemyUnit, space);
         if (leader.isType(PieceType.mapAurelian) || pieces.length == 1) {
-          logLine('> Resistance in ${space.desc} is suppressed.');
+          logLine('>Resistance in ${space.desc} is suppressed.');
           for (final piece in _state.piecesInLocation(PieceType.mapEnemyUnit, space)) {
             _state.setPieceLocation(piece, Location.poolDead);
           }
         } else {
-          logLine('> Resistance in ${space.desc} is reduced.');
+          logLine('>Resistance in ${space.desc} is reduced.');
           _state.setPieceLocation(resistance, Location.poolDead);
         }
       } else {
-        logLine('> Resistance continues despite attempts to suppress it.');
+        logLine('>Resistance continues despite attempts to suppress it.');
       }
       cupAdjustment(Location.cupFriendly, Location.cupUnfriendly);
       _subStep = 1;
@@ -1892,7 +1920,7 @@ class Game {
       }
       if (choicesEmpty()) {
         setPrompt('Select Leader to perform Action, or Next to proceed');
-        for (final leader in PieceType.mapLeader.pieces) {
+        for (final leader in PieceType.mapEnemyLeader.pieces) {
           if (_state.pieceLocation(leader).isType(LocationType.space)) {
             pieceChoosable(leader);
           }

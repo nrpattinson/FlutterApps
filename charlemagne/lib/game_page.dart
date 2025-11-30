@@ -541,56 +541,79 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutSpace(MyAppState appState, Location box) {
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int row = 0; row < rowCount; ++row) {
+      for (int col = 0; col < colCount; ++col) {
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+          stackPieces.add(pieces[pieceIndex]);
+        }
+        if (stackPieces.isNotEmpty) {
+          final sk = (box, stackIndex);
+          if (_expandedStacks.contains(sk) == (pass == 1)) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutSpace(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
 
     final coordinates = locationCoordinates(box);
     final xBox = coordinates.$2;
     final yBox = coordinates.$3;
 
-    if (appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
       addBoxToMap(appState, box, xBox, yBox);
     }
 
-    final xStack = xBox - 30.0;
-    final yStack = yBox - 30.0;
+    final sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      final xStack = xBox - 30.0;
+      final yStack = yBox - 30.0;
 
-    final pieces = <Piece>[];
+      final pieces = <Piece>[];
 
-    final carolingianLeader = state.pieceInLocation(PieceType.mapCarolingianLeader, box);
-    if (carolingianLeader != null) {
-      pieces.add(carolingianLeader);
-    }
-    final enemies = state.piecesInLocation(PieceType.mapEnemyUnit, box);
-    for (int depth = 0; depth < enemies.length; ++depth) {
-      for (int i = 0; i < enemies.length; ++i) {
-        final tribe = enemies[i];
-        if (state.enemyStackDepth(tribe) == depth) {
-          pieces.add(tribe);
+      final carolingianLeader = state.pieceInLocation(PieceType.mapCarolingianLeader, box);
+      if (carolingianLeader != null) {
+        pieces.add(carolingianLeader);
+      }
+      final enemies = state.piecesInLocation(PieceType.mapEnemyUnit, box);
+      for (int depth = 0; depth < enemies.length; ++depth) {
+        for (int i = 0; i < enemies.length; ++i) {
+          final tribe = enemies[i];
+          if (state.enemyStackDepth(tribe) == depth) {
+            pieces.add(tribe);
+            break;
+          }
         }
       }
-    }
-    final enemyLeader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
-    if (enemyLeader != null) {
-      pieces.add(enemyLeader);
+      final enemyLeader = state.pieceInLocation(PieceType.mapEnemyLeader, box);
+      if (enemyLeader != null) {
+        pieces.add(enemyLeader);
+      }
+
+      layoutStack(appState, sk, pieces, BoardArea.map, xStack, yStack, 6.0, 6.0);
     }
 
-    if (pieces.isNotEmpty) {
-      layoutStack(appState, (box, 0), pieces, BoardArea.map, xStack, yStack, 6.0, 6.0);
-    }
-
-    if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
       addBoxToMap(appState, box, xBox, yBox);
     }
   }
 
-  void layoutSpaces(MyAppState appState) {
+  void layoutSpaces(MyAppState appState, int pass) {
     for (final box in LocationType.space.locations) {
-      layoutSpace(appState, box);
+      layoutSpace(appState, box, pass);
     }
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.boxAlAndalus: (1, 1, 0.0, 0.0),
       Location.boxByzantine: (1, 1, 0.0, 0.0),
@@ -608,17 +631,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      final pieces = state.piecesInLocation(PieceType.all, box);
-      int cells = cols * rows;
-      int layers = (pieces.length + cells - 1) ~/ cells;
-      for (int i = pieces.length - 1; i >= 0; --i) {
-        int col = i % cols;
-        int row = (i % cells) ~/ cols;
-        int depth = i ~/ cells;
-        double x = xBox + col * (60.0 + xGap) - (layers - 1) * 2.0 + depth * 4.0;
-        double y = yBox + row * (60.0 + yGap) - (layers - 1) * 2.0 + depth * 4.0;
-        addPieceToBoard(appState, pieces[i], boardArea, x, y);
-      }
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 6.0, 6.0);
     }
   }
 
@@ -710,12 +723,14 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutSpaces(appState);
-      layoutBoxes(appState);
       layoutTurnTrack(appState);
       layoutVictoryPointTrack(appState);
       layoutEvpTrack(appState);
       layoutTreasuryTrack(appState);
+      layoutBoxes(appState, 0);
+      layoutSpaces(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutSpaces(appState, 1);
 
       const choiceTexts = {
         Choice.purchaseInfantry: 'Infantry',

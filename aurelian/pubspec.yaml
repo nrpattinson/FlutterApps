@@ -151,6 +151,14 @@ flutter:
    - assets/images/usurper_yellow_zenobia.png
    - assets/images/walls_1.png
    - assets/images/walls_3.png
+   - assets/images/d8_1.png
+   - assets/images/d8_2.png
+   - assets/images/d8_3.png
+   - assets/images/d8_4.png
+   - assets/images/d8_5.png
+   - assets/images/d8_6.png
+   - assets/images/d8_7.png
+   - assets/images/d8_8.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

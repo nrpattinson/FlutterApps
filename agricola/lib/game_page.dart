@@ -432,13 +432,15 @@ class GamePageState extends State<GamePage> {
     final xBox = coordinates.$2;
     final yBox = coordinates.$3;
 
-    if (appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(box)) {
       addTribeToMap(appState, box, xBox, yBox);
     }
 
     final sk = (box, 0);
     if (_expandedStacks.contains(sk) == (pass == 1)) {
       final pieces = <Piece>[];
+      final xStack = xBox - 30.0;
+      final yStack = yBox - 30.0;
 
       final tribes = state.piecesInLocation(PieceType.mapTribe, box);
       for (int depth = 0; depth < tribes.length; ++depth) {
@@ -446,6 +448,7 @@ class GamePageState extends State<GamePage> {
           final tribe = tribes[i];
           if (state.tribeStackDepth(tribe) == depth) {
             pieces.add(tribe);
+            break;
           }
         }
       }
@@ -453,10 +456,10 @@ class GamePageState extends State<GamePage> {
       if (enemyLeader != null) {
         pieces.add(enemyLeader);
       }
-      layoutStack(appState, sk, pieces, BoardArea.map, xBox, yBox, 4.0, 4.0);
+      layoutStack(appState, sk, pieces, BoardArea.map, xStack, yStack, 6.0, 6.0);
     }
 
-    if (appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
       addTribeToMap(appState, box, xBox, yBox);
     }
   }
@@ -537,7 +540,7 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutBoxes(MyAppState appState, pass) {
+  void layoutBoxes(MyAppState appState, int pass) {
     const boxesInfo = {
       Location.poolForce: (3, 5, 3.0, 3.0),
       Location.poolDead: (1, 1, 0.0, 0.0),
@@ -554,7 +557,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 6.0, 6.0);
     }
   }
 
@@ -655,10 +658,10 @@ class GamePageState extends State<GamePage> {
       layoutVictoryTrack(appState);
       layoutGameTurnTrack(appState);
       layoutBoxes(appState, 0);
-      layoutBoxes(appState, 1);
       layoutLegionaryCamps(appState, 0);
-      layoutLegionaryCamps(appState, 1);
       layoutTribes(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutLegionaryCamps(appState, 1);
       layoutTribes(appState, 1);
 
       const choiceTexts = {
