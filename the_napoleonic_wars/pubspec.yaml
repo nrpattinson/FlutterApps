@@ -237,6 +237,24 @@ flutter:
    - assets/images/war_usa.png
    - assets/images/wife_josephine.png
    - assets/images/wife_marriage.png
+   - assets/images/d6_blue_1.png
+   - assets/images/d6_blue_2.png
+   - assets/images/d6_blue_3.png
+   - assets/images/d6_blue_4.png
+   - assets/images/d6_blue_5.png
+   - assets/images/d6_blue_6.png
+   - assets/images/d6_red_1.png
+   - assets/images/d6_red_2.png
+   - assets/images/d6_red_3.png
+   - assets/images/d6_red_4.png
+   - assets/images/d6_red_5.png
+   - assets/images/d6_red_6.png
+   - assets/images/d6_white_1.png
+   - assets/images/d6_white_2.png
+   - assets/images/d6_white_3.png
+   - assets/images/d6_white_4.png
+   - assets/images/d6_white_5.png
+   - assets/images/d6_white_6.png
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

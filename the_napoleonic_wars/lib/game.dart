@@ -2187,39 +2187,63 @@ class Game {
     _log += '$line  \n';
   }
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
+  // Randomness
+
+  String blueDieFace(int die) {
+    return '![](resource:assets/images/d6_blue_$die.png)';
+  }
+
+  String redDieFace(int die) {
+    return '![](resource:assets/images/d6_red_$die.png)';
+  }
+
+  String whiteDieFace(int die) {
+    return '![](resource:assets/images/d6_white_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${whiteDieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${whiteDieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${redDieFace(d0)} ${blueDieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${redDieFace(d0)} ${blueDieFace(d1)}|${d0 + d1}|');
   }
 
   (int,int,int,int) roll3D6() {
@@ -2232,8 +2256,23 @@ class Game {
     d0 += 1;
     d1 += 1;
     d2 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
     return (d0, d1, d2, d0 + d1 + d2);
+  }
+
+  void log3D6((int,int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    int d2 = results.$3;
+    logLine('>');
+    logLine('>${blueDieFace(d0)} ${redDieFace(d1)} ${whiteDieFace(d2)}');
+    logLine('>');
+  }
+
+  void log3D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>|${blueDieFace(d0)} ${redDieFace(d1)} ${whiteDieFace(d2)}|${d0 + d1 + d2}');
   }
 
   int randInt(int max) {
@@ -2366,59 +2405,69 @@ class Game {
   void adjustTreasuryFund(int amount) {
     _state.adjustTreasuryFund(amount);
     if (amount > 0) {
-      logLine('> Treasury: +$amount → ${_state.treasuryFund}');
+      logLine('>Treasury: +$amount → ${_state.treasuryFund}');
     } else {
-      logLine('> Treasury: $amount → ${_state.treasuryFund}');
+      logLine('>Treasury: $amount → ${_state.treasuryFund}');
     }
   }
 
   void adjustMinorWarFund(int amount) {
     _state.adjustMinorWarFund(amount);
     if (amount > 0) {
-      logLine('> Minor War Fund: +$amount → ${_state.minorWarFund}');
+      logLine('>Minor War Fund: +$amount → ${_state.minorWarFund}');
     } else {
-      logLine('> Minor War Fund: $amount → ${_state.minorWarFund}');
+      logLine('>Minor War Fund: $amount → ${_state.minorWarFund}');
     }
   }
 
   void adjustAdmiraltyFund(int amount) {
     _state.adjustTreasuryFund(amount);
     if (amount > 0) {
-      logLine('> Admiralty Budget: +$amount → ${_state.admiraltyFund}');
+      logLine('>Admiralty Budget: +$amount → ${_state.admiraltyFund}');
     } else {
-      logLine('> Admiralty Budget: $amount → ${_state.admiraltyFund}');
+      logLine('>Admiralty Budget: $amount → ${_state.admiraltyFund}');
     }
   }
 
   void adjustNapoleonAbdicates(int amount) {
     _state.adjustNapoleonAbdicates(amount);
     if (amount > 0) {
-      logLine('> Napoleon Abdicates: +$amount → ${_state.napoleonAbdicates}');
+      logLine('>Napoleon Abdicates: +$amount → ${_state.napoleonAbdicates}');
     } else {
-      logLine('> Napoleon Abdicates: $amount → ${_state.napoleonAbdicates}');
+      logLine('>Napoleon Abdicates: $amount → ${_state.napoleonAbdicates}');
     }
   }
 
   void adjustNationFervor(Location nation, int amount) {
     _state.adjustNationFervor(nation, amount);
     if (amount > 0) {
-      logLine('> ${nation.desc} Fervor: +$amount → ${_state.nationFervor(nation)}');
+      logLine('>${nation.desc} Fervor: +$amount → ${_state.nationFervor(nation)}');
     } else {
-      logLine('> ${nation.desc} Fervor: $amount → ${_state.nationFervor(nation)}');
+      logLine('>${nation.desc} Fervor: $amount → ${_state.nationFervor(nation)}');
     }
   }
 
   void reduceFervorAfterCountryLeavesCoalition(Country country) {
     switch (country) {
     case Country.austria:
-      adjustNationFervor(Location.nationAustria, -rollD6());
+      int die = rollD6();
+      logD6(die);
+      adjustNationFervor(Location.nationAustria, -die);
     case Country.prussia:
-      adjustNationFervor(Location.nationGermany, -rollD6());
+      int die = rollD6();
+      logD6(die);
+      adjustNationFervor(Location.nationGermany, -die);
     case Country.russia:
-      adjustNationFervor(Location.nationAustria, -rollD6());
-      adjustNationFervor(Location.nationGermany, -rollD6());
+      int die = rollD6();
+      logD6(die);
+      adjustNationFervor(Location.nationAustria, -die);
+      die = rollD6();
+      logD6(die);
+      adjustNationFervor(Location.nationGermany, -die);
     case Country.spain:
-      adjustNationFervor(Location.nationSpain, -rollD6());
+      int die = rollD6();
+      logD6(die);
+      adjustNationFervor(Location.nationSpain, -die);
     case Country.sweden:
     }
   }
@@ -2427,7 +2476,7 @@ class Game {
     if (_state.countryInCoalition(Country.austria)) {
       return;
     }
-    logLine('> Austria joins the Coalition.');
+    logLine('>Austria joins the Coalition.');
     _state.austriaJoinsCoalition();
   }
 
@@ -2435,22 +2484,22 @@ class Game {
     if (_state.countryInCoalition(Country.prussia)) {
       return;
     }
-    logLine('> Prussia joins the Coalition.');
+    logLine('>Prussia joins the Coalition.');
     _state.prussiaJoinsCoalition();
   }
 
   void russiaJoinsCoalition() {
-    logLine('> Russia joins the Coalition.');
+    logLine('>Russia joins the Coalition.');
     _state.russiaJoinsCoalition();
   }
 
   void spainJoinsCoalition() {
-    logLine('> Spain joins the Coalition.');
+    logLine('>Spain joins the Coalition.');
     _state.spainJoinsCoalition();
   }
 
   void swedenJoinsCoalition() {
-    logLine('> Sweden joins the Coalition.');
+    logLine('>Sweden joins the Coalition.');
     _state.swedenJoinsCoalition();
   }
 
@@ -2458,71 +2507,81 @@ class Game {
     if (!_state.countryInCoalition(Country.austria)) {
       return;
     }
-    logLine('> Austria leaves the Coalition.');
+    logLine('>Austria leaves the Coalition.');
     _state.austriaLeavesCoalition();
-    adjustNationFervor(Location.nationAustria, -rollD6());
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationAustria, -die);
   }
 
   void prussiaLeavesCoalition() {
     if (!_state.countryInCoalition(Country.prussia)) {
       return;
     }
-    logLine('> Prussia leaves the Coalition.');
+    logLine('>Prussia leaves the Coalition.');
     _state.prussiaLeavesCoalition();
-    adjustNationFervor(Location.nationGermany, -rollD6());
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationGermany, -die);
   }
 
   void russiaLeavesCoalition() {
     if (!_state.countryInCoalition(Country.russia)) {
       return;
     }
-    logLine('> Russia leaves the Coalition.');
+    logLine('>Russia leaves the Coalition.');
     _state.russiaLeavesCoalition();
-    int loss = -rollD6();
-    adjustNationFervor(Location.nationAustria, loss);
-    adjustNationFervor(Location.nationAustria, loss);
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationAustria, -die);
+    adjustNationFervor(Location.nationAustria, -die);
   }
 
   void austriaSurrenders() {
     if (!_state.countryInCoalition(Country.austria)) {
       return;
     }
-    logLine('> Austria surrenders.');
+    logLine('>Austria surrenders.');
     _state.austriaSurrenders();
-    adjustNationFervor(Location.nationAustria, -rollD6());
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationAustria, -die);
   }
 
   void prussiaSurrenders() {
     if (!_state.countryInCoalition(Country.prussia)) {
       return;
     }
-    logLine('> Prussia surrenders.');
+    logLine('>Prussia surrenders.');
     _state.prussiaSurrenders();
-    adjustNationFervor(Location.nationGermany, -rollD6());
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationGermany, -die);
   }
 
   void russiaSurrenders() {
     if (!_state.countryInCoalition(Country.russia)) {
       return;
     }
-    logLine('> Russia surrenders.');
+    logLine('>Russia surrenders.');
     _state.russiaSurrenders();
-    int loss = -rollD6();
-    adjustNationFervor(Location.nationAustria, loss);
-    adjustNationFervor(Location.nationAustria, loss);
+    int die = rollD6();
+    logD6(die);
+    adjustNationFervor(Location.nationAustria, -die);
+    adjustNationFervor(Location.nationAustria, -die);
   }
 
   void spainJoinsFrench() {
     if (_state.countryProFrench(Country.spain)) {
       return;
     }
-    logLine('> Spain allies with France');
+    logLine('>Spain allies with France');
     _state.spainJoinsFrench();
   }
 
   set frenchReligion(Piece religion) {
     if (_state.frenchReligion != religion) {
-      logLine('> French religious policy changes to ${_state.religionName(religion)}');
+      logLine('>French religious policy changes to ${_state.religionName(religion)}');
       _state.frenchReligion = religion;
     }
   }
@@ -2541,37 +2600,45 @@ class Game {
     if (pounds != 0) {
       adjustAdmiraltyFund(-pounds);
     }
-    int dice = 0;
-    int nelson = 0;
+    int die0 = 0;
+    int die1 = 0;
+    int dieNelson = 0;
     if (_state.pieceLocation(Piece.nelson) == Location.boxHighSeas) {
       final rolls = roll3D6();
-      dice = rolls.$1 + rolls.$2;
-      nelson = rolls.$3;
+      die0 = rolls.$1;
+      die1 = rolls.$2;
+      dieNelson = rolls.$3;
     } else {
       final rolls = roll2D6();
-      dice = rolls.$3;
+      die0 = rolls.$1;
+      die1 = rolls.$2;
     }
     int modifiers = 0;
+
+    logTableHeader();
+    int dice = die0 + die1;
+    log2D6InTable((die0, die1, dice));
     int modifier = pounds;
     if (modifier != 0) {
-      logLine('> Funding: +$modifier');
+      logLine('>|Funding|+$modifier|');
       modifiers += modifier;
     }
-    if (nelson != 0) {
-      logLine('> Nelson: +$nelson');
-      modifiers += nelson;
+    if (dieNelson != 0) {
+      logLine('>|Nelson ${whiteDieFace(dieNelson)}|+$dieNelson');
+      modifiers += dieNelson;
     }
     int total = dice + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
 
     if (total >= 10) {
-      logLine('> Coalition Victory');
+      logLine('>Coalition Victory');
       _state.setPieceLocation(Piece.fleetCoalition, Location.boxHighSeas);
       _state.setPieceLocation(Piece.fleetFrench, Location.trayMisc);
       adjustNapoleonAbdicates(1);
       return true;
     } else {
-      logLine('> French Victory');
+      logLine('>French Victory');
       _state.setPieceLocation(Piece.fleetFrench, Location.boxHighSeas);
       _state.setPieceLocation(Piece.fleetCoalition, Location.trayMisc);
       adjustNapoleonAbdicates(-1);
@@ -2588,7 +2655,7 @@ class Game {
     }
     for (int i = 0; candidates.isNotEmpty && i < corpsCount; ++i) {
       final corps = randPiece(candidates)!;
-      logLine('> ${corps.desc} is destroyed.');
+      logLine('>${corps.desc} is destroyed.');
       _state.setPieceLocation(corps, Location.discarded);
       candidates.remove(corps);
     }
@@ -2603,49 +2670,56 @@ class Game {
       _state.setPieceLocation(russianCorps, _state.currentTurnLocation);
     }
     if (lose) {
-      logLine('> War not contested');
+      logLine('>War not contested');
     } else {
       final rolls = roll2D6();
       int dice = rolls.$3;
       int modifiers = 0;
-      int modifier = pounds;
+      int modifier = 0;
+
+      logTableHeader();
+      log2D6InTable(rolls);
+      modifier = pounds;
       if (modifier != 0) {
-        logLine('> Funding: +$modifier');
+        logLine('>|Funding|+$modifier|');
         modifiers += modifier;
       }
       if (_state.warLocationNaval(minor)) {
         final fleet = _state.rulingFleet;
         if (fleet == Piece.fleetCoalition) {
-          logLine('> Royal Navy: +2');
+          logLine('>|Royal Navy|+2|');
           modifiers += 2;
         } else if (fleet == Piece.fleetFrench) {
-          logLine('> French Fleet: -2');
+          logLine('>|French Fleet|-2|');
           modifiers -= 2;
         }
       }
       if (minor == Location.minorRussia) {
         for (final box in LocationType.russianWar.locations) {
           if (_state.pieceInLocation(PieceType.russianWar, box)!.isType(PieceType.russianWarWon)) {
-            logLine('> ${box.desc}: +1');
+            logLine('>|${box.desc}|+1|');
             modifiers += 1;
           } else {
-            logLine('> ${box.desc}: -1');
+            logLine('>|${box.desc}|-1|');
             modifiers -= 1;
           }
         }
       }
       if (russianCorps != null) {
-        logLine('> ${russianCorps.desc}: +1');
+        logLine('>|{russianCorps.desc}|+1|');
         modifiers += 1;
       }
       int total = dice + modifiers;
-      logLine('> Total: $total');
+      logLine('>|Total|$total|');
       int warValue = _state.warLocationValue(minor);
+      logLine('>|$minor.desc War|$warValue|');
+      logTableFooter();
+
       victory = total >= warValue;
       if (victory) {
-        logLine('> Victory');
+        logLine('>Victory');
       } else {
-        logLine('> Defeat');
+        logLine('>Defeat');
       }
     }
     if (victory) {
@@ -2671,15 +2745,22 @@ class Game {
         if (_state.pieceLocation(Piece.austriaCoalition) != Location.statusAustria) {
           austriaJoinsCoalition();
         }
-        logLine('> Bavaria joins the Coalition');
+        logLine('>Bavaria joins the Coalition');
         _state.setPieceLocation(Piece.corpsBavariaFrench, Location.discarded);
         _state.setPieceLocation(Piece.corpsBavariaAustrian, Location.poolPlayerForces);
         adjustNapoleonAbdicates(1);
-        adjustNationFervor(Location.nationFrance, -rollD6());
-        adjustNationFervor(Location.nationGermany, -rollD6());
-        adjustNationFervor(Location.nationAustria, -rollD6());
-        int dice = roll2D6().$3;
-        discardRandomFrenchCorps(dice);
+        int die = rollD6();
+        logD6(die);
+        adjustNationFervor(Location.nationFrance, -die);
+        die = rollD6();
+        logD6(die);
+        adjustNationFervor(Location.nationGermany, -die);
+        die = rollD6();
+        logD6(die);
+        adjustNationFervor(Location.nationAustria, -die);
+        final rolls = roll2D6();
+        log2D6(rolls);
+        discardRandomFrenchCorps(rolls.$3);
       }
     } else {
       if (war != null) {
@@ -2705,6 +2786,7 @@ class Game {
         adjustNationFervor(Location.nationGermany, 5);
         adjustNationFervor(Location.nationAustria, 5);
         int die = rollD6();
+        logD6(die);
         discardRandomFrenchCorps(die);
       }
     }
@@ -2743,7 +2825,7 @@ class Game {
     final greenBoxes = <Location>[];
     for (final country in countries) {
       Location? greenBox;
-      if ([Country.austria, Country.russia].contains(country) {
+      if ([Country.austria, Country.russia].contains(country)) {
         greenBox = Location.greenAustria;
       } else {
         greenBox = Location.greenGermany;
@@ -2836,7 +2918,7 @@ class Game {
             throw PlayerChoiceException();
           }
           if (checkChoice(Choice.yes)) {
-            logLine('> Britain challenges French control of the High Seas.');
+            logLine('>Britain challenges French control of the High Seas.');
             localState.subStep = 2;
           } else {
             localState.subStep = 3;
@@ -2896,7 +2978,7 @@ class Game {
           _state.setPieceLocation(Piece.ottomanArmy, Location.discarded);
           _state.setPieceLocation(Piece.paris, Location.nationFrance);
           if (_state.pieceLocation(Piece.russiaCoalition) != Location.statusRussia) {
-            logLine('> Russia joins the Coalition.');
+            logLine('>Russia joins the Coalition.');
             if (_state.pieceLocation(Piece.wifeMarriage) == Location.statusRussia) {
               _state.setPieceLocation(Piece.wifeMarriage, Location.discarded);
             }
@@ -2931,7 +3013,7 @@ class Game {
             throw PlayerChoiceException();
           }
           final corps = selectedPiece()!;
-          logLine('> ${corps.desc} is dragooned into the Russian campaign.');
+          logLine('>${corps.desc} is dragooned into the Russian campaign.');
           if (localState.diplomatInAustriaCount > 0) {
             localState.diplomatInAustriaCount -= 1;
             if (_state.piecesInLocationCount(corpsType, Location.poolNeutralForces) == 0) {
@@ -2962,7 +3044,7 @@ class Game {
   // Printed Events
 
   void valmy() {
-    logLine('> Revolutionary France triumphs at Valmy');
+    logLine('>Revolutionary France triumphs at Valmy');
     _state.setPieceLocation(Piece.warSwitzerland, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.warCape, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.scrollRussianNobility, Location.statusRussia);
@@ -2970,7 +3052,7 @@ class Game {
   }
 
   void whiffOfGrapeshot() {
-    logLine('> Republicans led by Napoléon Bonaparte defeat monarchist mobs');
+    logLine('>Republicans led by Napoléon Bonaparte defeat monarchist mobs');
     _state.setPieceLocation(Piece.napoleonB, Location.boxNapoleonsBed);
     _state.setPieceLocation(Piece.wifeJosephine, Location.boxNapoleonsBed);
     _state.setPieceLocation(Piece.warHaiti, Location.cupHighPolitics);
@@ -2979,20 +3061,20 @@ class Game {
   }
 
   void spitheadAndTheNore() {
-    logLine('> Royal Navy sailors mutiny over pay');
+    logLine('>Royal Navy sailors mutiny over pay');
     _state.setPieceLocation(Piece.warSenegal, Location.cupHighPolitics);
     randomEtatToHighPolitics();
   }
 
   void peaceOfAmiens() {
-    logLine('> Addington takes Britain out of the war against Napoleon');
+    logLine('>Addington takes Britain out of the war against Napoleon');
     _state.setupPieceType(PieceType.britishCorps, _state.currentTurnLocation);
     randomEtatToHighPolitics();
     _state.setPieceLocation(Piece.corpsBavariaFrench, Location.cupHighPolitics);
   }
 
   void sultanSelim3() {
-    logLine('> Sultan Selim Ⅲ attacks Russia');
+    logLine('>Sultan Selim Ⅲ attacks Russia');
     _state.setPieceLocation(Piece.warCaucasus, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.warSerbia, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.warBalkans, Location.cupHighPolitics);
@@ -3000,7 +3082,7 @@ class Game {
   }
 
   void continentalSystem() {
-    logLine('> Napoleon embargoes British goods');
+    logLine('>Napoleon embargoes British goods');
     _state.setPieceLocation(Piece.continentalSystem, Location.boxHighSeas);
     _state.setPieceLocation(Piece.noWarRed0, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.etatWarsaw, Location.cupHighPolitics);
@@ -3010,13 +3092,13 @@ class Game {
   }
 
   void kingdomOfNaples() {
-    logLine('> Napoleon name Murat as King of Naples');
+    logLine('>Napoleon name Murat as King of Naples');
     _state.setPieceLocation(Piece.corpsFranceMurat, Location.discarded);
     _state.setPieceLocation(Piece.corpsNaples, Location.cupFrenchCorps);
   }
 
   void notTonightJosephine() {
-    logLine('> Napoleon separates from Josephine');
+    logLine('>Napoleon separates from Josephine');
     _state.setPieceLocation(Piece.wifeJosephine, Location.discarded);
     _state.setPieceLocation(Piece.noWarRed1, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.noWarRed2, Location.cupHighPolitics);
@@ -3024,7 +3106,7 @@ class Game {
 
   void frankfurtProposals() {
     if (choicesEmpty()) {
-      logLine('> The Coalition offers Napoleon peace');
+      logLine('>The Coalition offers Napoleon peace');
       setPrompt('Offer Napoleon a compromise peace?');
       choiceChoosable(Choice.yes, true);
       choiceChoosable(Choice.no, true);
@@ -3033,24 +3115,29 @@ class Game {
     if (checkChoiceAndClear(Choice.yes)) {
       int die = rollD6();
       int modifiers = 0;
+
+      logTableHeader();
+      logD6InTable(die);
       for (final warLost in PieceType.warLost.pieces) {
         final location = _state.pieceLocation(warLost);
         if (location.isType(LocationType.minor)) {
-          logLine('> ${location.desc}: +1');
+          logLine('>|${location.desc}|+1|');
           modifiers += 1;
         }
       }
       int total = die + modifiers;
-      logLine('> Total: $total');
+      logLine('>|Total|$total|');
+      logTableFooter();
+
       if (total >= 6) {
-        logLine('> Napoleon accepts the peace offered by the Coalition');
+        logLine('>Napoleon accepts the peace offered by the Coalition');
         throw GameOverException(GameResult.draw);
       } else {
-        logLine('> Napoleon rejects Coalition offer of peace');
+        logLine('>Napoleon rejects Coalition offer of peace');
       }
     }
     if (checkChoiceAndClear(Choice.no)) {
-      logLine('> Britain refuses to offer Napoleon peace');
+      logLine('>Britain refuses to offer Napoleon peace');
       russiaLeavesCoalition();
       prussiaLeavesCoalition();
       austriaLeavesCoalition();
@@ -3066,12 +3153,12 @@ class Game {
   }
 
   void secondCoalition() {
-    logLine('> Russia abandons its historic neutrality');
+    logLine('>Russia abandons its historic neutrality');
     _state.setPieceLocation(Piece.scrollRussianNobility, Location.discarded);
   }
 
   void louisianaPurchase() {
-    logLine('> Napoleon sells North American territory to the United States');
+    logLine('>Napoleon sells North American territory to the United States');
     _state.setPieceLocation(Piece.trafalgar, Location.cupHighPolitics);
     _state.setPieceLocation(Piece.warUsa, Location.cupHighPolitics);
     randomEtatToHighPolitics();
@@ -3125,7 +3212,7 @@ class Game {
   void warFinland(Piece war) {
     logLine('### Russia invades Finland');
     fightMinorWar(Location.minorFinland, war, Location.russianWarFinland, Piece.russianWarFinland);
-    logLine('> Bernadotte appointed King of Sweden');
+    logLine('>Bernadotte appointed King of Sweden');
     _state.setPieceLocation(Piece.corpsFranceBernadotte, Location.discarded);
     _state.setPieceLocation(Piece.corpsSweden, Location.poolPlayerForces);
     swedenJoinsCoalition();
@@ -3185,7 +3272,7 @@ class Game {
       final nation = randNation();
       if (nation != Location.nationFrance && (nation != Location.nationSpain || _state.countryProFrench(Country.spain))) {
         _state.formEtatInNation(etat, nation);
-        logLine('> État client created in ${nation.desc}');
+        logLine('>État client created in ${nation.desc}');
       }
     }
   }
@@ -3196,14 +3283,19 @@ class Game {
     _state.setPieceLocation(Piece.napoleonB, Location.discarded);
     _state.setPieceLocation(Piece.napoleonN, napoleonLocation);
     int die = rollD6();
+    logD6(die);
     adjustNationFervor(Location.nationFrance, die);
     die = rollD6();
+    logD6(die);
     adjustNationFervor(Location.nationGermany, -die);
     die = rollD6();
+    logD6(die);
     adjustNationFervor(Location.nationAustria, -die);
     die = rollD6();
+    logD6(die);
     adjustNationFervor(Location.nationItaly, -die);
     die = rollD6();
+    logD6(die);
     adjustNationFervor(Location.nationSpain, -die);
     frenchReligion = Piece.religionCatholic;
     _state.setPieceLocation(Piece.terror, Location.discarded);
@@ -3241,39 +3333,44 @@ class Game {
     final results = fightNavalBattle();
     bool battleVictory = results.$1;
     int pounds = results.$2;
-    logLine('> Nelson is shot by a French sniper');
+    logLine('>Nelson is shot by a French sniper');
     _state.setPieceLocation(Piece.nelson, Location.discarded);
     if (battleVictory) {
       _state.setPieceLocation(Piece.fleetFrench, Location.discarded);
       _state.setPieceLocation(piece, Location.boxHighSeas);
     } else {
       _state.setPieceLocation(piece, Location.discarded);
-      logLine('> Napoleon invades England');
+      logLine('>Napoleon invades England');
       int die = rollD6();
       int total = die;
+
+      logTableHeader();
+      logD6InTable(die);
       if (pounds != 0) {
-        logLine('> Trafalgar: ${-pounds}');
+        logLine('>|Trafalgar|${-pounds}|');
         total -= pounds;
       }
-      logLine('> Total: $total');
+      logLine('>|Total|$total|');
+      logTableFooter();
+
       if (total <= 3) {
-        logLine('> Invasion is defeated');
+        logLine('>Invasion is defeated');
         final corps = _state.piecesInLocation(PieceType.mortalFrenchCorps, Location.cupFrenchCorps);
         corps.shuffle(_random);
         for (int i = 0; i < 3 && i < corps.length; ++i) {
-          logLine('> ${corps[i].desc} is destroyed');
+          logLine('>${corps[i].desc} is destroyed');
           _state.setPieceLocation(corps[i], Location.discarded);
         }
         _state.setPieceLocation(Piece.fleetFrench, Location.boxHighSeas);
       } else {
-        logLine('> France conquers England');
+        logLine('>France conquers England');
         throw GameOverException(GameResult.cosmicDefeat);
       }
     }
   }
 
   void treatyOfSanIldefonso(Piece piece) {
-    logLine('> Treaty of San Ildefonso is signed');
+    logLine('>Treaty of San Ildefonso is signed');
     _state.setPieceLocation(piece, Location.nationSpain);
     _state.setupPieceType(PieceType.spanishCorps, Location.cupFrenchCorps);
     for (final corps in _state.piecesInLocation(PieceType.duchyCorps, Location.nationSpain)) {
@@ -3380,32 +3477,37 @@ class Game {
   void highPoliticsPhaseGetMoney() {
     int total = 0;
     logLine('### Get Money');
+
+    logTableHeader();
     int amount = _state.londonMoney;
-    logLine('> London: $amount');
+    logLine('>|London|$amount|');
     total += amount;
     if (_state.countryInCoalition(Country.austria)) {
-      logLine('> Austria: 2');
+      logLine('>|Austria|2|');
       total += 2;
     }
     if (_state.countryInCoalition(Country.prussia)) {
-      logLine('> Prussia: 2');
+      logLine('>|Prussia|2|');
       total += 2;
     }
     for (final icon in _state.piecesInLocation(PieceType.icon, Location.boxLondon)) {
-      logLine('> ${icon.desc}: 1');
+      logLine('>|${icon.desc}|1|');
       total += 1;
     }
     for (final trade in PieceType.trade.pieces) {
       final location = _state.pieceLocation(trade);
       if (location.isType(LocationType.minor)) {
-        logLine('> ${location.desc}: 1');
+        logLine('>|${location.desc}|1|');
         total += 1;
       }
     }
+    logLine('>|Total|$total|');
+
     adjustTreasuryFund(total);
     if (_state.continentalSystemActive) {
       logLine('> Continental System');
       int die = rollD6();
+      logD6(die);
       adjustTreasuryFund(-die);
     }
   }
@@ -3441,7 +3543,7 @@ class Game {
     final nation = _state.turnButNation;
     _state.setPieceLocation(Piece.butNation, nation);
     logLine('### But Nation');
-    logLine('> ${nation.desc}');
+    logLine('>${nation.desc}');
   }
 
   void highPoliticsPhaseTurnEvent0() {
@@ -3504,7 +3606,7 @@ class Game {
     if (checkChoiceAndClear(Choice.no)) {
       return;
     }
-    logLine('> Britain invests in High Politics.');
+    logLine('>Britain invests in High Politics.');
     adjustTreasuryFund(-3);
     localState.purchasedHighPolitics = true;
   }
@@ -3554,14 +3656,14 @@ class Game {
       }
       final nation = randNation();
       final greenBox = _state.nationGreenBox(nation);
-      logLine('> ${diplomat.desc} is sent to ${nation.desc}.');
+      logLine('>${diplomat.desc} is sent to ${nation.desc}.');
       _state.setPieceLocation(diplomat, greenBox);
       if (_state.piecesInLocationCount(PieceType.frenchDiplomat, greenBox) > 2) {
         overstackedDiplomats.add(diplomat);
       }
     }
     for (final diplomat in overstackedDiplomats) {
-      logLine('> ${diplomat.desc} returns to the Hôtel.');
+      logLine('>${diplomat.desc} returns to the Hôtel.');
       _state.setPieceLocation(diplomat, Location.boxHotel);
     }
   }
@@ -3636,25 +3738,32 @@ class Game {
       for (int i = 0; i < phaseState.coalitionDebaters.length; ++i) {
         final coalitionDiplomat = phaseState.coalitionDebaters[i];
         final frenchDiplomat = phaseState.frenchDebaters[i];
-        logLine('> ${coalitionDiplomat.desc} debates ${frenchDiplomat.desc}.');
+        logLine('>${coalitionDiplomat.desc} debates ${frenchDiplomat.desc}.');
         adjustTreasuryFund(-1);
         if (_state.pieceLocation(frenchDiplomat) == Location.boxHotel) {
           logLine('> ${frenchDiplomat.desc} has already lost.');
         } else {
           int die = rollD6();
           int modifiers = 0;
+
+          logTableHeader();
+          logD6InTable(die);
           int frenchDiplomatModifier = _state.diplomatValue(frenchDiplomat);
           if (frenchDiplomatModifier > 0) {
-            logLine('> ${frenchDiplomat.desc}: +$frenchDiplomatModifier');
+            logLine('>|${frenchDiplomat.desc}|+$frenchDiplomatModifier|');
             modifiers += frenchDiplomatModifier;
           }
           int total = die + modifiers;
+          logLine('>|Total|$total|');
           int coalitionDiplomatStrength = _state.diplomatValue(coalitionDiplomat);
+          logLine('>|${coalitionDiplomat.desc}|$coalitionDiplomatStrength|');
+          logTableFooter();
+
           if (total <= coalitionDiplomatStrength) {
-            logLine('> ${coalitionDiplomat.desc} wins the debate against ${frenchDiplomat.desc}.');
+            logLine('>${coalitionDiplomat.desc} wins the debate against ${frenchDiplomat.desc}.');
             _state.setPieceLocation(frenchDiplomat, Location.boxHotel);
           } else {
-            logLine('> ${coalitionDiplomat.desc} loses the debate against ${frenchDiplomat.desc}.');
+            logLine('>${coalitionDiplomat.desc} loses the debate against ${frenchDiplomat.desc}.');
           }
         }
       }
@@ -3700,7 +3809,7 @@ class Game {
           throw PlayerChoiceException();
         }
         logLine('### Charm Offensive');
-        logLine('> ${diplomat.desc} conducts diplomacy in ${minorWarBox.desc}.');
+        logLine('>${diplomat.desc} conducts diplomacy in ${minorWarBox.desc}.');
         _state.setPieceLocation(diplomat, minorWarBox);
         phaseState.charmer = diplomat;
         clearChoices();
@@ -3712,14 +3821,20 @@ class Game {
           final minorWarBox = _state.pieceLocation(diplomat);
           adjustTreasuryFund(-1);
           int die = rollD6();
+
+          logTableHeader();
+          logD6InTable(die);
+          logLine('>|Lost Wars|${_state.lostWars.length}|');
+          logTableFooter();
+
           if (die > _state.lostWars.length) {
-            logLine('> Charm Offensive is successful.');
+            logLine('>Charm Offensive is successful.');
             final lostWar = _state.pieceInLocation(PieceType.warLost, minorWarBox)!;
             _state.flipPiece(lostWar);
             phaseState.charmer = null;
             _subStep = 0;
           } else {
-            logLine('> Charm Offensive has no effect.');
+            logLine('>Charm Offensive has no effect.');
           _subStep = 2;
           }
         }
@@ -3735,7 +3850,7 @@ class Game {
             _subStep = 0;
           } else {
             final diplomat = phaseState.charmer!;
-            logLine('> ${diplomat.desc} continues his Charm Offensive.');
+            logLine('>${diplomat.desc} continues his Charm Offensive.');
             _subStep = 1;
           }
         }

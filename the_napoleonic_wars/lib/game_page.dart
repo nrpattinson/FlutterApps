@@ -13,6 +13,8 @@ enum BoardArea {
   counterTray,
 }
 
+typedef StackKey = (Location, int);
+
 class GamePage extends StatefulWidget {
 
   const GamePage({super.key});
@@ -42,6 +44,10 @@ class GamePageState extends State<GamePage> {
   final _mapStackChildren = <Widget>[];
   final _turnTrackStackChildren = <Widget>[];
   final _counterTrayStackChildren = <Widget>[];
+
+  final _pieceStackKeys = <Piece,StackKey>{};
+  final _expandedStacks = <StackKey>[];
+
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
 
@@ -276,6 +282,10 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToBoard(MyAppState appState, Piece piece, BoardArea boardArea, double x, double y) {
+    if (_emptyMap && boardArea == BoardArea.map) {
+      return;
+    }
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -328,6 +338,35 @@ class GamePageState extends State<GamePage> {
       );
       borderWidth += 1.0;
     }
+
+    GestureTapCallback? onTap;
+    if (choosable) {
+      onTap = () {
+        appState.chosePiece(piece);
+      };
+    }
+
+    void onSecondaryTap() {
+      setState(() {
+        final pieceStackKey = _pieceStackKeys[piece];
+        if (pieceStackKey != null) {
+          if (_expandedStacks.contains(pieceStackKey)) {
+            _expandedStacks.remove(pieceStackKey);
+          } else {
+            _expandedStacks.add(pieceStackKey);
+          }
+        }
+      });
+    }
+
+    widget = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onSecondaryTap: onSecondaryTap,
+        child: widget,
+      ),
+    );
 
     widget = Positioned(
       left: x - borderWidth,
@@ -445,14 +484,50 @@ class GamePageState extends State<GamePage> {
     _mapStackChildren.add(widget);
   }
 
-  void layoutNation(MyAppState appState, Location nation) {
+  void layoutStack(MyAppState appState, StackKey stackKey, List<Piece> pieces, BoardArea boardArea, double x, double y, double dx, double dy) {
+    if (_expandedStacks.contains(stackKey)) {
+      dx = 0.0;
+      dy = 60.0;
+      double bottom = y + (pieces.length + 1) * dy + 10.0;
+      if (bottom >= _mapHeight) {
+        dy = -60.0;
+      }
+    }
+    for (int i = 0; i < pieces.length; ++i) {
+      addPieceToBoard(appState, pieces[i], boardArea, x + i * dx, y + i * dy);
+      _pieceStackKeys[pieces[i]] = stackKey;
+    }
+  }
+
+  void layoutBoxStacks(MyAppState appState, Location box, int pass, List<Piece> pieces, BoardArea boardArea, int colCount, int rowCount, double x, double y, double dxStack, double dyStack, double dxPiece, double dyPiece) {
+    int stackCount = rowCount * colCount;
+    for (int row = 0; row < rowCount; ++row) {
+      for (int col = 0; col < colCount; ++col) {
+        final stackPieces = <Piece>[];
+        int stackIndex = row * colCount + col;
+        for (int pieceIndex = stackIndex; pieceIndex < pieces.length; pieceIndex += stackCount) {
+          stackPieces.add(pieces[pieceIndex]);
+        }
+        if (stackPieces.isNotEmpty) {
+          final sk = (box, stackIndex);
+          if (_expandedStacks.contains(sk) == (pass == 1)) {
+            double xStack = x + col * dxStack;
+            double yStack = y + row * dyStack;
+            layoutStack(appState, (box, stackIndex), stackPieces, boardArea, xStack, yStack, dxPiece, dyPiece);
+          }
+        }
+      }
+    }
+  }
+
+  void layoutNation(MyAppState appState, Location nation, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(nation);
     final boardArea = coordinates.$1;
     final xNation = coordinates.$2;
     final yNation = coordinates.$3;
 
-    if (!_emptyMap) {
+    if (pass == 0) {
       final frenchCorps = <Piece>[];
       final coalitionCorps = <Piece>[];
       Piece? etat;
@@ -495,20 +570,20 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutNations(MyAppState appState) {
+  void layoutNations(MyAppState appState, int pass) {
     for (final nation in LocationType.nation.locations) {
-      layoutNation(appState, nation);
+      layoutNation(appState, nation, pass);
     }
   }
 
-  void layoutGreenBox(MyAppState appState, Location greenBox) {
+  void layoutGreenBox(MyAppState appState, Location greenBox, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(greenBox);
     final boardArea = coordinates.$1;
     final xBox = coordinates.$2;
     final yBox = coordinates.$3;
 
-    if (!_emptyMap) {
+    if (pass == 0) {
       Piece? butNation;
       Piece? napoleon;
       final frenchDiplomats = <Piece>[];
@@ -548,13 +623,13 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutGreenBoxes(MyAppState appState) {
+  void layoutGreenBoxes(MyAppState appState, int pass) {
     for (final greenBox in LocationType.greenBox.locations) {
-      layoutGreenBox(appState, greenBox);
+      layoutGreenBox(appState, greenBox, pass);
     }
   }
 
-  void layoutLondon(MyAppState appState) {
+  void layoutLondon(MyAppState appState, int pass) {
     final state = appState.gameState!;
     const box = Location.boxLondon;
     final coordinates = locationCoordinates(box);
@@ -562,45 +637,48 @@ class GamePageState extends State<GamePage> {
     double xBox = coordinates.$2;
     double yBox = coordinates.$3;
 
-    if (!_emptyMap) {
-      final diplomats = <Piece>[];
-      final icons = <Piece>[];
-      Piece? pounds4;
-      for (final piece in state.piecesInLocation(PieceType.all, box)) {
-        if (piece.isType(PieceType.diplomat)) {
-          diplomats.add(piece);
-        } else if (piece.isType(PieceType.icon)) {
-          icons.add(piece);
-        } else if (piece == Piece.pounds4) {
-          pounds4 = piece;
-        }
+    final diplomats = <Piece>[];
+    final icons = <Piece>[];
+    Piece? pounds4;
+    for (final piece in state.piecesInLocation(PieceType.all, box)) {
+      if (piece.isType(PieceType.diplomat)) {
+        diplomats.add(piece);
+      } else if (piece.isType(PieceType.icon)) {
+        icons.add(piece);
+      } else if (piece == Piece.pounds4) {
+        pounds4 = piece;
       }
-      for (int i = diplomats.length - 1; i >= 0; --i) {
-        double x = xBox - 30.0;
-        double y = yBox - 30.0 + i * 2.0;
-        addPieceToBoard(appState, diplomats[i], boardArea, x, y);
-      }
-      for (int i = icons.length - 1; i >= 0; --i) {
-        double x = xBox + 62.0 - 30.0;
-        double y = yBox - 30.0 + i * 2.0;
-        addPieceToBoard(appState, icons[i], boardArea, x, y);
-      }
-      if (pounds4 != null) {
-        double x = xBox + 124.0 - 30.0;
-        double y = yBox - 30.0;
-        addPieceToBoard(appState, pounds4, boardArea, x, y);
-      }
+    }
+
+    var sk = (box, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      double xStack = xBox - 30.0;
+      double yStack = yBox - 30.0;
+      layoutStack(appState, sk, diplomats, BoardArea.map, xStack, yStack, 0.0, 2.0);
+    }
+
+    sk = (box, 1);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      double xStack = xBox + 62.0 - 30.0;
+      double yStack = yBox - 30.0;
+      layoutStack(appState, sk, icons, BoardArea.map, xStack, yStack, 0.0, 2.0);
+    }
+
+    if (pass == 0 && pounds4 != null) {
+      double x = xBox + 124.0 - 30.0;
+      double y = yBox - 30.0;
+      addPieceToBoard(appState, pounds4, boardArea, x, y);
     }
   }
 
-  void layoutMinor(MyAppState appState, Location minor) {
+  void layoutMinor(MyAppState appState, Location minor, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(minor);
     final boardArea = coordinates.$1;
     final xMinor = coordinates.$2;
     final yMinor = coordinates.$3;
 
-    if (!_emptyMap) {
+    if (pass == 0) {
       Piece? war;
       Piece? russianWarOrTrade;
       Piece? ottomanArmy;
@@ -630,9 +708,9 @@ class GamePageState extends State<GamePage> {
     }
   }
 
-  void layoutMinors(MyAppState appState) {
+  void layoutMinors(MyAppState appState, int pass) {
     for (final minor in LocationType.minor.locations) {
-      layoutMinor(appState, minor);
+      layoutMinor(appState, minor, pass);
     }
   }
 
@@ -689,33 +767,23 @@ class GamePageState extends State<GamePage> {
     return boxInfos[box]!;
   }
 
-  void layoutBox(MyAppState appState, Location box) {
+  void layoutBox(MyAppState appState, Location box, int pass) {
     final state = appState.gameState!;
     final coordinates = locationCoordinates(box);
     final boardArea = coordinates.$1;
     final xBox = coordinates.$2;
     final yBox = coordinates.$3;
     final info = boxInfo(box);
-    double dx = info.$1;
-    double dy = info.$2;
+    double xGap = info.$1;
+    double yGap = info.$2;
     int cols = info.$3;
     int rows = info.$4;
-    final pieces = state.piecesInLocation(PieceType.all, box);
-    int cells = cols * rows;
-    int layers = (pieces.length + cells - 1) ~/ cells;
-    for (int i = pieces.length - 1; i >= 0; --i) {
-      int col = i % cols;
-      int row = (i ~/ cols) % rows;
-      int depth = i ~/ cells;
-      double x = xBox + col * (60.0 + dx) + depth * 2.0 - (layers - 1) - 30.0;
-      double y = yBox + row * (60.0 + dy) + depth * 2.0 - (layers - 1) - 30.0;
-      addPieceToBoard(appState, pieces[i], boardArea, x, y);
-    }
+    layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 2.0, 2.0);
   }
 
-  void layoutBoxes(MyAppState appState) {
+  void layoutBoxes(MyAppState appState, int pass) {
     for (final box in boxInfos.keys) {
-      layoutBox(appState, box);
+      layoutBox(appState, box, pass);
     }
   }
 
@@ -774,12 +842,17 @@ class GamePageState extends State<GamePage> {
 
     if (gameState != null) {
 
-      layoutNations(appState);
-      layoutGreenBoxes(appState);
-      layoutLondon(appState);
-      layoutMinors(appState);
-      layoutBoxes(appState);
       layoutTurnTrack(appState);
+      layoutBoxes(appState, 0);
+      layoutMinors(appState, 0);
+      layoutLondon(appState, 0);
+      layoutGreenBoxes(appState, 0);
+      layoutNations(appState, 0);
+      layoutBoxes(appState, 1);
+      layoutMinors(appState, 1);
+      layoutLondon(appState, 1);
+      layoutGreenBoxes(appState, 1);
+      layoutNations(appState, 1);
 
       const choiceTexts = {
         Choice.transferToMinorWarFund: 'Increase Minor War Fund',
