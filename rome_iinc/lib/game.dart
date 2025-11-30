@@ -6243,6 +6243,14 @@ class Game {
     return (d0, d1, omensModifier, d0 + d1 + omensModifier);
   }
 
+  void log2D6((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)}');
+    logLine('>');
+  }
+
   void log2D6InTable((int,int,int,int) rolls) {
     int d0 = rolls.$1;
     int d1 = rolls.$2;
@@ -7062,7 +7070,7 @@ class Game {
 				int eventIndex = (rolls.$1 - 1) * 3 + (rolls.$2 - 1);
         eventType = EventType.values[eventIndex];
 				if (_state.eventTypeCount(eventType) == 2) {
-					logLine('>${_state.eventTypeName(eventType)} already doubled');
+					logLine('>${_state.eventTypeName(eventType)} is already doubled.');
 					eventType = null;
 				}
 			}
@@ -7202,11 +7210,11 @@ class Game {
 
   void extraTaxes(Location empire) {
 	  final rolls = roll2D6();
+    log2D6(rolls);
     int total = rolls.$4;
     adjustEmpireGold(empire, total);
     adjustEmpireUnrest(empire, 1);
     adjustEmpirePrestige(empire, -1);
-    logLine('>');
   }
 
   int moveWarPriority(Piece war, Location? displaceSpace, Location connectedSpace, ConnectionType connectionType) {
@@ -7939,9 +7947,9 @@ class Game {
       modifier = _options.warRollModifier;
       if (modifier != 0) {
         if (modifier == 1) {
-          logLine('>|Harder Wars option|+1|');
+          logLine('>|Harder Wars Option|+1|');
         } else if (modifier == -1) {
-          logLine('>|Easier Wars option|-1|');
+          logLine('>|Easier Wars Option|-1|');
         }
         modifiers += modifier;
       }
@@ -9538,7 +9546,7 @@ class Game {
       if (eventTypeCount == 1) {
         logLine('>${_state.eventTypeName(eventType)}');
       } else {
-        logLine('>${_state.eventTypeName(eventType)} (Doubled)');
+        logLine('>${_state.eventTypeName(eventType)} (x2)');
       }
       phaseState.eventType = eventType;
       _subStep = 1;
@@ -10483,6 +10491,8 @@ class Game {
     logLine('### ${_state.empireDesc(empire)} Prestige');
     int amount = 0;
     int total = 0;
+
+    logTableHeader();
     final emperor = _state.empireEmperor(empire);
     amount = _state.commandAdministration(emperor);
     logLine('>|${_state.commanderName(emperor)} Administration|+$amount|');
@@ -10499,6 +10509,8 @@ class Game {
       }
     }
     logLine('>|Total|$total|');
+    logTableFooter();
+
     adjustEmpirePrestige(empire, total);
 
     logLine('### ${_state.empireDesc(empire)} Unrest');
