@@ -1195,41 +1195,55 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
+  }
+
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -1364,18 +1378,18 @@ class Game {
   void adjustDollars(int delta) {
     _state.adjustDollars(delta);
     if (delta > 0) {
-      logLine('> MT +$delta → ${_state.dollars}');
+      logLine('>MT +$delta → ${_state.dollars}');
     } else if (delta < 0) {
-      logLine('> MT $delta → ${_state.dollars}');
+      logLine('>MT $delta → ${_state.dollars}');
     }
   }
 
   void adjustOerlikon(int delta) {
     _state.adjustOerlikon(delta);
     if (delta > 0) {
-      logLine('> Oerlikon +$delta → ${_state.oerlikon}');
+      logLine('>Oerlikon +$delta → ${_state.oerlikon}');
     } else if (delta < 0) {
-      logLine('> Oerlikon $delta → ${_state.oerlikon}');
+      logLine('>Oerlikon $delta → ${_state.oerlikon}');
     }
   }
 
@@ -1392,21 +1406,28 @@ class Game {
   void influenceDiplomat(Piece diplomat) {
     int die = rollD6();
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     final militaryEventLocation = _state.pieceLocation(Piece.markerMilitaryEvent);
     if (militaryEventLocation == Location.boxMilitaryEventHoareLavalScandal) {
-      logLine('> Hoare–Laval Scandal: +1');
+      logLine('>|Hoare–Laval Scandal|+1|');
       modifiers += 1;
     } else if (militaryEventLocation == Location.boxMilitaryEventRhinelandCrisis) {
-      logLine('> Rhineland Crisis: -1');
+      logLine('>|Rhineland Crisis|-1|');
       modifiers -= 1;
     }
-    int strength = _state.diplomatStrength(diplomat);
     int total = die + modifiers;
+    logLine('>|Total|$total|');
+    int strength = _state.diplomatStrength(diplomat);
+    logLine('>|${diplomat.desc}|$strength|');
+    logTableFooter();
+
     if (total > strength) {
-      logLine('> ${diplomat.desc} is persuaded to abandon a pro‐Italy stance.');
+      logLine('>|${diplomat.desc} is persuaded to abandon a pro‐Italy stance.');
       _state.setPieceLocation(diplomat, Location.boxUnusedDiplomats);
     } else {
-      logLine('> ${diplomat.desc} continues to side with Italy.');
+      logLine('>|${diplomat.desc} continues to side with Italy.');
     }
   }
 
@@ -1435,7 +1456,7 @@ class Game {
   void drawChitPhaseDrawChit() {
     logLine('### Draw Chit');
     final chit = randPiece(_state.piecesInLocation(PieceType.turnChit, Location.cupTurnChit))!;
-    logLine('> ${chit.desc}');
+    logLine('>${chit.desc}');
     _state.setPieceLocation(chit, _state.currentTurnCalendarBox);
   }
  
@@ -1462,10 +1483,10 @@ class Game {
     if (pieces.isEmpty) {
       return;
     }
-    logLine('> Deploy Units');
+    logLine('>Deploy Units');
     for (final piece in pieces) {
       if (piece == Piece.negus || piece.isType(PieceType.ras)) {
-        logLine('> ${piece.desc} deploys to ${Location.boxImperialTent}.');
+        logLine('>${piece.desc} deploys to ${Location.boxImperialTent}.');
         _state.setPieceLocation(piece, Location.boxImperialTent);
       }
     }
@@ -1474,11 +1495,12 @@ class Game {
   void event75thCongress() {
     logLine('### 75th Congress');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> US Congress decides to help Ethiopia.');
+      logLine('>US Congress decides to help Ethiopia.');
       adjustDollars(_state.piecesInLocationCount(PieceType.diplomat, Location.boxUnusedDiplomats));
     } else {
-      logLine('> US Congress decides against helping Ethiopia.');
+      logLine('>US Congress decides against helping Ethiopia.');
     }
   }
 
@@ -1487,32 +1509,33 @@ class Game {
       return;
     }
     logLine('### Aid Vote');
-    logLine('> League of Nations defies Italy and helps Ethiopia.');
+    logLine('>League of Nations defies Italy and helps Ethiopia.');
     adjustDollars(_state.piecesInLocationCount(PieceType.diplomat, Location.boxUnusedDiplomats));
   }
 
   void eventBritishElection() {
     logLine('### British Election');
     int die = rollD6();
+    logD6(die);
     int count = 0;
     switch (die) {
     case 1:
-      logLine('> Labour triumph.');
+      logLine('>Labour triumph.');
       count = -2;
     case 2:
-      logLine('> Narrow Labour victory.');
+      logLine('>Narrow Labour victory.');
       count = -1;
     case 3:
-      logLine('> Liberal resurgence.');
+      logLine('>Liberal resurgence.');
       count = 0;
     case 4:
-      logLine('> Baldwin’s National Coalition survives.');
+      logLine('>Baldwin’s National Coalition survives.');
       count = 1;
     case 5:
-      logLine('> National Coalition victory.');
+      logLine('>National Coalition victory.');
       count = 2;
     case 6:
-      logLine('> Tory landslide.');
+      logLine('>Tory landslide.');
       count = 3;
     }
     if (count < 0) {
@@ -1522,7 +1545,7 @@ class Game {
           return;
         }
         final diplomat = randPiece(diplomats)!;
-        logLine('> ${diplomat.desc} returns from Geneva.');
+        logLine('>${diplomat.desc} returns from Geneva.');
         final flippedDiplomat = _state.pieceFlipSide(diplomat)!;
         _state.setPieceLocation(flippedDiplomat, Location.boxUnusedDiplomats);
       }
@@ -1533,7 +1556,7 @@ class Game {
           return;
         }
         final diplomat = randPiece(diplomats)!;
-        logLine('> ${diplomat.desc} heads to Geneva.');
+        logLine('>${diplomat.desc} heads to Geneva.');
         _state.setPieceLocation(diplomat, Location.boxGeneva);
       }
     }
@@ -1542,25 +1565,26 @@ class Game {
   void eventFrenchElection() {
     logLine('### French Election');
     int die = rollD6();
+    logD6(die);
     int count = 0;
     switch (die) {
     case 1:
-      logLine('> Communists in government.');
+      logLine('>Communists in government.');
       count = -2;
     case 2:
-      logLine('> Popular Front landslide.');
+      logLine('>Popular Front landslide.');
       count = -1;
     case 3:
-      logLine('> Popular Front victory.');
+      logLine('>Popular Front victory.');
       count = 0;
     case 4:
-      logLine('> Divided National Assembly.');
+      logLine('>Divided National Assembly.');
       count = 1;
     case 5:
-      logLine('> Republican Federation victory.');
+      logLine('>Republican Federation victory.');
       count = 2;
     case 6:
-      logLine('> Croix‐de‐Feu in government.');
+      logLine('>Croix‐de‐Feu in government.');
       count = 3;
     }
     if (count < 0) {
@@ -1570,7 +1594,7 @@ class Game {
           return;
         }
         final diplomat = randPiece(diplomats)!;
-        logLine('> ${diplomat.desc} returns from Geneva.');
+        logLine('>${diplomat.desc} returns from Geneva.');
         final flippedDiplomat = _state.pieceFlipSide(diplomat)!;
         _state.setPieceLocation(flippedDiplomat, Location.boxUnusedDiplomats);
       }
@@ -1581,7 +1605,7 @@ class Game {
           return;
         }
         final diplomat = randPiece(diplomats)!;
-        logLine('> ${diplomat.desc} heads to Geneva.');
+        logLine('>${diplomat.desc} heads to Geneva.');
         _state.setPieceLocation(diplomat, Location.boxGeneva);
       }
     }
@@ -1589,7 +1613,7 @@ class Game {
 
   void eventGuadalajara() {
     logLine('### Guadalajara');
-    logLine('> Italy diverts air force units to fight the war in Spain.');
+    logLine('>Italy diverts air force units to fight the war in Spain.');
     for (final yellowPlane in PieceType.planeYellow.pieces) {
       final bluePlane = Piece.values[PieceType.planeBlue.firstIndex + yellowPlane.index - PieceType.planeYellow.index];
       final location = _state.pieceLocation(yellowPlane);
@@ -1603,7 +1627,7 @@ class Game {
       return;
     }
     logLine('### Rome–Berlin Axis');
-    logLine('> Mussolini and Hitler sign an anti‐Communist Pact.');
+    logLine('>Mussolini and Hitler sign an anti‐Communist Pact.');
     _state.setPieceLocation(Piece.diplomatItaly, Location.boxBerlin);
   }
 
@@ -1613,8 +1637,9 @@ class Game {
     }
     logLine('### Sanctions Vote');
     int die = rollD6();
+    logD6(die);
     if (die == 6) {
-      logLine('> League of Nations imposes serious sanctions on Italy.');
+      logLine('>League of Nations imposes serious sanctions on Italy.');
       adjustOerlikon(3);
       _state.setPieceLocation(Piece.carroArmato, Location.discarded);
     }
@@ -1625,13 +1650,13 @@ class Game {
       return;
     }
     logLine('### Yekatit 12');
-    logLine('> Resistance in Addis begins in earnest.');
+    logLine('>Resistance in Addis begins in earnest.');
     for (final path in Path.values) {
       final fascistRule = _state.pathFascistRule(path);
       final space = _state.pieceLocation(fascistRule);
       final nextSpace = _state.pathNextSpace(path, space);
       if (nextSpace != null) {
-        logLine('> Fascist Rule is pushed back to ${nextSpace.desc}.');
+        logLine('>Fascist Rule is pushed back to ${nextSpace.desc}.');
         _state.setPieceLocation(fascistRule, nextSpace);
       }
     }
@@ -1673,7 +1698,14 @@ class Game {
     logLine('### Roll');
     final phaseState = _phaseState as PhaseStateBerhanenaSelam;
     int die = rollD6();
+
+    logTableHeader();
+    logD6InTable(die);
+    logLine('>|Turn|${_state.currentTurn}|');
     int total = _state.currentTurn + die;
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     phaseState.total = total;
   }
 
@@ -1695,7 +1727,7 @@ class Game {
     }
     logLine('### Emperor Haile Selassie enters exile in England');
     for (final diplomat in _state.piecesInLocation(PieceType.diplomatFront, Location.boxGeneva)) {
-      logLine('> Influence ${diplomat.desc}.');
+      logLine('>Influence ${diplomat.desc}.');
       influenceDiplomat(diplomat);
     }
     _state.setPieceLocation(Piece.negus, Location.boxExile);
@@ -1706,13 +1738,14 @@ class Game {
 
   void militaryEventAbebeAregai() {
     logLine('### Police Chief Abebe Aregai joins the Ärbenyoch');
-    logLine('> +1 DRM to all attacks on A.');
+    logLine('>+1 DRM to all attacks on A.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventAbebeAregai);
   }
 
   void militaryEventAntoninBesse() {
     logLine('### French businessman Antonin Besse smuggles arms and money to the resistance');
     int die = rollD6();
+    logD6(die);
     String letter = '';
     CurrentEvent? event;
     switch (die) {
@@ -1731,50 +1764,51 @@ class Game {
       event = CurrentEvent.antoninBesseD;
       letter = 'D';
     }
-    logLine('> +1 DRM to all attacks on $letter.');
+    logLine('>+1 DRM to all attacks on $letter.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventAntoninBesse);
     _state.currentEventOccurred(event!);
   }
 
   void militaryEventBadoglio() {
     logLine('### Pietro Badoglio made C‐in‐C of Italian forces');
-    logLine('> -1 DRM from all attacks on B.');
+    logLine('>-1 DRM from all attacks on B.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventBadoglio);
   }
 
   void militaryEventDeBono() {
     logLine('### Emilio de Bono leads Italian forces');
-    logLine('> +1 DRM to all attacks on B.');
+    logLine('>+1 DRM to all attacks on B.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventDeBono);
   }
 
   void militaryEventDejazBalcha() {
     logLine('### War hero dejazmatch Balcha Safo supports the Ethiopian cause');
-    logLine('> +1 DRM to all attacks on D.');
+    logLine('>+1 DRM to all attacks on D.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventDejazmatchBalcha);
   }
 
   void militaryEventDubats() {
     logLine('### Somali troops assist Italy');
-    logLine('> -1 DRM from all attacks on D.');
+    logLine('>-1 DRM from all attacks on D.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventDubats);
   }
 
   void militaryEventEagleAndCondor() {
     logLine('### Ethiopian air force');
-    logLine('> +1 DRM to all attacks on E.');
+    logLine('>+1 DRM to all attacks on E.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventEagleAndCondor);
   }
 
   void militaryEventHoareLaval() {
     logLine('### Hoare–Laval Scandal');
-    logLine('> +1 DRM to all attacks on F.');
+    logLine('>+1 DRM to all attacks on F.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventHoareLavalScandal);
   }
 
   void militaryEventProtectorOfIslam() {
     logLine('### Mussolini declares himself “Protector of Islam”');
     int die = rollD6();
+    logD6(die);
     String letter = '';
     CurrentEvent? event;
     switch (die) {
@@ -1793,38 +1827,38 @@ class Game {
       event = CurrentEvent.protectorOfIslamD;
       letter = 'D';
     }
-    logLine('> -1 DRM from all attacks on $letter.');
+    logLine('>-1 DRM from all attacks on $letter.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventProtectorOfIslam);
     _state.currentEventOccurred(event!);
   }
 
   void militaryEventRhinelandCrisis() {
     logLine('### Rhineland Crisis');
-    logLine('> -1 DRM from all attacks on F.');
+    logLine('>-1 DRM from all attacks on F.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventRhinelandCrisis);
   }
 
   void militaryEventSM81() {
     logLine('### SM‐81 Bombers');
-    logLine('> -1 DRM from all attacks on E.');
+    logLine('>-1 DRM from all attacks on E.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventSM81Bombers);
   }
 
   void militaryEventSultanOlolDinle() {
     logLine('### Somali leader Sultan sides with Italy');
-    logLine('> -1 DRM from all attacks on C.');
+    logLine('>-1 DRM from all attacks on C.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventSultanOlolDinle);
   }
 
   void militaryEventUnrestInGojjam() {
     logLine('### Local peasants refuse to feed the Ehtiopian Army');
-    logLine('> -1 DRM from all attacks on A.');
+    logLine('>-1 DRM from all attacks on A.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventUnrestInGojjam);
   }
 
   void militaryEventWehibPasha() {
     logLine('### Ex‐Ottoman general Wehib Pasha builds defensive works');
-    logLine('> +1 DRM to all attacks on C.');
+    logLine('>+1 DRM to all attacks on C.');
     _state.setPieceLocation(Piece.markerMilitaryEvent, Location.boxMilitaryEventWehibPasha);
   }
 
@@ -1883,7 +1917,7 @@ class Game {
       return;
     }
     logLine('### Abuna Fasting');
-    logLine('> The Abuna calls for a nationwide fast.');
+    logLine('>The Abuna calls for a nationwide fast.');
     adjustDollars(count);
   }
 
@@ -1893,7 +1927,7 @@ class Game {
       return;
     }
     logLine('### Ärbenyoch');
-    logLine('> Partisans support the Ethiopian cause.');
+    logLine('>Partisans support the Ethiopian cause.');
     for (final partisan in partisans) {
       _state.setPieceLocation(partisan, Location.boxImperialTent);
     }
@@ -1911,13 +1945,13 @@ class Game {
       return;
     }
     logLine('### Asosa Gold');
-    logLine('> Streams of Asosa still under Ethiopian control.');
+    logLine('>Streams of Asosa still under Ethiopian control.');
     adjustDollars(count);
   }
 
   void politicalEventBlackChurches() {
     logLine('### Black Churches');
-    logLine('> Black churches in America raise cash for Ethiopia.');
+    logLine('>Black churches in America raise cash for Ethiopia.');
     adjustDollars(1);
   }
 
@@ -1926,7 +1960,7 @@ class Game {
       return;
     }
     logLine('### Black Lions');
-    logLine('> Black Lions cadets available.');
+    logLine('>Black Lions cadets available.');
     _state.setPieceLocation(Piece.markerBlackLions, Location.spaceAddisAbaba);
   }
 
@@ -1946,7 +1980,7 @@ class Game {
       }
       final army = selectedPiece()!;
       final space = _state.pieceLocation(army);
-      logLine('> Blackshirts accompany ${army.desc}.');
+      logLine('>Blackshirts accompany ${army.desc}.');
       _state.setPieceLocation(Piece.blackshirts, space);
       clearChoices();
     }
@@ -1960,7 +1994,7 @@ class Game {
       return;
     }
     logLine('### Daggabur Minefield');
-    logLine('> +1 DRM to all attacks on Daggabur');
+    logLine('>+1 DRM to all attacks on Daggabur');
     _state.setPieceLocation(Piece.minefield, Location.spaceDaggabur);
   }
 
@@ -1969,7 +2003,7 @@ class Game {
       return;
     }
     logLine('### Duce!');
-    logLine('> Mussolini takes command.');
+    logLine('>Mussolini takes command.');
     for (final bluePlane in PieceType.planeBlue.pieces) {
       final yellowPlane = Piece.values[PieceType.planeYellow.firstIndex + bluePlane.index - PieceType.planeBlue.index];
       final location = _state.pieceLocation(bluePlane);
@@ -2012,7 +2046,7 @@ class Game {
         return;
       }
       final army = selectedPiece()!;
-      logLine('> Eritrean Mutiny affects ${army.desc}.');
+      logLine('>Eritrean Mutiny affects ${army.desc}.');
       _state.flipPiece(army);
       clearChoices();
     }
@@ -2081,11 +2115,12 @@ class Game {
   void politicalEventGentlemensAgreement() {
     logLine('### Gentlemen’s Agreement');
     if (_state.pieceLocation(Piece.markerEmpireOfEthiopia) == Location.boxInternationalRecognition) {
-      logLine('> Allies send aid to Ethiopia.');
+      logLine('>Allies send aid to Ethiopia.');
       int die = rollD6();
+      logD6(die);
       adjustDollars(die);
     } else {
-      logLine('> Britain and France provide logistical support to Italy.');
+      logLine('>Britain and France provide logistical support to Italy.');
       for (final diplomat in _state.piecesInLocation(PieceType.diplomat, Location.boxUnusedDiplomats)) {
         _state.setPieceLocation(diplomat, Location.boxGeneva);
       }
@@ -2103,6 +2138,7 @@ class Game {
     if (_subStep == 0) {
       logLine('### Massacre');
       int die = rollD6();
+      logD6(die);
       if (die <= 4) {
         path = Path.values[die - 1];
         _subStep = 2;
@@ -2115,9 +2151,9 @@ class Game {
       final space = _state.pieceLocation(fascistRule);
       final nextSpace = _state.pathNextSpace(path, space);
       if (nextSpace == null) {
-        logLine('> Fascist Rule is already restricted to ${space.desc}.');
+        logLine('>Fascist Rule is already restricted to ${space.desc}.');
       } else {
-        logLine('> Fascist Rule becomes ineffective in ${space.desc}.');
+        logLine('>Fascist Rule becomes ineffective in ${space.desc}.');
         _state.setPieceLocation(fascistRule, nextSpace);
       }
     }

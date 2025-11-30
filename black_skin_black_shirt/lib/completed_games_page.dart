@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:black_skin_black_shirt/db.dart';
-import 'package:black_skin_black_shirt/game.dart';
 import 'package:black_skin_black_shirt/main.dart';
 
 class CompletedGamesPage extends StatefulWidget {
