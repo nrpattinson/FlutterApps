@@ -2911,55 +2911,55 @@ class Game {
     _log += '$line  \n';
   }
 
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
   // Randomness
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  String dieFace(int die) {
+    return '![](resource:assets/images/d6_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+   void logD6(int die) {
+    logLine('>');
+    logLine('>${dieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${dieFace(die)}|$die|');
   }
 
   (int,int,int) roll2D6() {
     int value = _random.nextInt(36);
-    int d0 = value ~/ 6;
-    value -= d0 * 6;
-    int d1 = value;
-    d0 += 1;
-    d1 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    int d0 = value % 6 + 1;
+    int d1 = value ~/ 6 + 1;
     return (d0, d1, d0 + d1);
   }
 
-  (int,int,int,int) roll3D6() {
-    int value = _random.nextInt(216);
-    int d0 = value ~/ 36;
-    value -= d0 * 36;
-    int d1 = value ~/ 6;
-    value -= d1 * 6;
-    int d2 = value;
-    d0 += 1;
-    d1 += 1;
-    d2 += 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
-    return (d0, d1, d2, d0 + d1 + d2);
+  void log2D6((int,int,int) results) {
+    int d0 = results.$1;
+    int d1 = results.$2;
+    logLine('>');
+    logLine('>${dieFace(d0)} ${dieFace(d1)}');
+    logLine('>');
+  }
+
+  void log2D6InTable((int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    logLine('>|${dieFace(d0)} ${dieFace(d1)}|${d0 + d1}|');
   }
 
   int randInt(int max) {
@@ -3088,79 +3088,79 @@ class Game {
   // Logging
 
   void setArmyStatus(Piece army, ArmyStatus status) {
-    logLine('> ${army.desc} becomes ${status.desc}.');
+    logLine('>${army.desc} becomes ${status.desc}.');
     _state.setArmyStatus(army, status);
   }
 
   void adjustWestAP(int delta) {
     _state.adjustWestAP(delta);
     if (delta > 0) {
-      logLine('> West AP: +$delta → ${_state.westAP}');
+      logLine('>West AP: +$delta → ${_state.westAP}');
     } else if (delta < 0) {
-      logLine('> West AP: $delta → ${_state.westAP}');
+      logLine('>West AP: $delta → ${_state.westAP}');
     }
   }
 
   void adjustEastAP(int delta) {
     _state.adjustEastAP(delta);
     if (delta > 0) {
-      logLine('> East AP: +$delta → ${_state.eastAP}');
+      logLine('>East AP: +$delta → ${_state.eastAP}');
     } else if (delta < 0) {
-      logLine('> East AP: $delta → ${_state.eastAP}');
+      logLine('>East AP: $delta → ${_state.eastAP}');
     }
   }
 
   void adjustAfricaAP(int delta) {
     _state.adjustAfricaAP(delta);
     if (delta > 0) {
-      logLine('> Africa AP: +$delta → ${_state.africaAP}');
+      logLine('>Africa AP: +$delta → ${_state.africaAP}');
     } else if (delta < 0) {
-      logLine('> Africa AP: $delta → ${_state.africaAP}');
+      logLine('>Africa AP: $delta → ${_state.africaAP}');
     }
   }
 
   void adjustCaucasusAP(int delta) {
     _state.adjustCaucasusAP(delta);
     if (delta > 0) {
-      logLine('> Caucasus AP: +$delta → ${_state.caucasusAP}');
+      logLine('>Caucasus AP: +$delta → ${_state.caucasusAP}');
     } else if (delta < 0) {
-      logLine('> Caucasus AP: $delta → ${_state.caucasusAP}');
+      logLine('>Caucasus AP: $delta → ${_state.caucasusAP}');
     }
   }
 
   void adjustWestAPTokens(int delta) {
     _state.adjustWestAPTokens(delta);
     if (delta > 0) {
-      logLine('> West AP Tokens: +$delta → ${_state.westAPTokens}');
+      logLine('>West AP Tokens: +$delta → ${_state.westAPTokens}');
     } else if (delta < 0) {
-      logLine('> West AP Tokens: $delta → ${_state.westAPTokens}');
+      logLine('>West AP Tokens: $delta → ${_state.westAPTokens}');
     }
   }
 
   void adjustEastAPTokens(int delta) {
     _state.adjustEastAPTokens(delta);
     if (delta > 0) {
-      logLine('> East AP Tokens: +$delta → ${_state.eastAPTokens}');
+      logLine('>East AP Tokens: +$delta → ${_state.eastAPTokens}');
     } else if (delta < 0) {
-      logLine('> East AP Tokens: $delta → ${_state.eastAPTokens}');
+      logLine('>East AP Tokens: $delta → ${_state.eastAPTokens}');
     }
   }
 
   void adjustSharedAPTokens(int delta) {
     _state.adjustSharedAPTokens(delta);
     if (delta > 0) {
-      logLine('> Shared AP Tokens: +$delta → ${_state.sharedAPTokens}');
+      logLine('>Shared AP Tokens: +$delta → ${_state.sharedAPTokens}');
     } else if (delta < 0) {
-      logLine('> Shared AP Tokens: $delta → ${_state.sharedAPTokens}');
+      logLine('>Shared AP Tokens: $delta → ${_state.sharedAPTokens}');
     }
   }
 
   void adjustSyrianStrength(int delta) {
     _state.adjustSyrianStrength(delta);
     if (delta > 0) {
-      logLine('> Syrian Strength: +$delta → ${_state.syrianStrength}');
+      logLine('>Syrian Strength: +$delta → ${_state.syrianStrength}');
     } else if (delta < 0) {
-      logLine('> Syrian Strength: $delta → ${_state.syrianStrength}');
+      logLine('>Syrian Strength: $delta → ${_state.syrianStrength}');
     }
   }
 
@@ -3178,7 +3178,7 @@ class Game {
   }
 
   void activateSyrians() {
-    logLine('> Caliph Umar Ⅰ strengthens the Syrians.');
+    logLine('>Caliph Umar Ⅰ strengthens the Syrians.');
     final kaaba = _state.byzantineReligion == Religion.christianMonophysite ? Piece.kaaba5 : Piece.kaaba6;
     _state.setPieceLocation(kaaba, Location.landMecca);
   }
@@ -3221,27 +3221,32 @@ class Game {
     final islam = _state.pathIslamPiece(path);
     final land = _state.pieceLocation(islam);
     final nextLand = _state.pathSucceedingLand(path, land)!;
-    logLine('> Conversion Check for ${nextLand.desc}.');
+    logLine('>Conversion Check for ${nextLand.desc}.');
     int die = rollD6();
+
+    logTableHeader();
+    logD6InTable(die);
     int apostasyNumber = _state.landApostasyNumber(nextLand);
-    logLine('> Apostasy Number: $apostasyNumber');
+    logLine('>|Apostasy Number|$apostasyNumber|');
+    logTableFooter();
+
     if (die <= apostasyNumber) {
       if (_state.pieceLocation(Piece.blessingThemes) == nextLand) {
-        logLine('> Themes in ${nextLand.desc} prevent conversion to Islam.');
+        logLine('>Themes in ${nextLand.desc} prevent conversion to Islam.');
         _state.setPieceLocation(Piece.blessingThemes, Location.offmap);
       } else {
-        logLine('> ${nextLand.desc} Converts to Islam.');
+        logLine('>${nextLand.desc} Converts to Islam.');
         final piece = disrupt ? _state.pathIslamDisruptedPiece(path) : _state.pathIslamUndisruptedPiece(path);
         _state.setPieceLocation(piece, nextLand);
         if (_state.pieceLocation(Piece.blessingIcons) == nextLand) {
-          logLine('> Icons are captured.');
+          logLine('>Icons are captured.');
           _state.setPieceLocation(Piece.blessingIcons, Location.offmap);
         }
         return true;
       }
     } else {
       final religion = _state.landBaseReligion(nextLand);
-      logLine('> ${nextLand.desc} holds to its ${religion.adjective} faith.');
+      logLine('>${nextLand.desc} holds to its ${religion.adjective} faith.');
     }
     return false;
   }
@@ -3298,7 +3303,7 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoiceAndClear(Choice.no)) {
-          logLine('> Baqt remains in place.');
+          logLine('>Baqt remains in place.');
           removeGreatKing();
           return;
         }
@@ -3307,9 +3312,9 @@ class Game {
       }
       if (revolt) {
         if (revoltDesc != null) {
-          logLine('> $revoltDesc');
+          logLine('>$revoltDesc');
         } else {
-          logLine('> ${baqtArmy.desc} Revolts.');
+          logLine('>${baqtArmy.desc} Revolts.');
         }
         _state.setPieceLocation(baqt!, Location.offmap);
         if (baqt.isType(PieceType.baqtPartial)) {
@@ -3319,7 +3324,7 @@ class Game {
           final revoltLand = _state.pathBaqtLand(path, 2);
           if (activeLand.index <= revoltLand.index) {
             final retreatLand = _state.pathBaqtLand(path, 3);
-            logLine('> ${nextArmy.desc} Retreats to ${retreatLand.desc}.');
+            logLine('>${nextArmy.desc} Retreats to ${retreatLand.desc}.');
             _state.setPieceLocation(nextArmy, retreatLand);
           }
           _state.setPieceLocation(baqtArmy, revoltLand);
@@ -3327,7 +3332,7 @@ class Game {
         _state.setArmyStatus(baqtArmy, ArmyStatus.strong);
       }
       if (kingDesc != null && _state.pathActiveArmy(path) == associatedArmy) {
-        logLine('> $kingDesc');
+        logLine('>$kingDesc');
       }
       createGreatKing(path, actionPoints);
     }
@@ -3340,7 +3345,7 @@ class Game {
       return;
     }
     logLine('### Baqt: Africa');
-    logLine('> The Caliphate opens negotiations with Nubia.');
+    logLine('>The Caliphate opens negotiations with Nubia.');
     _state.setEventActive(Event.baqtAfrican);
   }
 
@@ -3349,7 +3354,7 @@ class Game {
       return;
     }
     logLine('### Baqt: Caucasus');
-    logLine('> The Caliphate opens negotiations with Armenia.');
+    logLine('>The Caliphate opens negotiations with Armenia.');
     _state.setEventActive(Event.baqtCaucasian);
   }
 
@@ -3365,11 +3370,11 @@ class Game {
     }
     logLine('### Berber Revolt');
     if (_state.eventActive(Event.munnuzaDefects)) {
-      logLine('> Munnuza leads the Berber revolt against the Arab Caliphate.');
-      logLine('> Berbers convert to Catholicism.');
+      logLine('>Munnuza leads the Berber revolt against the Arab Caliphate.');
+      logLine('>Berbers convert to Catholicism.');
       _state.berbersConvertToCatholicism();
     } else {
-      logLine('> Berbers in ${Location.landTingitana.desc} revolt against the Arab Caliphate.');
+      logLine('>Berbers in ${Location.landTingitana.desc} revolt against the Arab Caliphate.');
     }
     _state.setPieceLocation(Piece.armyBerber, Location.landTingitana);
   }
@@ -3379,7 +3384,7 @@ class Game {
       return;
     }
     logLine('### Bulgars Docile');
-    logLine('> Bulgar Khanate bides its time.');
+    logLine('>Bulgar Khanate bides its time.');
     _state.tibetBadass = false;
   }
 
@@ -3400,10 +3405,10 @@ class Game {
       }
       logLine('### Bulgars');
       if (box == Location.boxBulgarsZ) {
-        logLine('> Bulgar Hits: -1');
+        logLine('>Bulgar Hits: -1');
         box = Location.boxBulgarsN1;
       } else {
-        logLine('> Bulgar Hits: 0');
+        logLine('>Bulgar Hits: 0');
         box = Location.boxBulgarsZ;
       }
     } else {
@@ -3412,10 +3417,10 @@ class Game {
       }
       logLine('### Bulgars');
       if (box == Location.boxBulgarsZ) {
-        logLine('> Bulgar Hits: +1');
+        logLine('>Bulgar Hits: +1');
         box = Location.boxBulgarsP1;
       } else {
-        logLine('> Bulgar Hits: 0');
+        logLine('>Bulgar Hits: 0');
         box = Location.boxBulgarsZ;
       }
     }
@@ -3427,7 +3432,7 @@ class Game {
       return;
     }
     logLine('### Bulgars Wild');
-    logLine('> Bulgar Khanate looks to expand.');
+    logLine('>Bulgar Khanate looks to expand.');
     _state.bulgarsWild = true;
   }
 
@@ -3473,17 +3478,17 @@ class Game {
       final land = selectedLocation()!;
       clearChoices();
       if (land == _state.pieceLocation(_state.byzantineCapitalPiece)) {
-        logLine('> Byzantine Capital remains in ${land.desc}.');
+        logLine('>Byzantine Capital remains in ${land.desc}.');
         return;
       }
-      logLine('> Byzantine Capital relocates to ${land.desc}.');
+      logLine('>Byzantine Capital relocates to ${land.desc}.');
       _state.setPieceLocation(_state.byzantineCapitalPiece, land);
     }
   }
  
   void carolingians() {
     logLine('### Carolingians');
-    logLine('> Carolingian Kingdom strengthens.');
+    logLine('>Carolingian Kingdom strengthens.');
     _state.setEventActive(Event.carolingians);
   }
 
@@ -3494,7 +3499,7 @@ class Game {
       return;
     }
     logLine('### Count Julian');
-    logLine('> Renegade governor allies with the Muslims.');
+    logLine('>Renegade governor allies with the Muslims.');
     final status = _state.armyStatus(army);
     switch (status) {
     case ArmyStatus.strong:
@@ -3503,7 +3508,7 @@ class Game {
       setArmyStatus(army, ArmyStatus.shattered);
     case ArmyStatus.shattered:
       final retreatLand = _state.pathSucceedingLand(Path.mediterranean, armyLocation)!;
-      logLine('> ${army.desc} retreats to ${retreatLand.desc}.');
+      logLine('>${army.desc} retreats to ${retreatLand.desc}.');
       _state.setPieceLocation(army, retreatLand);
     }
     final islam = _state.pathIslamPiece(Path.mediterranean);
@@ -3512,7 +3517,7 @@ class Game {
       final activeArmy = _state.pathActiveArmy(Path.mediterranean)!;
       final activeLand = _state.pieceLocation(activeArmy);
       final newIslamLand = activeLand == Location.landParis ? Location.landAquitaine : activeLand;
-      logLine('> Islam advances to ${newIslamLand.desc}.');
+      logLine('>Islam advances to ${newIslamLand.desc}.');
       _state.setPieceLocation(_state.pathIslamUndisruptedPiece(Path.mediterranean), newIslamLand);
     } 
   }
@@ -3527,10 +3532,10 @@ class Game {
     }
     logLine('### Cyprus');
     if (box == Location.boxCyprusZ) {
-      logLine('> Cyptus Hits: +1');
+      logLine('>Cyptus Hits: +1');
       box = Location.boxCyprusP1;
     } else {
-      logLine('> Cyprus Hits: 0');
+      logLine('>Cyprus Hits: 0');
       box = Location.boxCyprusZ;
     }
     _state.cyprusBox = box;
@@ -3571,7 +3576,7 @@ class Game {
     }
     logLine('### Dahlak Islands Fall');
     final retreatLand = _state.pathSucceedingLand(Path.african, land)!;
-    logLine('> ${army.desc} retreats to ${retreatLand.desc}.');
+    logLine('>${army.desc} retreats to ${retreatLand.desc}.');
     _state.setPieceLocation(army, retreatLand);
   }
 
@@ -3580,14 +3585,14 @@ class Game {
       return;
     }
     logLine('### Day of Thirst');
-    logLine('> Arab defeats frighten their Tibetan allies.');
+    logLine('>Arab defeats frighten their Tibetan allies.');
     var box = _state.tibetBox;
     if (box != Location.boxTibetN1) {
       if (box == Location.boxTibetZ) {
-        logLine('> Tibetan Hits: -1');
+        logLine('>Tibetan Hits: -1');
         box = Location.boxTibetN1;
       } else {
-        logLine('> Tibetan Hits: 0');
+        logLine('>Tibetan Hits: 0');
         box = Location.boxTibetZ;
       }
       _state.tibetBox = box;
@@ -3613,16 +3618,16 @@ class Game {
     }
     final religion = _state.byzantineReligionBoxReligion(religionBox);
     if (religionBox == prevReligionBox) {
-      logLine('> Byzantine Religion remains ${religion.adjective}.');
+      logLine('>Byzantine Religion remains ${religion.adjective}.');
       if (religionMarker == Piece.byzantineReligionSchism) {
-        logLine('> Schism is resolved.');
+        logLine('>Schism is resolved.');
         _state.setPieceLocation(Piece.byzantineReligion, religionBox);
       }
     } else {
-      logLine('> Byzantium adopts ${religion.noun}, causing a Schism');
+      logLine('>Byzantium adopts ${religion.noun}, causing a Schism');
       _state.setPieceLocation(Piece.byzantineReligionSchism, religionBox);
       if (religion == Religion.christianMonophysite && _state.currentCard == Card.chainedAndNailedByFear1) {
-        logLine('> King Varaztiroits II succeeds in Armenia.');
+        logLine('>King Varaztiroits II succeeds in Armenia.');
         _state.setPieceLocation(Piece.armyByzantineCaucasian, Location.offmap);
         _state.setPieceLocation(Piece.armyArmenian, Location.landNsibis);
         createGreatKing(Path.caucasian, 2);
@@ -3646,7 +3651,7 @@ class Game {
 
   void empressWu() {
     logLine('### Empress Wu');
-    logLine('> Empress Wu strengthens Tang China.');
+    logLine('>Empress Wu strengthens Tang China.');
     _state.setEventActive(Event.empressWu);
   }
 
@@ -3663,10 +3668,10 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.lastStandActionPoints)) {
-        logLine('> Byzantine Empire Last Stand: 2AP');
+        logLine('>Byzantine Empire Last Stand: 2AP');
         _state.setPieceLocation(Piece.byzantineLastStandAP, Location.boxByzantineLastStand);
       } else {
-        logLine('> Byzantine Empire Last Stand: +1 Skill');
+        logLine('>Byzantine Empire Last Stand: +1 Skill');
         _state.setPieceLocation(Piece.byzantineLastStandSkill, Location.boxByzantineLastStand);
       }
       clearChoices();
@@ -3681,10 +3686,10 @@ class Game {
           throw PlayerChoiceException();
         }
         if (checkChoice(Choice.lastStandActionPoints)) {
-          logLine('> Persian Empire Last Stand: 2AP');
+          logLine('>Persian Empire Last Stand: 2AP');
           _state.setPieceLocation(Piece.persianLastStandAP, Location.boxPersianLastStand);
         } else {
-          logLine('> Persian Empire Last Stand: +1 Skill');
+          logLine('>Persian Empire Last Stand: +1 Skill');
           _state.setPieceLocation(Piece.persianLastStandSkill, Location.boxPersianLastStand);
         }
         clearChoices();
@@ -3694,19 +3699,19 @@ class Game {
     if (_subStep == 3) {
       if (_state.advancedGame) {
         if (_state.jihadActive) {
-          logLine('> Jihad ends.');
+          logLine('>Jihad ends.');
           _state.jihadEnd();
         }
         if (_state.byzantineSchism) {
-          logLine('> Schism ends.');
+          logLine('>Schism ends.');
            _state.byzantineSchism = false;
         }
         if (_state.byzantiumTruce) {
-          logLine('> Greek Truce ends.');
+          logLine('>Greek Truce ends.');
           _state.exitByzantiumTruce();
         }
         if (_state.persiaTruce) {
-          logLine('> Persia Truce ends.');
+          logLine('>Persia Truce ends.');
           _state.exitPersiaTruce();
         }
       }
@@ -3715,7 +3720,7 @@ class Game {
 
   void excubitors() {
     logLine('### Excubitors');
-    logLine('> Élite Byzantine forces arrive.');
+    logLine('>Élite Byzantine forces arrive.');
     _state.setPieceLocation(Piece.excubitors2, Location.boxExcubitors);
   }
 
@@ -3729,9 +3734,9 @@ class Game {
       return;
     }
     logLine('### Feigned Conversion');
-    logLine('> Caucasian ruler pretends to convert to Islam.');
+    logLine('>Caucasian ruler pretends to convert to Islam.');
     final toLand = _state.pathPrecedingLand(Path.caucasian, land)!;
-    logLine('> ${army.desc} advances to ${toLand.desc}.');
+    logLine('>${army.desc} advances to ${toLand.desc}.');
     _state.setPieceLocation(army, toLand);
   }
 
@@ -3761,7 +3766,7 @@ class Game {
       return;
     }
     logLine('### Greek Fire');
-    logLine('> Greek scientists create a type of flamethrower devastating to enemy ships.');
+    logLine('>Greek scientists create a type of flamethrower devastating to enemy ships.');
     _state.flipPiece(Piece.blessingFleetP1);
   }
 
@@ -3774,7 +3779,7 @@ class Game {
       return;
     }
     logLine('### Gregory Revolts');
-    logLine('> Gregory the Patrician, Exarch of Africa, declares himself Emperor.');
+    logLine('>Gregory the Patrician, Exarch of Africa, declares himself Emperor.');
     final castle = _state.pieceInLocation(PieceType.castle, Location.landCarthage);
     if (castle != null) {
       _state.setPieceLocation(castle, Location.boxOutOfPlay);
@@ -3793,7 +3798,7 @@ class Game {
     }
     if (_subStep == 0) {
       logLine('### Iconoclasm');
-      logLine('> Veneration of religious images is forbidden.');
+      logLine('>Veneration of religious images is forbidden.');
       if (_state.landIslamic(Location.landGreece, true)) {
         _state.setPieceLocation(Piece.blessingThemes, Location.offmap);
         return;
@@ -3811,7 +3816,7 @@ class Game {
         throw PlayerChoiceException();
       }
       final land = selectedLocation()!;
-      logLine('> Themes are established in ${land.desc}.');
+      logLine('>Themes are established in ${land.desc}.');
       _state.setPieceLocation(Piece.blessingThemes, land);
       clearChoices();
       _subStep = 2;
@@ -3825,7 +3830,7 @@ class Game {
 
   void imperialVisit() {
     logLine('### Imperial Visit');
-    logLine('> The Byzantine Emperor visits Rome.');
+    logLine('>The Byzantine Emperor visits Rome.');
     _state.setEventActive(Event.imperialVisit);
   }
 
@@ -3835,7 +3840,7 @@ class Game {
       return;
     }
     logLine('### Intolerance');
-    logLine('> Caliph persecutes and taxes non-Muslims.');
+    logLine('>Caliph persecutes and taxes non-Muslims.');
     for (final path in paths) {
       pathConversionCheck(path, true);
     }
@@ -3846,7 +3851,7 @@ class Game {
       return;
     }
     logLine('### Jews in Balanjar');
-    logLine('> Jews in Balanjar are treated with tolerance.');
+    logLine('>Jews in Balanjar are treated with tolerance.');
     _state.setPieceLocation(Piece.jewsN1, Location.landBalanjar);
   }
 
@@ -3855,7 +3860,7 @@ class Game {
       return;
     }
     logLine('### Jews in Hispania');
-    logLine('> Jews in Hispania experience persecution.');
+    logLine('>Jews in Hispania experience persecution.');
     _state.setPieceLocation(Piece.jewsP1, Location.landHispania);
   }
 
@@ -3864,7 +3869,7 @@ class Game {
       return;
     }
     logLine('### Jews in Jerusalem');
-    logLine('> Jews in Jerusalem experience persecution.');
+    logLine('>Jews in Jerusalem experience persecution.');
     _state.setPieceLocation(Piece.jewsP1, Location.landJerusalem);
   }
 
@@ -3878,11 +3883,11 @@ class Game {
     }
     logLine('### Jihad vs. Greece');
     if (dead) {
-      logLine('> Jihad ends.');
+      logLine('>Jihad ends.');
       _state.jihadEnd();
       return;
     }
-    logLine('> Jihad declared against the Byzantine Empire.');
+    logLine('>Jihad declared against the Byzantine Empire.');
     _state.jihadInitiate([Path.greek]);
   }
 
@@ -3901,17 +3906,17 @@ class Game {
     }
     logLine('### Jihad vs. Persia');
     if (paths.isEmpty) {
-      logLine('> Jihad ends.');
+      logLine('>Jihad ends.');
       _state.jihadEnd();
       return;
     }
-    logLine('> Jihad declared against the Persian Empire.');
+    logLine('>Jihad declared against the Persian Empire.');
     _state.jihadInitiate(paths);
   }
 
   void karabisianTheme() {
     logLine('### Karabisian Theme');
-    logLine('> Greek Fleet is very active.');
+    logLine('>Greek Fleet is very active.');
     _state.setEventActive(Event.karabisianTheme);
   }
 
@@ -3924,7 +3929,7 @@ class Game {
       return;
     }
     logLine('### Khri-Mang-Slon-Rtsan');
-    logLine('> Tibet attacks Tang China.');
+    logLine('>Tibet attacks Tang China.');
     switch (status) {
     case ArmyStatus.strong:
       setArmyStatus(army, ArmyStatus.weak);
@@ -3932,17 +3937,17 @@ class Game {
       setArmyStatus(army, ArmyStatus.shattered);
     case ArmyStatus.shattered:
       final retreatLand = _state.pathSucceedingLand(Path.parthian, land)!;
-      logLine('> ${army.desc} retreats to ${retreatLand.desc}.');
+      logLine('>${army.desc} retreats to ${retreatLand.desc}.');
       _state.setPieceLocation(army, retreatLand);
     }
     if (box == Location.boxTibetP1) {
       return;
     }
     if (box == Location.boxTibetZ) {
-      logLine('> Tibetan Hits: +1');
+      logLine('>Tibetan Hits: +1');
       box = Location.boxTibetP1;
     } else {
-      logLine('> Tibetan Hits: 0');
+      logLine('>Tibetan Hits: 0');
       box = Location.boxTibetZ;
     }
     _state.tibetBox = box;
@@ -3953,7 +3958,7 @@ class Game {
       return;
     }
     logLine('### $title');
-    logLine('> $name succeeds as Caliph.');
+    logLine('>$name succeeds as Caliph.');
     adjustSyrianStrength(strength);
   }
 
@@ -3962,7 +3967,7 @@ class Game {
       return;
     }
     logLine('### $title');
-    logLine('> $name leads Arab forces.');
+    logLine('>$name leads Arab forces.');
     adjustSyrianStrength(strength);
   }
 
@@ -3987,7 +3992,7 @@ class Game {
       return;
     }
     logLine('### Governor Hajjaj');
-    logLine('> al‑Hajjaj ibn Yusuf appointed Governor of occupied Persia.');
+    logLine('>al‑Hajjaj ibn Yusuf appointed Governor of occupied Persia.');
     adjustSyrianStrength(2);
   }
 
@@ -4004,7 +4009,7 @@ class Game {
       return;
     }
     logLine('### Muʼawiya');
-    logLine('> Muʼawiya Ⅰ founds the Umayyad Caliphate.');
+    logLine('>Muʼawiya Ⅰ founds the Umayyad Caliphate.');
     adjustSyrianStrength(1);
   }
 
@@ -4025,7 +4030,7 @@ class Game {
       return;
     }
     logLine('### Umar ibn Saʼad');
-    logLine('> Umar ibn Saʼad leads Umayyad forces at the Battle of Karbala.');
+    logLine('>Umar ibn Saʼad leads Umayyad forces at the Battle of Karbala.');
     adjustSyrianStrength(1);
   }
 
@@ -4046,7 +4051,7 @@ class Game {
     }
     if (_subStep == 0) {
       logLine('### Lombards');
-      logLine('> Germanic tribes threaten Rome.');
+      logLine('>Germanic tribes threaten Rome.');
       _subStep = 1;
     }
     if (choicesEmpty()) {
@@ -4057,14 +4062,14 @@ class Game {
     }
     if (checkChoice(Choice.reduceEmperorSkill)) {
       _state.byzantineRulerSkill = _state.byzantineRulerSkill - 1;
-      logLine('> Byzantine Emperor’s Skill reduced to ${_state.byzantineRulerSkill}.');
+      logLine('>Byzantine Emperor’s Skill reduced to ${_state.byzantineRulerSkill}.');
     } else {
       var box = _state.bulgarsBox;
       if (box == Location.boxBulgarsZ) {
-        logLine('> Bulgar Hits: +1');
+        logLine('>Bulgar Hits: +1');
         box = Location.boxBulgarsP1;
       } else {
-        logLine('> Bulgar Hits: 0.');
+        logLine('>Bulgar Hits: 0.');
         box = Location.boxBulgarsZ;
       }
       _state.bulgarsBox = box;
@@ -4077,14 +4082,14 @@ class Game {
       return;
     }
     logLine('### Malabars');
-    logLine('> Nestorian bishops in South India realign to the Monophysite Patriarch of Alexandria.');
+    logLine('>Nestorian bishops in South India realign to the Monophysite Patriarch of Alexandria.');
     var box = _state.socotraBox;
     if (box != Location.boxSocotraN1) {
       if (box == Location.boxSocotraZ) {
-        logLine('> Socotra Hits: -1');
+        logLine('>Socotra Hits: -1');
         box = Location.boxSocotraN1;
       } else {
-        logLine('> Socotra Hits: 0');
+        logLine('>Socotra Hits: 0');
         box = Location.boxSocotraZ;
       }
       _state.bulgarsBox = box;
@@ -4101,7 +4106,7 @@ class Game {
       return;
     }
     logLine('### Merovingians');
-    logLine('> Merovingian Kingdom weakens.');
+    logLine('>Merovingian Kingdom weakens.');
     switch (status) {
     case ArmyStatus.strong:
       setArmyStatus(army, ArmyStatus.weak);
@@ -4109,14 +4114,14 @@ class Game {
       setArmyStatus(army, ArmyStatus.shattered);
     case ArmyStatus.shattered:
       final retreatLand = _state.pathSucceedingLand(Path.mediterranean, land)!;
-      logLine('> ${army.desc} retreats to ${retreatLand.desc}.');
+      logLine('>${army.desc} retreats to ${retreatLand.desc}.');
       _state.setPieceLocation(army, retreatLand);
     }
   }
 
   void munnuzaDefects() {
     logLine('### Munnuza Defects');
-    logLine('> Munnuza revolts against the Caliph.');
+    logLine('>Munnuza revolts against the Caliph.');
     _state.setEventActive(Event.munnuzaDefects);
     _state.advanceDeck();
     eventsPhaseEvent0();
@@ -4124,7 +4129,7 @@ class Game {
 
   void ohShiite() {
     logLine('### Oh Shi’ite!');
-    logLine('> Sectarian violence breaks out across the Islamic world.');
+    logLine('>Sectarian violence breaks out across the Islamic world.');
     for (final islam in PieceType.islamUndisrupted.pieces) {
       final location = _state.pieceLocation(islam);
       if (location != Location.landMecca) {
@@ -4141,19 +4146,19 @@ class Game {
       return;
     }
     logLine('### Papal Bull');
-    logLine('> The Pope scuppers the Emperor’s plans for Christian unity.');
+    logLine('>The Pope scuppers the Emperor’s plans for Christian unity.');
     _state.byzantineSchism = true;
   }
 
   void piroozRevolts() {
     logLine('### Pirooz Revolts');
-    logLine('> Persian heir to the throne leads Zoroastrian revival vs. the Arabs.');
+    logLine('>Persian heir to the throne leads Zoroastrian revival vs. the Arabs.');
     _state.setEventActive(Event.piroozRevolts);
   }
 
   void queenKahina() {
     logLine('### Queen Kahina');
-    logLine('> Berber ruler aids Byzantine fleet.');
+    logLine('>Berber ruler aids Byzantine fleet.');
     _state.setEventActive(Event.queenKahina);
   }
 
@@ -4168,7 +4173,7 @@ class Game {
             logLine('### Retrenchment');
             logged = true;
           }
-          logLine('> Islam strengthens in ${location.desc}.');
+          logLine('>Islam strengthens in ${location.desc}.');
           _state.flipPiece(islam);
         }
       }
@@ -4188,7 +4193,7 @@ class Game {
           final land = _state.pieceLocation(army);
           final prevLand = _state.pathPrecedingLand(path, land);
           if (prevLand != null && prevLand != Location.landMecca) {
-            logLine('> ${army.desc} advances into ${prevLand.desc}.');
+            logLine('>${army.desc} advances into ${prevLand.desc}.');
             _state.setPieceLocation(army, prevLand);
           }
         }
@@ -4212,7 +4217,7 @@ class Game {
 
   void ridda() {
     logLine('### Ridda');
-    logLine('> Mass apostasy from Islam occurs on the border.');
+    logLine('>Mass apostasy from Islam occurs on the border.');
     _state.setEventActive(Event.ridda);
   }
 
@@ -4221,7 +4226,7 @@ class Game {
       return;
     }
     logLine('### Rightly Guided Army');
-    logLine('> Caliph Umar Ⅰ organizes the greatest army since Alexander the Great.');
+    logLine('>Caliph Umar Ⅰ organizes the greatest army since Alexander the Great.');
   }
 
   void rulerByzantium(int eventModifier) {
@@ -4231,39 +4236,44 @@ class Game {
     logLine('### New Emperor succeeds in Byzantium');
     int die = rollD6();
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     int skill = _state.byzantineRulerSkill;
-    logLine('> Skill of previous Emperor: $skill');
+    logLine('>|Predecessor Skill|$skill|');
     modifiers += skill;
     if (!_state.pieceInPlay(_state.byzantineCapitalPiece)) {
-      logLine('> No Capital: -1');
+      logLine('>|No Capital|-1|');
       modifiers -= 1;
     }
     if (_state.advancedGame) {
       switch (_state.byzantineReligion) {
       case Religion.christianCatholic:
-        logLine('> Byzantium Catholic: +2');
+        logLine('>|Byzantium Catholic|+2|');
         modifiers += 2;
       case Religion.christianMonophysite:
-        logLine('> Byzantium Monophysite: -2');
+        logLine('>|Byzantium Monophysite|-2|');
         modifiers -= 2;
       default:
       }
       if (_state.byzantineSchism) {
-        logLine('> Schism: -1');
+        logLine('>|Schism|-1|');
         modifiers -= 1;
       }
     }
     if (eventModifier > 0) {
-      logLine('> Event: +$eventModifier');
+      logLine('>|Event|+$eventModifier|');
     } else if (eventModifier < 0) {
-      logLine('> Event: $eventModifier');
+      logLine('>|Event|$eventModifier|');
     }
     modifiers += eventModifier;
     final total = die + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     int newSkill = _state.newRulerSkill(total);
     _state.newByzantineRuler(newSkill);
-    logLine('> Emperor ${_state.byzantineEmperorName} has Skill $newSkill.');
+    logLine('>Emperor ${_state.byzantineEmperorName} has Skill $newSkill.');
   }
 
   void rulerByzantiumN1() {
@@ -4285,24 +4295,29 @@ class Game {
     logLine('### New Shah succeeds in Persia');
     int die = rollD6();
     int modifiers = 0;
+
+    logTableHeader();
+    logD6InTable(die);
     int skill = _state.persianRulerSkill;
-    logLine('> Skill of previous Shah: $skill');
+    logLine('>|Predecessor Skill|$skill|');
     modifiers += skill;
     if (!_state.pieceInPlay(_state.persianCapitalPiece)) {
-      logLine('> No Capital: -1');
+      logLine('>|No Capital|-1|');
       modifiers -= 1;
     }
     if (eventModifier > 0) {
-      logLine('> Event: +$eventModifier');
+      logLine('>|Event|+$eventModifier|');
     } else if (eventModifier < 0) {
-      logLine('> Event: $eventModifier');
+      logLine('>|Event|$eventModifier|');
     }
     modifiers += eventModifier;
     final total = die + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     int newSkill = _state.newRulerSkill(total);
     _state.newPersianShah(newSkill);
-    logLine('> New Shah has Skill: $newSkill');
+    logLine('>New Shah has Skill: $newSkill');
   }
 
   void rulerPersiaN1() {
@@ -4319,14 +4334,14 @@ class Game {
 
   void saintDemetrius() {
     logLine('### St. Demetrius');
-    logLine('> Bishop of Thessalonica inspires victory over invading Slavs.');
+    logLine('>Bishop of Thessalonica inspires victory over invading Slavs.');
     var box = _state.bulgarsBox;
     if (box != Location.boxBulgarsN1) {
       if (box == Location.boxBulgarsZ) {
-        logLine('> Bulgar Hits: -1');
+        logLine('>Bulgar Hits: -1');
         box = Location.boxBulgarsN1;
       } else {
-        logLine('> Bulgar Hits: 0');
+        logLine('>Bulgar Hits: 0');
         box = Location.boxBulgarsZ;
       }
       _state.bulgarsBox = box;
@@ -4334,7 +4349,7 @@ class Game {
     }
     if (_state.byzantineRulerSkill < 7) {
       _state.byzantineRulerSkill = _state.byzantineRulerSkill + 1;
-      logLine('> Byzantine Emperor’s Skill increased to ${_state.byzantineRulerSkill}.');
+      logLine('>Byzantine Emperor’s Skill increased to ${_state.byzantineRulerSkill}.');
       return;
     }
     adjustWestAPTokens(1);
@@ -4342,13 +4357,13 @@ class Game {
 
   void sardinianRaids() {
     logLine('### Sardinian Raids');
-    logLine('> Focus of naval struggle shifts to the Western Mediterranean.');
+    logLine('>Focus of naval struggle shifts to the Western Mediterranean.');
     _state.flipPiece(Piece.cyprusGreek);
   }
 
   void sclaviniae() {
     logLine('### Sclaviniae');
-    logLine('> Slavic Volunteers.');
+    logLine('>Slavic Volunteers.');
     _state.setEventActive(Event.sclaviniae);
   }
 
@@ -4360,7 +4375,7 @@ class Game {
       return;
     }
     logLine('### Sharia Law');
-    logLine('> \tCaliph Umar Ⅰ codifies Islamic Law.');
+    logLine('>Caliph Umar Ⅰ codifies Islamic Law.');
     _state.setEventActive(Event.shariaLaw);
   }
 
@@ -4374,10 +4389,10 @@ class Game {
     }
     logLine('### Socotra');
     if (box == Location.boxSocotraZ) {
-      logLine('> Muslim Navy gains control of the Indian Ocean.');
+      logLine('>Muslim Navy gains control of the Indian Ocean.');
       box = Location.boxSocotraP1;
     } else {
-      logLine('> Muslim Navy challenges for control of the Indian Ocean.');
+      logLine('>Muslim Navy challenges for control of the Indian Ocean.');
       box = Location.boxSocotraZ;
     }
     _state.socotraBox = box;
@@ -4401,14 +4416,14 @@ class Game {
       return;
     }
     logLine('### Sülü Assassinated');
-    logLine('> ${Piece.armySogdian.desc} replaces ${Piece.armyTurgesh} on ${Path.parthian.desc}.');
+    logLine('>${Piece.armySogdian.desc} replaces ${Piece.armyTurgesh} on ${Path.parthian.desc}.');
     _state.setPieceLocation(Piece.armyTurgesh, Location.offmap);
     _state.setArmyStatus(Piece.armyTurgesh, ArmyStatus.strong);
     _state.setPieceLocation(Piece.armySogdian, location);
     _state.setArmyStatus(Piece.armySogdian, ArmyStatus.strong);
     final land = _state.pieceLocation(Piece.armyChinese);
     final advanceLand = _state.pathPrecedingLand(Path.parthian, land)!;
-    logLine('> ${Piece.armyChinese.desc} advances to ${advanceLand.desc}.');
+    logLine('>${Piece.armyChinese.desc} advances to ${advanceLand.desc}.');
     _state.setPieceLocation(Piece.armyChinese, advanceLand);
   }
 
@@ -4418,7 +4433,7 @@ class Game {
       return;
     }
     logLine('### Sülü, Türgesh Khan');
-    logLine('> ${Piece.armyTurgesh.desc} replaces ${Piece.armySogdian} on ${Path.parthian.desc}.');
+    logLine('>${Piece.armyTurgesh.desc} replaces ${Piece.armySogdian} on ${Path.parthian.desc}.');
     _state.setPieceLocation(Piece.armySogdian, Location.offmap);
     _state.setArmyStatus(Piece.armySogdian, ArmyStatus.strong);
     _state.setPieceLocation(Piece.armyTurgesh, location);
@@ -4430,7 +4445,7 @@ class Game {
       return;
     }
     logLine('### Tibet Badass');
-    logLine('> Tibet’s rulers indulge their lust for empire.');
+    logLine('>Tibet’s rulers indulge their lust for empire.');
     _state.tibetBadass = true;
   }
 
@@ -4439,7 +4454,7 @@ class Game {
       return;
     }
     logLine('### Tibet Buddhist');
-    logLine('> Tibet’s rulers turn to meditation and incense.');
+    logLine('>Tibet’s rulers turn to meditation and incense.');
     _state.tibetBadass = false;
   }
 
@@ -4450,11 +4465,11 @@ class Game {
     }
     if (box == Location.boxTibetZ) {
       logLine('### Tibet');
-      logLine('> Tibetan Hits: +1');
+      logLine('>Tibetan Hits: +1');
       box = Location.boxTibetP1;
     } else {
       logLine('### Tibet');
-      logLine('> Tibetan Hits: 0');
+      logLine('>Tibetan Hits: 0');
       box = Location.boxTibetZ;
     }
     _state.tibetBox = box;
@@ -4465,7 +4480,7 @@ class Game {
       return;
     }
     logLine('### Greek Truce');
-    logLine('> The Caliphate opens negotiations with Byzantium.');
+    logLine('>The Caliphate opens negotiations with Byzantium.');
     _state.setEventActive(Event.truceGreek);
   }
 
@@ -4474,7 +4489,7 @@ class Game {
       return;
     }
     logLine('### Persian Truce');
-    logLine('> The Caliphate opens negotiations with Persia.');
+    logLine('>The Caliphate opens negotiations with Persia.');
     _state.setEventActive(Event.trucePersian);
   }
 
@@ -4669,10 +4684,15 @@ class Game {
     logLine('### Dar al‐Islam');
     final rolls = roll2D6();
     int modifiers = 0;
-    logLine('> Syrian Strength: +${_state.syrianStrength}');
+
+    logTableHeader();
+    log2D6InTable(rolls);
+    logLine('>|Syrian Strength|+${_state.syrianStrength}|');
     modifiers += _state.syrianStrength;
     int total = rolls.$3 + modifiers;
-    logLine('> Total: $total');
+    logLine('>|Total|$total|');
+    logTableFooter();
+
     phaseState.total = total;
   }
 
@@ -4683,7 +4703,7 @@ class Game {
     }
     logLine('### ${refugees.desc} Move');
     final newLocation = Location.values[refugeesLocation.index + 1];
-    logLine('> ${refugees.desc} move to ${newLocation.desc}.');
+    logLine('>${refugees.desc} move to ${newLocation.desc}.');
     _state.setPieceLocation(refugees, newLocation);
   }
 
@@ -4692,7 +4712,7 @@ class Game {
     if (iconsLocation.isType(LocationType.land)) {
       if (_state.landControl(iconsLocation) == Control.arab) {
         logLine('### Icons');
-        logLine('> Icons are captured.');
+        logLine('>Icons are captured.');
         _state.setPieceLocation(Piece.blessingIcons, Location.offmap);
       }
     }
@@ -4717,12 +4737,12 @@ class Game {
     } else {
       logLine('### Kharijites');
       if (_state.pathIslamDisrupted(path)) {
-        logLine('> Kharijite uprising occurs on the ${path.desc} Path.');
+        logLine('>Kharijite uprising occurs on the ${path.desc} Path.');
         _state.setPieceLocation(Piece.arabStop, _state.pathBox(path));
       } else {
         final islamPiece = _state.pathIslamUndisruptedPiece(path);
         final islamLocation = _state.pieceLocation(islamPiece);
-        logLine('> Kharijite uprising weakens Islam in ${islamLocation.desc}.');
+        logLine('>Kharijite uprising weakens Islam in ${islamLocation.desc}.');
         _state.flipPiece(islamPiece);
       }
     }
@@ -4756,7 +4776,7 @@ class Game {
     logLine('### Mardaite Raid');
     final islamUndisrupted = _state.pathIslamUndisruptedPiece(Path.greek);
     final islamLocation = _state.pieceLocation(islamUndisrupted);
-    logLine('> Mardaite Raid weakens Islam in $islamLocation.desc');
+    logLine('>Mardaite Raid weakens Islam in $islamLocation.desc');
     _state.flipPiece(islamUndisrupted);
   }
 
@@ -4783,15 +4803,15 @@ class Game {
         final parthianPathEndsOfTheEarth = _state.landIsEndsOfTheEarth(parthianPathLocation);
         if (!indianPathEndsOfTheEarth && !parthianPathEndsOfTheEarth) {
           if (zabulistan != Piece.zabulistanDefiant) {
-            logLine('> Zabulistan defies the Arab advance.');
+            logLine('>Zabulistan defies the Arab advance.');
             _state.flipPiece(zabulistan);
           }
         } else if (indianPathEndsOfTheEarth && parthianPathEndsOfTheEarth) {
-          logLine('> Zabulistan has been conquered by the Arabs.');
+          logLine('>Zabulistan has been conquered by the Arabs.');
           _state.setPieceLocation(Piece.zabulistanDefiant, Location.offmap);
         } else {
           if (zabulistan != Piece.zabulistanSubdued) {
-            logLine('> Zabulistan is subdued by the Arabs.');
+            logLine('>Zabulistan is subdued by the Arabs.');
             _state.flipPiece(zabulistan);
           }
         }
@@ -4864,12 +4884,12 @@ class Game {
     if (_subStep == 0) {
       final theater = _state.pathTheater(path);
       if (_state.theaterTruce(theater)) {
-        logLine('> ${path.desc}: Truce');
+        logLine('>${path.desc}: Truce');
         return;
       }
       final baqt = _state.pathBaqt(path);
       if (baqt != null && baqt.isType(PieceType.baqtFull)) {
-        logLine('> ${path.desc}: Baqt');
+        logLine('>${path.desc}: Baqt');
         return;
       }
       int encodedHits = _state.cardPathEncodedHits(_state.currentCard, path);
@@ -4892,7 +4912,7 @@ class Game {
         hits = encodedHits;
       }
       if (fitna) {
-        logLine('> ${path.desc}: Fitna');
+        logLine('>${path.desc}: Fitna');
         final islam = _state.pathIslamPiece(path);
         final location = _state.pieceLocation(islam);
         if (location.isType(LocationType.pathLand)) {
@@ -4907,9 +4927,10 @@ class Game {
       final invadingLand = invasionInfo.$3;
       var invadingLandIslamic = invasionInfo.$4;
 
-      logLine('> ${path.desc}: Arabs Invade ${invadedLand.desc} from ${invadingLand.desc}.');
+      logLine('>${path.desc}: Arabs Invade ${invadedLand.desc} from ${invadingLand.desc}.');
 
-      logLine(' > Rose: $hits');
+      logTableHeader();
+      logLine('>|Rose|$hits|');
 
       var crossing = _state.landCrossing(invadedLand);
       if (crossing != Crossing.ordinary && invadingLandIslamic) {
@@ -4920,81 +4941,83 @@ class Game {
       bool mujahideenUsed = false;
 
       if (path == Path.greek && _state.bulgarsHits == 1) {
-        logLine('> Bulgar Khanate: +1');
+        logLine('>|Bulgar Khanate|+1|');
         hits += 1;
       }
       if (path == _state.cyprusPath && _state.cyprusHits == 1) {
-        logLine('> Cyprus: +1');
+        logLine('>|Cyprus|+1|');
         hits += 1;
       }
       if (_state.advancedGame && _state.socotraPath == path && _state.socotraHits == 1) {
-        logLine('> Socotra: +1');
+        logLine('>|Socotra|+1|');
         hits += 1;
       }
       if (path == Path.parthian && _state.tibetHits == 1) {
-        logLine('> Tibetan Empire: +1');
+        logLine('>|Tibetan Empire|+1|');
         hits += 1;
       }
       if (invadingLandIslamic) {
-        logLine('> Invading Land Muslim: +1');
+        logLine('>|Invading Land Muslim|+1|');
         hits += 1;
       }
       if (_state.meccaStrong && _state.landIslamicCapital(invadingLand)) {
-        logLine('> Mecca Strong: +1');
+        logLine('>|Mecca Strong|+1|');
         hits += 1;
       }
       if (_state.advancedGame && _state.pieceLocation(Piece.jewsP1) == invadedLand) {
-        logLine('> Jews: +1');
+        logLine('>|Jews|+1|');
         hits += 1;
       }
       if (_state.advancedGame && _state.syrianPath == path) {
         int strength = _state.syrianStrength;
-        logLine('> Mujahideen: +$strength');
+        logLine('>|Mujahideen|+$strength|');
         hits += strength;
         mujahideenUsed = true;
       }
 
       if (path == Path.greek && _state.bulgarsHits == -1) {
-        logLine('> Bulgar Khanate: -1');
+        logLine('>|Bulgar Khanate|-1|');
         hits -= 1;
       }
       if (path == _state.cyprusPath && _state.cyprusHits == -1) {
-        logLine('> Cyprus: -1');
+        logLine('>|Cyprus|-1|');
         hits -= 1;
       }
       if (_state.advancedGame && _state.socotraPath == path && _state.socotraHits == -1) {
-        logLine('> Socotra: -1');
+        logLine('>|Socotra|-1|');
         hits -= 1;
       }
       if (path == Path.parthian && _state.tibetHits == -1) {
-        logLine('> Tibetan Empire: -1');
+        logLine('>|Tibetan Empire|-1|');
         hits -= 1;
       }
       switch (crossing) {
       case Crossing.mountain:
-        logLine('> Crossing Mountains: -1');
+        logLine('>|Crossing Mountains|-1|');
         hits -= 1;
       case Crossing.river:
-        logLine('> Crossing River: -2');
+        logLine('>|Crossing River|-2|');
         hits -= 2;
       case Crossing.straits:
-        logLine('> Crossing Straits: -2');
+        logLine('>|Crossing Straits|-2|');
         hits -= 2;
       case Crossing.ordinary:
       }
       if (_state.advancedGame && _state.pieceLocation(Piece.jewsN1) == invadedLand) {
-        logLine('> Jews: -1');
+        logLine('>|Jews|-1|');
         hits -= 1;
       }
       if (_state.pieceLocation(Piece.blessingThemes) == invadedLand) {
-        logLine('> Themes: -1');
+        logLine('>|Themes|-1|');
         hits -= 1;
       }
+      logLine('>|Total|$hits|');
+      logTableFooter();
 
       if (hits < 0) {
         hits = 0;
       }
-      logLine('> Arabs inflict $hits Hits.');
+      logLine('>Arabs inflict $hits Hits.');
 
       if (mujahideenUsed) {
         adjustSyrianStrength(-1);
@@ -5053,38 +5076,38 @@ class Game {
       if (checkChoiceAndClear(Choice.lossDamageArmy)) {
         final oldStatus = _state.armyStatus(army);
         final newStatus = ArmyStatus.values[oldStatus.index + 1];
-        logLine('> ${army.desc} becomes ${newStatus.desc}.');
+        logLine('>${army.desc} becomes ${newStatus.desc}.');
         _state.setArmyStatus(army, newStatus);
         phaseState.hitsRemaining -= 1;
       } else if (checkChoiceAndClear(Choice.lossDamageCastle)) {
         final land = _state.pieceLocation(army);
         final castle = _state.pieceInLocation(PieceType.castle, land)!;
-        logLine('> ${castle.desc} becomes Weak.');
+        logLine('>${castle.desc} becomes Weak.');
         _state.flipPiece(castle);
         phaseState.hitsRemaining -= _state.castleStrength(castle);
       } else if (checkChoiceAndClear(Choice.lossDamageCapital)) {
         final land = _state.pieceLocation(army);
         final capital = _state.pieceInLocation(PieceType.capital, land)!;
-        logLine('> ${capital.desc} becomes Weak.');
+        logLine('>${capital.desc} becomes Weak.');
         _state.flipPiece(capital);
         phaseState.hitsRemaining -= 1;
       } else if (checkChoiceAndClear(Choice.lossDestroyCapital)) {
         final land = _state.pieceLocation(army);
         final capital = _state.pieceInLocation(PieceType.capital, land)!;
-        logLine('> ${capital.desc} is Destroyed.');
+        logLine('>${capital.desc} is Destroyed.');
         _state.capitalDestroy(capital);
         phaseState.hitsRemaining -= 1;
       } else if (checkChoiceAndClear(Choice.lossRetreat)) {
         final land = _state.pieceLocation(army);
         final castle = _state.pieceInLocation(PieceType.castle, land);
         final nextLand = _state.pathSucceedingLand(path, land)!;
-        logLine('> ${army.desc} Retreats to ${nextLand.desc}.');
+        logLine('>${army.desc} Retreats to ${nextLand.desc}.');
         _state.setPieceLocation(army, nextLand);
         if (castle != null) {
-          logLine('> ${castle.desc} is Destroyed.');
+          logLine('>${castle.desc} is Destroyed.');
           _state.castleDestroy(castle);
           if (!_state.armyCursed(army)) {
-            logLine('> ${army.desc} becomes Cursed.');
+            logLine('>${army.desc} becomes Cursed.');
             _state.setArmyCursed(army, true);
           }
           phaseState.hitsRemaining -= 3;
@@ -5094,11 +5117,11 @@ class Game {
       } else if (checkChoiceAndClear(Choice.lossSiege)) {
         final land = _state.pieceLocation(army);
         final castle = _state.pieceInLocation(PieceType.castle, land)!;
-        logLine('> ${army.desc} Retreats inside ${castle.desc}.');
+        logLine('>${army.desc} Retreats inside ${castle.desc}.');
         _state.setCastleBesieged(castle, true);
         phaseState.hitsRemaining -= _state.castleStrength(castle);
       } else if (checkChoiceAndClear(Choice.lossCursed)) {
-        logLine('> ${army.desc} becomes Cursed.');
+        logLine('>${army.desc} becomes Cursed.');
         _state.setArmyCursed(army, true);
         phaseState.hitsRemaining = 0;
       }

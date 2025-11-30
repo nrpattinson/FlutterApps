@@ -679,8 +679,8 @@ class GamePageState extends State<GamePage> {
 
       if (!_emptyMap) {
         layoutBoxes(appState, 0);
-        layoutBoxes(appState, 1);
         layoutLands(appState, 0);
+        layoutBoxes(appState, 1);
         layoutLands(appState, 1);
       }
 
