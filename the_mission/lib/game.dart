@@ -3355,18 +3355,18 @@ class Game {
   void adjustSolidi(int delta) {
     _state.adjustSolidi(delta);
     if (delta > 0) {
-      logLine('>Solidi: +$delta => ${_state.solidi}');
+      logLine('>Solidi: +$delta → ${_state.solidi}');
     } else if (delta < 0) {
-      logLine('>Solidi: $delta => ${_state.solidi}');
+      logLine('>Solidi: $delta → ${_state.solidi}');
     }
   }
 
   void adjustDarkAges(int delta) {
     _state.adjustDarkAges(delta);
     if (delta > 0) {
-      logLine('>Dark Ages: +$delta => ${_state.darkAges}');
+      logLine('>Dark Ages: +$delta → ${_state.darkAges}');
     } else if (delta < 0) {
-      logLine('>Dark Ages: $delta => ${_state.darkAges}');
+      logLine('>Dark Ages: $delta → ${_state.darkAges}');
     }
   }
 

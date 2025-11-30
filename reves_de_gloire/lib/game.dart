@@ -1081,18 +1081,18 @@ class Game {
   void adjustSolidus(int delta) {
     _state.adjustSolidus(delta);
     if (delta > 0) {
-      logLine('> \$olidus: +$delta => ${_state.solidus}');
+      logLine('> \$olidus: +$delta → ${_state.solidus}');
     } else if (delta < 0) {
-      logLine('> \$olidus: $delta => ${_state.solidus}');
+      logLine('> \$olidus: $delta → ${_state.solidus}');
     }
   }
 
   void adjustNike(int delta) {
     _state.adjustNike(delta);
     if (delta > 0) {
-      logLine('> Nike: +$delta => ${_state.nike}');
+      logLine('> Nike: +$delta → ${_state.nike}');
     } else if (delta < 0) {
-      logLine('> Nike: $delta => ${_state.nike}');
+      logLine('> Nike: $delta → ${_state.nike}');
     }
   }
 
@@ -1115,20 +1115,20 @@ class Game {
       return;
     }
     if (delta > 0) {
-      logLine('> Schism: +$delta => ${_state.schism}');
+      logLine('> Schism: +$delta → ${_state.schism}');
       if (_state.schism > 12) {
         logLine('# Defeat: Schism exceeds 12');
         throw GameOverException(GameResult.defeatSchism, 0);
       }
     } else if (delta < 0) {
-      logLine('> Schism: $delta => ${_state.schism}');
+      logLine('> Schism: $delta → ${_state.schism}');
     }
   }
 
   void adjustReforms(int delta) {
     _state.adjustReforms(delta);
     if (delta > 0) {
-      logLine('> Reforms: +$delta => ${_state.reforms}');
+      logLine('> Reforms: +$delta → ${_state.reforms}');
       if (_state.reformed) {
         logLine('> Reforms achieved.');
       }

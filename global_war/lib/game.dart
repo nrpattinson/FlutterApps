@@ -3167,45 +3167,45 @@ class Game {
   void adjustDollars(int delta) {
     _state.adjustDollars(delta);
     if (delta > 0) {
-      logLine('> Dollars: +$delta => ${_state.dollars}');
+      logLine('> Dollars: +$delta → ${_state.dollars}');
     } else {
-      logLine('> Dollars: $delta => ${_state.dollars}');
+      logLine('> Dollars: $delta → ${_state.dollars}');
     }
   }
 
   void adjustAidToChina(int delta) {
     _state.adjustAidToChina(delta);
     if (delta > 0) {
-      logLine('> Cannon Meat: +$delta => ${_state.aidToChina}');
+      logLine('> Cannon Meat: +$delta → ${_state.aidToChina}');
     } else {
-      logLine('> Cannon Meat: $delta => ${_state.aidToChina}');
+      logLine('> Cannon Meat: $delta → ${_state.aidToChina}');
     }
   }
 
   void adjustCannonMeat(int delta) {
     _state.adjustCannonMeat(delta);
     if (delta > 0) {
-      logLine('> Cannon Meat: +$delta => ${_state.cannonMeat}');
+      logLine('> Cannon Meat: +$delta → ${_state.cannonMeat}');
     } else {
-      logLine('> Cannon Meat: $delta => ${_state.cannonMeat}');
+      logLine('> Cannon Meat: $delta → ${_state.cannonMeat}');
     }
   }
 
   void adjustNavalActions(int delta) {
     _state.adjustNavalActions(delta);
     if (delta > 0) {
-      logLine('> Naval Actions: +$delta => ${_state.navalActions}');
+      logLine('> Naval Actions: +$delta → ${_state.navalActions}');
     } else {
-      logLine('> Naval Actions: $delta => ${_state.navalActions}');
+      logLine('> Naval Actions: $delta → ${_state.navalActions}');
     }
   }
 
   void adjustManhattanProject(int delta) {
     _state.adjustManhattanProject(delta);
     if (delta > 0) {
-      logLine('> Manhattan Project: +$delta => ${_state.manhattanProject}');
+      logLine('> Manhattan Project: +$delta → ${_state.manhattanProject}');
     } else {
-      logLine('> Manhattan Project: $delta => ${_state.manhattanProject}');
+      logLine('> Manhattan Project: $delta → ${_state.manhattanProject}');
     }
   }
 

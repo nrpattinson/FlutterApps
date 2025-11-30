@@ -1698,18 +1698,18 @@ class Game {
   void adjustTalents(int amount) {
     _state.adjustTalents(amount);
     if (amount > 0) {
-      logLine('> Talents: +$amount => ${_state.talents}');
+      logLine('> Talents: +$amount → ${_state.talents}');
     } else {
-      logLine('> Talents: $amount => ${_state.talents}');
+      logLine('> Talents: $amount → ${_state.talents}');
     }
   }
 
   void adjustVictoryPoints(int amount) {
     _state.adjustVictoryPoints(amount);
     if (amount > 0) {
-      logLine('> Victory Points: +$amount => ${_state.victoryPoints}');
+      logLine('> Victory Points: +$amount → ${_state.victoryPoints}');
     } else {
-      logLine('> Victory Points: $amount => ${_state.victoryPoints}');
+      logLine('> Victory Points: $amount → ${_state.victoryPoints}');
     }
   }
 

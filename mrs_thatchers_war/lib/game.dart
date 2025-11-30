@@ -1259,9 +1259,9 @@ class Game {
   void adjustExocetCount(int delta) {
     _state.adjustExocetCount(delta);
     if (delta > 0) {
-      logLine('> Exocets: +$delta => ${_state.exocetCount}');
+      logLine('> Exocets: +$delta → ${_state.exocetCount}');
     } else if (delta < 0) {
-      logLine('> Exocets: $delta => ${_state.exocetCount}');
+      logLine('> Exocets: $delta → ${_state.exocetCount}');
     }
   }
 

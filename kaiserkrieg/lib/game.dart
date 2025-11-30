@@ -1596,9 +1596,9 @@ class Game {
   void adjustReichsmarks(int amount) {
     int newAmount = (reichsmarks + amount).clamp(0, 12);
     if (amount > 0) {
-      logLine('>RM: $reichsmarks + $amount => $newAmount');
+      logLine('>RM: $reichsmarks + $amount → $newAmount');
     } else {
-      logLine('>RM: $reichsmarks - ${-amount} => $newAmount');
+      logLine('>RM: $reichsmarks - ${-amount} → $newAmount');
     }
     setPieceLocation(Piece.reichsmark, omnibusBox(newAmount));
   }
@@ -1606,7 +1606,7 @@ class Game {
   void spendReichsmarks(int amount) {
     int newAmount = (reichsmarks - amount).clamp(0, 12);
     logLine('>$amount Reichsmarks spent.');
-    logLine('>RM: $reichsmarks - $amount => $newAmount');
+    logLine('>RM: $reichsmarks - $amount → $newAmount');
     setPieceLocation(Piece.reichsmark, omnibusBox(newAmount));
   }
 
@@ -1621,7 +1621,7 @@ class Game {
   void spendKrupp(int amount) {
     int newAmount = krupp - amount;
     logLine('>$amount Krupp expended.');
-    logLine('>Krupp: $krupp - $amount => $newAmount');
+    logLine('>Krupp: $krupp - $amount → $newAmount');
     setPieceLocation(Piece.krupp, newAmount == 0 ? Location.discarded : omnibusBox(newAmount));
   }
 
@@ -1636,7 +1636,7 @@ class Game {
   void spendKaisertreu(int amount) {
     int newAmount = kaisertreu - amount;
     logLine('>$amount Kaisertreu expended.');
-    logLine('>Kaisertreu: $kaisertreu - $amount => $newAmount');
+    logLine('>Kaisertreu: $kaisertreu - $amount → $newAmount');
     setPieceLocation(Piece.kaisertreu, newAmount == 0 ? Location.discarded : omnibusBox(kaisertreu - amount));
   }
 
@@ -1648,9 +1648,9 @@ class Game {
     int newAmount = min(lira + amount, 12);
     if (newAmount != lira) {
       if (amount > 0) {
-        logLine('>Lira: $lira +$amount => $newAmount');
+        logLine('>Lira: $lira +$amount → $newAmount');
       } else {
-        logLine('>Lira: $lira - ${-amount} => $newAmount');
+        logLine('>Lira: $lira - ${-amount} → $newAmount');
       }
       setPieceLocation(Piece.lira, omnibusBox(newAmount));
     }
@@ -1659,7 +1659,7 @@ class Game {
   void spendLira(int amount) {
     int newAmount = lira - amount;
     logLine('>$amount Lira spent.');
-    logLine('>Lira: $lira - $amount => $newAmount');
+    logLine('>Lira: $lira - $amount → $newAmount');
     setPieceLocation(Piece.lira, omnibusBox(newAmount));
   }
 

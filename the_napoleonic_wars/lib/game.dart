@@ -2366,45 +2366,45 @@ class Game {
   void adjustTreasuryFund(int amount) {
     _state.adjustTreasuryFund(amount);
     if (amount > 0) {
-      logLine('> Treasury: +$amount => ${_state.treasuryFund}');
+      logLine('> Treasury: +$amount → ${_state.treasuryFund}');
     } else {
-      logLine('> Treasury: $amount => ${_state.treasuryFund}');
+      logLine('> Treasury: $amount → ${_state.treasuryFund}');
     }
   }
 
   void adjustMinorWarFund(int amount) {
     _state.adjustMinorWarFund(amount);
     if (amount > 0) {
-      logLine('> Minor War Fund: +$amount => ${_state.minorWarFund}');
+      logLine('> Minor War Fund: +$amount → ${_state.minorWarFund}');
     } else {
-      logLine('> Minor War Fund: $amount => ${_state.minorWarFund}');
+      logLine('> Minor War Fund: $amount → ${_state.minorWarFund}');
     }
   }
 
   void adjustAdmiraltyFund(int amount) {
     _state.adjustTreasuryFund(amount);
     if (amount > 0) {
-      logLine('> Admiralty Budget: +$amount => ${_state.admiraltyFund}');
+      logLine('> Admiralty Budget: +$amount → ${_state.admiraltyFund}');
     } else {
-      logLine('> Admiralty Budget: $amount => ${_state.admiraltyFund}');
+      logLine('> Admiralty Budget: $amount → ${_state.admiraltyFund}');
     }
   }
 
   void adjustNapoleonAbdicates(int amount) {
     _state.adjustNapoleonAbdicates(amount);
     if (amount > 0) {
-      logLine('> Napoleon Abdicates: +$amount => ${_state.napoleonAbdicates}');
+      logLine('> Napoleon Abdicates: +$amount → ${_state.napoleonAbdicates}');
     } else {
-      logLine('> Napoleon Abdicates: $amount => ${_state.napoleonAbdicates}');
+      logLine('> Napoleon Abdicates: $amount → ${_state.napoleonAbdicates}');
     }
   }
 
   void adjustNationFervor(Location nation, int amount) {
     _state.adjustNationFervor(nation, amount);
     if (amount > 0) {
-      logLine('> ${nation.desc} Fervor: +$amount => ${_state.nationFervor(nation)}');
+      logLine('> ${nation.desc} Fervor: +$amount → ${_state.nationFervor(nation)}');
     } else {
-      logLine('> ${nation.desc} Fervor: $amount => ${_state.nationFervor(nation)}');
+      logLine('> ${nation.desc} Fervor: $amount → ${_state.nationFervor(nation)}');
     }
   }
 

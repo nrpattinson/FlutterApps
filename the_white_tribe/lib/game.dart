@@ -1383,9 +1383,9 @@ class Game {
   void adjustTerror(int delta) {
     bool overflow = _state.adjustTerror(delta);
     if (delta > 0) {
-      logLine('>Terror Level: +$delta => ${_state.terror}');
+      logLine('>Terror Level: +$delta → ${_state.terror}');
     } else {
-      logLine('>Terror Level: $delta => ${_state.terror}');
+      logLine('>Terror Level: $delta → ${_state.terror}');
     }
     if (overflow) {
       deployTerrorists(1);
@@ -1395,9 +1395,9 @@ class Game {
   void adjustRFPopularity(int delta) {
     _state.adjustRFPopularity(delta);
     if (delta > 0) {
-      logLine('>RF Popularity: +$delta => ${_state.rfPopularity}');
+      logLine('>RF Popularity: +$delta → ${_state.rfPopularity}');
     } else {
-      logLine('>RF Popularity: $delta => ${_state.rfPopularity}');
+      logLine('>RF Popularity: $delta → ${_state.rfPopularity}');
     }
   }
 

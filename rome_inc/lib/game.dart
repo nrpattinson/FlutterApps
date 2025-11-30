@@ -5167,28 +5167,38 @@ class Game {
     _log += '$line  \n';
   }
 
-  String dieFaceCharacter(int die) {
-    switch (die) {
-    case 1:
-      return '\u2680';
-    case 2:
-      return '\u2681';
-    case 3:
-      return '\u2682';
-    case 4:
-      return '\u2683';
-    case 5:
-      return '\u2684';
-    case 6:
-      return '\u2685';
-    }
-    return '';
+  void logTableHeader() {
+    logLine('>|Effect|Value|');
+    logLine('>|:---|:---:|');
+  }
+
+  void logTableFooter() {
+    logLine('>');
+  }
+
+  // Randomness
+
+  String redDieFace(int die) {
+    return '![](resource:assets/images/d6_red_$die.png)';
+  }
+
+  String whiteDieFace(int die) {
+    return '![](resource:assets/images/d6_white_$die.png)';
   }
 
   int rollD6() {
     int die = _random.nextInt(6) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
+  }
+
+  void logD6(int die) {
+    logLine('>');
+    logLine('>${whiteDieFace(die)}');
+    logLine('>');
+  }
+
+  void logD6InTable(int die) {
+    logLine('>|${whiteDieFace(die)}|$die|');
   }
 
   (int,int,int,int) roll2D6() {
@@ -5205,13 +5215,19 @@ class Game {
     } else if (omensCount == 2) {
       omensModifier = -1;
     }
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    if (omensModifier == 1) {
-      logLine('> Omens Event: +1');
-    } else if (omensModifier == -1) {
-      logLine('> Omens Event (doubled): -1');
-    }
     return (d0, d1, omensModifier, d0 + d1 + omensModifier);
+  }
+
+  void log2D6InTable((int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int omensModifier = rolls.$3;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)}|${d0 + d1}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
   }
 
   (int,int,int,int,int) roll3D6() {
@@ -5231,20 +5247,51 @@ class Game {
     } else if (omensCount == 2) {
       omensModifier = -1;
     }
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}${dieFaceCharacter(d2)}**');
-    if (omensModifier == 1) {
-      logLine('> Omens Event: +1');
-    } else if (omensModifier == -1) {
-      logLine('> Omens Event (doubled): -1');
-    }
     return (d0, d1, d2, omensModifier, d0 + d1 + d2 + omensModifier);
   }
 
-  (int,int) rollD6D3() {
+  void log3D6WithRed((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    logLine('>');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}');
+    logLine('>');
+  }
+
+  void log3D6InTable((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    int omensModifier = rolls.$4;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${whiteDieFace(d2)}|${d0 + d1 + d2}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
+  }
+ 
+  void log3D6WithRedInTable((int,int,int,int,int) rolls) {
+    int d0 = rolls.$1;
+    int d1 = rolls.$2;
+    int d2 = rolls.$3;
+    int omensModifier = rolls.$4;
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}|${d0 + d1 + d2}|');
+    if (omensModifier == 1) {
+      logLine('>|Bad Omens|+1|');
+    } else if (omensModifier == -1) {
+      logLine('>|Good Omens|-1|');
+    }
+  }
+ 
+  (int,int) rollAndLogD6D3() {
     int value = _random.nextInt(18);
     int d0 = value ~/ 3 + 1;
     int d1 = value % 3 + 1;
-    logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
+    logLine('>');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)}');
+    logLine('>');
     return (d0, d1);
   }
 
@@ -5252,24 +5299,16 @@ class Game {
     int value = _random.nextInt(12);
     int d0 = value ~/ 2 + 1;
     int d1 = value % 2 + 1;
-    if (d2Required) {
-      logLine('> Roll: **${dieFaceCharacter(d0)}${dieFaceCharacter(d1)}**');
-    } else {
-      logLine('> Roll: **${dieFaceCharacter(d0)}**');
-    }
     return (d0, d1);
   }
 
   int rollD3() {
     int die = _random.nextInt(3) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
     return die;
   }
 
-  int rollD2() {
-    int die = _random.nextInt(2) + 1;
-    logLine('> Roll: **${dieFaceCharacter(die)}**');
-    return die;
+  void logD3InTable(int die) {
+    logLine('>|${whiteDieFace(die)}|$die|');
   }
 
   int randInt(int max) {
@@ -5300,7 +5339,7 @@ class Game {
 
   void setProvinceStatus(Location province, ProvinceStatus status) {
     _state.setProvinceStatus(province, status);
-    logLine('> ${province.desc} to ${GameState.provinceStatusName(status)}.');
+    logLine('>${province.desc} to ${GameState.provinceStatusName(status)}.');
   }
 
   void provinceIncreaseStatus(Location province) {
@@ -5342,35 +5381,35 @@ class Game {
   void adjustGold(int amount) {
     _state.adjustGold(amount);
     if (amount > 0) {
-      logLine('> Gold: +$amount => ${_state.gold}');
+      logLine('> Gold: +$amount → ${_state.gold}');
     } else {
-      logLine('> Gold: $amount => ${_state.gold}');
+      logLine('> Gold: $amount → ${_state.gold}');
     }
   }
 
   void adjustPrestige(int amount) {
     _state.adjustPrestige(amount);
     if (amount > 0) {
-      logLine('> Prestige: +$amount => ${_state.prestige}');
+      logLine('> Prestige: +$amount → ${_state.prestige}');
     } else {
-      logLine('> Prestige: $amount => ${_state.prestige}');
+      logLine('> Prestige: $amount → ${_state.prestige}');
     }
   }
 
   void adjustUnrest(int amount) {
     _state.adjustUnrest(amount);
     if (amount > 0) {
-      logLine('> Unrest: +$amount => ${_state.unrest}');
+      logLine('> Unrest: +$amount → ${_state.unrest}');
     } else {
-      logLine('> Unrest: $amount => ${_state.unrest}');
+      logLine('> Unrest: $amount → ${_state.unrest}');
     }
   }
 
   void adjustPay(amount) {
     if (amount > 0) {
-      logLine('> Pay: +$amount => ${_state.pay}');
+      logLine('> Pay: +$amount → ${_state.pay}');
     } else {
-      logLine('> Pay: $amount => ${_state.pay}');
+      logLine('> Pay: $amount → ${_state.pay}');
     }
   }
 

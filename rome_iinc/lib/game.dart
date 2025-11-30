@@ -6424,27 +6424,27 @@ class Game {
   void adjustEmpireGold(Location empire, int amount) {
     _state.adjustEmpireGold(empire, amount);
     if (amount > 0) {
-      logLine('>${_state.empireDesc(empire)} Gold: +$amount => ${_state.empireGold(empire)}');
+      logLine('>${_state.empireDesc(empire)} Gold: +$amount → ${_state.empireGold(empire)}');
     } else {
-      logLine('>${_state.empireDesc(empire)} Gold: $amount => ${_state.empireGold(empire)}');
+      logLine('>${_state.empireDesc(empire)} Gold: $amount → ${_state.empireGold(empire)}');
     }
   }
 
   void adjustEmpirePrestige(Location empire, int amount) {
     _state.adjustEmpirePrestige(empire, amount);
     if (amount > 0) {
-      logLine('>${_state.empireDesc(empire)} Prestige: +$amount => ${_state.empirePrestige(empire)}');
+      logLine('>${_state.empireDesc(empire)} Prestige: +$amount → ${_state.empirePrestige(empire)}');
     } else {
-      logLine('>${_state.empireDesc(empire)} Prestige: $amount => ${_state.empirePrestige(empire)}');
+      logLine('>${_state.empireDesc(empire)} Prestige: $amount → ${_state.empirePrestige(empire)}');
     }
   }
 
   void adjustEmpireUnrest(Location empire, int amount) {
     _state.adjustEmpireUnrest(empire, amount);
     if (amount > 0) {
-      logLine('>${_state.empireDesc(empire)} Unrest: +$amount => ${_state.empireUnrest(empire)}');
+      logLine('>${_state.empireDesc(empire)} Unrest: +$amount → ${_state.empireUnrest(empire)}');
     } else {
-      logLine('>${_state.empireDesc(empire)} Unrest: $amount => ${_state.empireUnrest(empire)}');
+      logLine('>${_state.empireDesc(empire)} Unrest: $amount → ${_state.empireUnrest(empire)}');
     }
   }
 
