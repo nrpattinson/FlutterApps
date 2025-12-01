@@ -836,7 +836,7 @@ extension PieceExtension on Piece {
       Piece.caliph: 'Caliph',
       Piece.fitna: 'Fitna',
       Piece.basileusJustinian: 'Justinian',
-      Piece.basileusTheodosius: 'Theodosius',
+      Piece.basileusTheodosius: 'Theodosius Ⅱ',
       Piece.basileusJohn: 'John',
       Piece.basileusBasil: 'Basil',
       Piece.basileusAlexios: 'Alexios',
@@ -861,34 +861,34 @@ extension PieceExtension on Piece {
       Piece.basileusAlternateTheodora: 'Theodora',
       Piece.basileusAlternateRomanos: 'Romanos',
       Piece.basileusAlternateMichael: 'Michael',
-      Piece.dynastyPurpleTheodosian: 'Theodosian Dynasty',
-      Piece.dynastyPurpleLeonid: 'Leonid Dynasty',
-      Piece.dynastyPurpleJustinian: 'Justinian Dynasty',
-      Piece.dynastyPurpleHeraclian: 'Heraclian Dynasty',
-      Piece.dynastyPurpleIsaurian: 'Isaurian Dynasty',
+      Piece.dynastyPurpleTheodosian: 'Theodosian',
+      Piece.dynastyPurpleLeonid: 'Leonid',
+      Piece.dynastyPurpleJustinian: 'Justinian',
+      Piece.dynastyPurpleHeraclian: 'Heraclian',
+      Piece.dynastyPurpleIsaurian: 'Isaurian',
       Piece.dynastyPurpleAnarchy0: 'Anarchy',
-      Piece.dynastyPurpleAngelid: 'Angelid Dynasty',
-      Piece.dynastyPurpleAmorian: 'Amorian Dynasty',
-      Piece.dynastyPurpleMacedonian: 'Macedonian Dynasty',
-      Piece.dynastyPurpleKomnenid: 'Komnenid Dynasty',
-      Piece.dynastyPurpleLaskarid: 'Laskarid Dynasty',
-      Piece.dynastyPurplePalaiologian: 'Palaiologian Dynasty',
+      Piece.dynastyPurpleAngelid: 'Angelid',
+      Piece.dynastyPurpleAmorian: 'Amorian',
+      Piece.dynastyPurpleMacedonian: 'Macedonian',
+      Piece.dynastyPurpleKomnenid: 'Komnenid',
+      Piece.dynastyPurpleLaskarid: 'Laskarid',
+      Piece.dynastyPurplePalaiologian: 'Palaiologian',
       Piece.dynastyPurpleAnarchy1: 'Anarchy',
-      Piece.dynastyPurpleDoukid: 'Doukid Dynasty',
-      Piece.dynastyBlackDyonisid: 'Dyonisid Dynasty',
-      Piece.dynastyBlackSkylosophid: 'Skylosophid Dynasty',
-      Piece.dynastyBlackLazarid: 'Lazarid Dynasty',
-      Piece.dynastyBlackStemniote: 'Stemniote Dynasty',
-      Piece.dynastyBlackSphikid: 'Sphikid Dynasty',
+      Piece.dynastyPurpleDoukid: 'Doukid',
+      Piece.dynastyBlackDyonisid: 'Dyonisid',
+      Piece.dynastyBlackSkylosophid: 'Skylosophid',
+      Piece.dynastyBlackLazarid: 'Lazarid',
+      Piece.dynastyBlackStemniote: 'Stemniote',
+      Piece.dynastyBlackSphikid: 'Sphikid',
       Piece.dynastyBlackAnarchy0: 'Anarchy',
-      Piece.dynastyBlackDimidid: 'Dimidid Dynasty',
-      Piece.dynastyBlackSouliote: 'Souliote Dynasty',
-      Piece.dynastyBlackLantzid: 'Lantzid Dynasty',
-      Piece.dynastyBlackManiote: 'Maniote Dynasty',
-      Piece.dynastyBlackKladiote: 'Kladiote Dynasty',
-      Piece.dynastyBlackYpsilantid: 'Ypsilantid Dynasty',
+      Piece.dynastyBlackDimidid: 'Dimidid',
+      Piece.dynastyBlackSouliote: 'Souliote',
+      Piece.dynastyBlackLantzid: 'Lantzid',
+      Piece.dynastyBlackManiote: 'Maniote',
+      Piece.dynastyBlackKladiote: 'Kladiote',
+      Piece.dynastyBlackYpsilantid: 'Ypsilantid',
       Piece.dynastyBlackAnarchy1: 'Anarchy',
-      Piece.dynastyBlackVlachid: 'Vlachid Dynasty',
+      Piece.dynastyBlackVlachid: 'Vlachid',
       Piece.patriarchNestorius: 'Nestorius',
       Piece.patriarchSergius: 'Sergius',
       Piece.patriarchAnthimus: 'Anthimus',
@@ -2138,10 +2138,16 @@ class GameState {
     return ecumenicalCouncilTurnChits.contains(turnChit);
   }
 
+  int turnFirstYear(int turn) {
+    return 421 + turn * 40;
+  }
+
+  int turnLastYear(int turn) {
+    return 460 + turn * 40;
+  }
+
   String turnName(int turn) {
-    int firstYear = 421 + turn * 40;
-    int lastYear = firstYear + 39;
-    return '$firstYear–$lastYear';
+    return '${turnFirstYear(turn)}–${turnLastYear(turn)}';
   }
 
   String? turnMagisterMilitumName(int turn) {
@@ -3824,6 +3830,101 @@ class Game {
     return candidates;
   }
 
+  int victoryPoints(bool log) {
+    if (log) {
+      logTableHeader();
+    }
+    int total = 30;
+    if (log) {
+      logLine('>|Baseline|30|');
+    }
+    for (final path in _state.westernPaths) {
+      final armyType = _state.pathArmyType(path);
+      final zone = _state.pathZone(path);
+      final armyCount = _state.piecesInLocationCount(armyType, zone);
+      total -= armyCount;
+      if (log) {
+        logLine('>|${path.desc} Armies|-$armyCount|');
+      }
+    }
+    for (final path in _state.easternPaths) {
+      int controlledLandCount = _state.pathBarbarianControlledLandCount(path);
+      total -= controlledLandCount;
+      if (log) {
+        logLine('>|${path.desc} Foreign Lands:$controlledLandCount|');
+      }
+    }
+    for (final outpost in PieceType.outpost.pieces) {
+      if (_state.pieceLocation(outpost).isType(LocationType.outpostBox)) {
+        if (log) {
+          logLine('>|${outpost.desc}|+2|');
+        }
+        total += 2;
+      }
+    }
+    int factionCount = _state.piecesInLocationCount(PieceType.faction, Location.constantinople);
+    if (factionCount > 0) {
+      if (log) {
+        logLine('>|Factions|+$factionCount|');
+      }
+      total += factionCount;
+    }
+    if (_state.solidus > 0) {
+      if (log) {
+        logLine('>\$olidus|+${_state.solidus}|');
+      }
+      total += _state.solidus;
+    }
+    for (final monastery in PieceType.monastery.pieces) {
+      final location = _state.pieceLocation(monastery);
+      if (location.isType(LocationType.land)) {
+        if (log) {
+          logLine('>|Monastery in ${_state.landName(location)}|+3|');
+        }
+        total += 3;
+      }
+    }
+    if (_state.pieceLocation(Piece.university) == Location.constantinople) {
+      if (log) {
+        logLine('>|University|+3|');
+      }
+      total += 3;
+    }
+    for (final hospital in PieceType.unusedHospital.pieces) {
+      final location = _state.pieceLocation(hospital);
+      if (location.isType(LocationType.land)) {
+        if (log) {
+          logLine('>|Hospital in ${_state.landName(location)}|+3|');
+        }
+        total += 3;
+      }
+    }
+    if (_state.pieceLocation(Piece.geographyItaly) == Location.zoneWest) {
+      if (log) {
+        logLine('>|Italy|+5|');
+      }
+      total += 5;
+    }
+    if (_state.pieceLocation(Piece.geographyAfrica) == Location.zoneSouth) {
+      if (log) {
+        logLine('>|Africa|+5|');
+      }
+      total += 5;
+    }
+    if (_state.pieceLocation(Piece.empiresInRubble).isType(LocationType.omnibus)) {
+      if (log) {
+        logLine('>|Empire in Rubble|-10|');
+      }
+      total -= 10;
+    }
+    if (log) {
+      logLine('>|Victory Points|$total|');
+      logTableFooter();
+    }
+
+    return total;
+  }
+
   void gameOver(GameOutcome outcome) {
     _outcome = outcome;
   }
@@ -5034,14 +5135,14 @@ class Game {
     logLine('>The Pope backs a usurper.');
     Piece? oldDynasty = _state.pieceInLocation(PieceType.dynasty, Location.dynastyBox)!;
     if (!_state.dynastyIsAnarchy(oldDynasty)) {
-      logLine('> ${oldDynasty.desc} is overthrown.');
+      logLine('> ${oldDynasty.desc} Dynasty is overthrown.');
     }
     _state.setPieceLocation(oldDynasty, Location.discarded);
     final newDynasty = drawDynasty();
     if (_state.dynastyIsAnarchy(newDynasty)) {
       logLine('>Byzantine Empire descends into Anarchy.');
     } else {
-      logLine('>${newDynasty.desc} seizes power.');
+      logLine('>${newDynasty.desc} Dynasty seizes power.');
     }
     _state.setPieceLocation(newDynasty, Location.dynastyBox);
   }
@@ -6735,7 +6836,7 @@ class Game {
       if (_state.currentTurn != 2) {
         if (_state.dynastyIsAnarchy(oldDynasty) || _state.piecesInLocationCount(PieceType.riots, Location.constantinople) > 0) {
           if (!_state.dynastyIsAnarchy(oldDynasty)) {
-            logLine('>${oldDynasty.desc} is overthrown.');
+            logLine('>${oldDynasty.desc} Dynasty is overthrown.');
           }
           _state.setPieceLocation(oldDynasty, Location.discarded);
           oldDynasty = null;
@@ -6748,7 +6849,7 @@ class Game {
           if (_state.dynastyIsAnarchy(newDynasty)) {
             logLine('>Byzantine Empire descends into Anarchy.');
           } else {
-            logLine('>${newDynasty.desc} seizes power.');
+            logLine('>${newDynasty.desc} Dynasty seizes power.');
           }
           _state.setPieceLocation(newDynasty, Location.dynastyBox);
         } else {
@@ -6763,18 +6864,20 @@ class Game {
           }
           int modifiedDie = dieWithDrm(die, drm);
           logLine('>|Modified|$modifiedDie|');
+          int oldDynastyValue = _state.dynastyDie(oldDynasty);
+          logLine('>|${oldDynasty.desc}|$oldDynastyValue|');
           logTableFooter();
 
-          if (modifiedDie >= _state.dynastyDie(oldDynasty)) {
-            logLine('>${oldDynasty.desc} remains in power.');
+          if (modifiedDie >= oldDynastyValue) {
+            logLine('>${oldDynasty.desc} Dynasty remains in power.');
           } else {
-            logLine('>${oldDynasty.desc} is overthrown.');
+            logLine('>${oldDynasty.desc} Dynasty is overthrown.');
             _state.setPieceLocation(oldDynasty, Location.discarded);
             final newDynasty = drawDynasty();
             if (_state.dynastyIsAnarchy(newDynasty)) {
               logLine('>Byzantine Empire descends into Anarchy.');
             } else {
-              logLine('>${newDynasty.desc} seizes power.');
+              logLine('>${newDynasty.desc} Dynasty seizes power.');
             }
             _state.setPieceLocation(newDynasty, Location.dynastyBox);
           }
@@ -7274,7 +7377,7 @@ class Game {
     final dynasty = _state.pieceInLocation(PieceType.dynasty, Location.dynastyBox)!;
     int dynastyIncome = _state.dynastySolidus(dynasty);
     if (dynastyIncome > 0) {
-      logLine('>|${dynasty.desc}|$dynastyIncome|');
+      logLine('>|${dynasty.desc} Dynasty|$dynastyIncome|');
     }
     int basileisIncome = 0;
     final basileis = _state.currentBasileis;
@@ -9142,70 +9245,8 @@ class Game {
     }
     logLine('# Deus ex Machina');
 
-    logTableHeader();
-    int total = 30;
-    logLine('>|Baseline|30|');
-    for (final path in _state.westernPaths) {
-      final armyType = _state.pathArmyType(path);
-      final zone = _state.pathZone(path);
-      final armyCount = _state.piecesInLocationCount(armyType, zone);
-      total -= armyCount;
-      logLine('>|${path.desc} Armies|-$armyCount|');
-    }
-    for (final path in _state.easternPaths) {
-      int controlledLandCount = _state.pathBarbarianControlledLandCount(path);
-      total -= controlledLandCount;
-      logLine('>|${path.desc} Foreign Lands:$controlledLandCount|');
-    }
-    for (final outpost in PieceType.outpost.pieces) {
-      if (_state.pieceLocation(outpost).isType(LocationType.outpostBox)) {
-        logLine('>|${outpost.desc}|+2|');
-        total += 2;
-      }
-    }
-    int factionCount = _state.piecesInLocationCount(PieceType.faction, Location.constantinople);
-    if (factionCount > 0) {
-      logLine('>|Factions|+$factionCount|');
-      total += factionCount;
-    }
-    if (_state.solidus > 0) {
-      logLine('>\$olidus|+${_state.solidus}|');
-      total += _state.solidus;
-    }
-    for (final monastery in PieceType.monastery.pieces) {
-      final location = _state.pieceLocation(monastery);
-      if (location.isType(LocationType.land)) {
-        logLine('>|Monastery in ${_state.landName(location)}|+3|');
-        total += 3;
-      }
-    }
-    if (_state.pieceLocation(Piece.university) == Location.constantinople) {
-      logLine('>|University|+3|');
-      total += 3;
-    }
-    for (final hospital in PieceType.unusedHospital.pieces) {
-      final location = _state.pieceLocation(hospital);
-      if (location.isType(LocationType.land)) {
-        logLine('>|Hospital in ${_state.landName(location)}|+3|');
-        total += 3;
-      }
-    }
-    if (_state.pieceLocation(Piece.geographyItaly) == Location.zoneWest) {
-      logLine('>|Italy|+5|');
-      total += 5;
-    }
-    if (_state.pieceLocation(Piece.geographyAfrica) == Location.zoneSouth) {
-      logLine('>|Africa|+5|');
-      total += 5;
-    }
-    if (_state.pieceLocation(Piece.empiresInRubble).isType(LocationType.omnibus)) {
-      logLine('>|Empire in Rubble|-10|');
-      total -= 10;
-    }
-    logLine('>|Victory Points|$total|');
-    logTableFooter();
-
-    throw GameOverException(GameResult.victory, total);
+    int vps = victoryPoints(true);
+    throw GameOverException(GameResult.victory, vps);
   }
 
   void turnEndPhaseEndTurn() {

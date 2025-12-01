@@ -1006,7 +1006,7 @@ class GamePageState extends State<GamePage> {
           stackPieces.add(Piece.stolos);
         }
       }
-      layoutStack(appState, sk, stackPieces, BoardArea.map, xLand, yLand, 4.0, 4.0);
+      layoutStack(appState, sk, stackPieces, BoardArea.map, xLand, yLand, 6.0, 6.0);
     }
 
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(theme)) {
@@ -1076,7 +1076,7 @@ class GamePageState extends State<GamePage> {
 
       final sk = (box, 0);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
-        layoutStack(appState, sk, state.piecesInLocation(PieceType.all, box), BoardArea.map, xBox, yBox, 4.0, 4.0);
+        layoutStack(appState, sk, state.piecesInLocation(PieceType.all, box), BoardArea.map, xBox, yBox, 6.0, 6.0);
       }
 
       if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(box)) {
@@ -1129,7 +1129,7 @@ class GamePageState extends State<GamePage> {
       if (turnChit != null) {
         pieces.add(turnChit);
       }
-      layoutStack(appState, (box, 0), pieces, BoardArea.map, xBox, yBox, 4.0, 4.0);
+      layoutStack(appState, (box, 0), pieces, BoardArea.map, xBox, yBox, 6.0, 6.0);
     }
   }
 
@@ -1157,7 +1157,27 @@ class GamePageState extends State<GamePage> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    String empireStatus = '';
+
     if (gameState != null) {
+
+      String regimeDesc = '';
+      final dynasty = gameState.pieceInLocation(PieceType.dynasty, Location.dynastyBox);
+      if (dynasty != null) {
+        if (!gameState.dynastyIsAnarchy(dynasty)) {
+          regimeDesc = 'under the **${dynasty.desc}** Dynasty';
+        } else {
+          regimeDesc = 'in Anarchy';
+        }
+      }
+
+      empireStatus = '''
+# Byzantium $regimeDesc, ${gameState.turnFirstYear(gameState.currentTurn)}
+___
+|\$olidus|Schism|Reforms|Nike|Victory Points|
+|:---:|:---:|:---:|:---:|:---:|
+|${gameState.solidus}|${gameState.schism}|${gameState.reformed ? 'Reformed' : gameState.reforms}|${gameState.nike}|${appState.game!.victoryPoints(false)}|
+''';
 
       layoutStrategikon(appState);
       layoutChronographia(appState);
@@ -1406,27 +1426,46 @@ class GamePageState extends State<GamePage> {
             ),
           ),
           SizedBox(
-            width: 680.0,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: colorScheme.surface),
-              child: Markdown(
-                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                  h1: textTheme.headlineMedium,
-                  h1Align: WrapAlignment.center,
-                  h1Padding: const EdgeInsets.all(5.0),
-                  h2: textTheme.titleLarge,
-                  h2Align: WrapAlignment.center,
-                  h2Padding: const EdgeInsets.all(3.0),
-                  h3: textTheme.bodyLarge,
-                  blockquote: textTheme.bodyMedium,
-                  blockquoteDecoration: BoxDecoration(
-                    color: colorScheme.tertiaryContainer,
+            width: 650.0,
+            child: Column(
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(color: colorScheme.primaryContainer),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: MarkdownBody(
+                        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                          h1: textTheme.titleMedium,
+                          tableBorder: TableBorder.all(style: BorderStyle.none),
+                        ),
+                      data: empireStatus,
+                    ),
                   ),
-                  strong: textTheme.headlineMedium,
                 ),
-                controller: _logScrollController,
-                data: log,
-              ),
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: colorScheme.surface),
+                    child: Markdown(
+                      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                        h1: textTheme.headlineMedium,
+                        h1Align: WrapAlignment.center,
+                        h1Padding: const EdgeInsets.all(5.0),
+                        h2: textTheme.titleLarge,
+                        h2Align: WrapAlignment.center,
+                        h2Padding: const EdgeInsets.all(3.0),
+                        h3: textTheme.bodyLarge,
+                        blockquote: textTheme.bodyMedium,
+                        blockquoteDecoration: BoxDecoration(
+                          color: colorScheme.tertiaryContainer,
+                        ),
+                        strong: textTheme.headlineMedium,
+                      ),
+                      controller: _logScrollController,
+                      data: log,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
