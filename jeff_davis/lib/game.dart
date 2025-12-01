@@ -543,8 +543,8 @@ enum Piece {
   statesRights,
   lostCause,
   objective,
-  closed0,
-  closed1,
+  closedPath5,
+  closedPath6,
   turnChit1,
   turnChit2,
   turnChit3,
@@ -656,6 +656,7 @@ enum PieceType {
   regularPolitician,
   regularPoliticianUnused,
   kentuckyNeutral,
+  missouriRebel,
   missouriRebel2,
   missouriRebel1,
   linesCut,
@@ -704,6 +705,7 @@ extension PieceTypeExtension on PieceType {
     PieceType.regularPolitician: [Piece.politicianStephens, Piece.politicianXTrenholm],
     PieceType.regularPoliticianUnused: [Piece.politicianStephens, Piece.politicianTrenholm],
     PieceType.kentuckyNeutral: [Piece.kentuckyNeutral0, Piece.kentuckyNeutral2],
+    PieceType.missouriRebel: [Piece.missouriRebel2_0, Piece.missouriRebel1_2],
     PieceType.missouriRebel2: [Piece.missouriRebel2_0, Piece.missouriRebel2_2],
     PieceType.missouriRebel1: [Piece.missouriRebel1_0, Piece.missouriRebel1_2],
     PieceType.linesCut: [Piece.linesCutP1_0, Piece.linesCutN1_4],
@@ -711,7 +713,7 @@ extension PieceTypeExtension on PieceType {
     PieceType.campaignModifierP1: [Piece.campaignModifierShelbyP1, Piece.campaignModifierKentuckyRebelP1],
     PieceType.campaignModifierP1Indian: [Piece.campaignModifierIndianWatieP1, Piece.campaignModifierIndianChoctawP1],
     PieceType.campaignSuccess: [Piece.campaignSuccess0, Piece.campaignSuccess6],
-    PieceType.closed: [Piece.closed0, Piece.closed1],
+    PieceType.closed: [Piece.closedPath5, Piece.closedPath6],
     PieceType.treasury: [Piece.csaTreasury, Piece.specialBudget],
     PieceType.turnChit: [Piece.turnChit1, Piece.turnChit44],
     PieceType.turnChitGreenCoatOfArms: [Piece.turnChitCoatOfArms1, Piece.turnChitCoatOfArms4],
@@ -1088,6 +1090,33 @@ class GameState {
     return Location.values[locationType.lastIndex - 1];
   }
 
+  Location? pathPrevLocation(Path path, Location location) {
+    final locationType = pathLocationType(path);
+    if (location.index == locationType.firstIndex) {
+      if ([Path.path5, Path.path6].contains(path)) {
+        return null;
+      }
+      return Location.regionRichmond;
+    }
+    return Location.values[location.index - 1];
+  }
+
+  Piece? pathClosedPiece(Path path) {
+    const closedPieces = {
+      Path.path5: Piece.closedPath5,
+      Path.path6: Piece.closedPath6,
+    };
+    return closedPieces[path];
+  }
+
+  bool pathClosed(Path path) {
+    final piece = pathClosedPiece(path);
+    if (piece == null) {
+      return false;
+    }
+    return pieceLocation(piece).isType(LocationType.region);
+  }
+
   Piece? pathUnionArmy(Path path) {
     final locationType = pathLocationType(path);
     for (final region in locationType.locations) {
@@ -1178,6 +1207,39 @@ class GameState {
     return virginiaRebels.contains(rebel);
   }
 
+  // Union Armies
+
+  int armyStrength(Piece army) {
+    const armyStrengths = {
+      Piece.armyMcClellan0: 2,
+      Piece.armyMcClellan1: 2,
+      Piece.armyMiddleDepartment: 2,
+      Piece.armyCumberland: 3,
+      Piece.armyGulf: 3,
+      Piece.armyButler: 2,
+      Piece.armyGrant4: 4,
+      Piece.armyPotomac: 3,
+      Piece.armyJames: 3,
+      Piece.armySheridan: 4,
+      Piece.armySherman: 4,
+      Piece.armyBanks: 2,
+      Piece.armyGrant5: 5,
+    };
+    return armyStrengths[army]!;
+  }
+
+  // Bushwhackers
+
+  int bushwhackerValue(Piece bushwhacker) {
+    const bushwhackerValues = {
+      Piece.bushwhacker0: 2,
+      Piece.bushwhacker1: 3,
+      Piece.bushwhacker2: 3,
+      Piece.bushwhacker3: 4,
+    };
+    return bushwhackerValues[bushwhacker]!;
+  }
+
   // Kentucky
 
   bool get kentuckyNeutral {
@@ -1188,6 +1250,12 @@ class GameState {
 
   int get missouriRebelCount {
     return 2 * piecesInLocationCount(PieceType.missouriRebel2, Location.regionCairo) + piecesInLocationCount(PieceType.missouriRebel1, Location.regionCairo);
+  }
+
+  // Freedmen
+
+  int get freedmenCount {
+    return 2 * piecesInLocationCount(PieceType.freedmen2, Location.boxFreedmen) + piecesInLocationCount(PieceType.freedmen1, Location.boxFreedmen);
   }
 
   // Turn Chits
@@ -2038,6 +2106,24 @@ class Game {
     return randRegions[choice];
   }
 
+  Piece randomAsset() {
+    Piece? piece;
+    int die = rollD6();
+    logD6(die);
+    switch (die) {
+    case 1:
+    case 2:
+      piece = Piece.agricultureLevel;
+    case 3:
+    case 4:
+      piece = Piece.manufactureLevel;
+    case 5:
+    case 6:
+      piece = Piece.infrastructureLevel;
+    }
+    return piece!;    
+  }
+
   // Player Actions
 
   void setPrompt(String value) {
@@ -2370,14 +2456,6 @@ class Game {
     }
   }
 
-  void gameOver(GameOutcome outcome) {
-    _outcome = outcome;
-
-    // TODO logging
-  }
-
-  // High Level Functions
-
   List<Location> get bushwhackerRegionCandidates {
     final candidates = <Location>[];
     for (final path in Path.values) {
@@ -2392,11 +2470,44 @@ class Game {
     return candidates;
   }
 
+  void gameOver(GameOutcome outcome) {
+    _outcome = outcome;
+
+    // TODO logging
+  }
+
   // Sequence Helpers
 
   void defeatFizzledPlayerActions() {
     // TODO
     // Must take at least one action
+  }
+
+  void increaseFreedmen() {
+    if (_state.freedmenCount % 2 == 0) {
+      final freedmenPieces = _state.piecesInLocation(PieceType.freedmen2, Location.trayUnionForces);
+      _state.setPieceLocation(_state.pieceFlipSide(freedmenPieces[0])!, Location.boxFreedmen);
+    } else {
+      final freedmenPieces = _state.piecesInLocation(PieceType.freedmen1, Location.boxFreedmen);
+      _state.flipPiece(freedmenPieces[0]);
+    }
+    switch (_state.freedmenCount) {
+    case 2:
+      logLine('>US Military Rail Road is set up.');
+    case 4:
+      int die = rollD6();
+      logD6(die);
+      adjustBritishIntervention(-die);
+      die = rollD6();
+      logD6(die);
+      adjustFrenchIntervention(-die);
+    case 6:
+      economicDisaster(randomAsset());
+    case 8:
+      logLine('>Black recruits contribute to overwhelming Union military advantage.');
+      _state.setPieceLocation(Piece.lostCause, Location.boxDavisRevolution);
+    default:
+    }
   }
 
   // Sequence of Play
@@ -2642,7 +2753,7 @@ class Game {
         [[Location.boxBlockade2c], [Location.boxBlockade3, Location.boxBlockade4], [Location.boxBlockade2a, Location.boxBlockade2c, Location.boxBlockade3], [Location.boxBlockade1b, Location.boxBlockade2a, Location.boxBlockade2b, Location.boxBlockade3]],
         [[Location.boxBlockade2a], [Location.boxBlockade2b, Location.boxBlockade4], [Location.boxBlockade2a, Location.boxBlockade2b, Location.boxBlockade4], [Location.boxBlockade1a, Location.boxBlockade2a, Location.boxBlockade3, Location.boxBlockade4]],
       ];
-      logLine('### British Cruiser deployment.');
+      logLine('### Union Frigate deployment.');
       final results = roll2D6();
       log2D6(results);
       int dice = results.$3;
@@ -3197,7 +3308,7 @@ class Game {
     if (![Piece.turnChit14, Piece.turnChit22].contains(_state.currentTurnChit)) {
       return;
     }
-    if (_state.piecesInLocationCount(PieceType.closed, Location.regionEastTexas) > 0) {
+    if (_state.pieceLocation(Piece.closedPath5) == Location.regionEastTexas) {
       return;
     }
     logLine('### Money from Mexico');
@@ -3462,21 +3573,7 @@ class Game {
     phaseState.defeatFizzled = false;
     phaseState.bushwhacker = false;
     logLine('### Economic Disaster');
-    Piece? piece;
-    int die = rollD6();
-    logD6(die);
-    switch (die) {
-    case 1:
-    case 2:
-      piece = Piece.agricultureLevel;
-    case 3:
-    case 4:
-      piece = Piece.manufactureLevel;
-    case 5:
-    case 6:
-      piece = Piece.infrastructureLevel;
-    }
-    economicDisaster(piece!);
+    economicDisaster(randomAsset());
     phaseState.defeatFizzled = true;
   }
 
@@ -3525,8 +3622,133 @@ class Game {
     if (location != Location.trayUnionForces) {
       return;
     }
+    const turnChits = [
+      Piece.turnChit26,
+      Piece.turnChit36,
+      Piece.turnChit37,
+    ];
+    if (!turnChits.contains(_state.currentTurnChit)) {
+      return;
+    }
+    logLine('### Army of the Gulf');
+    logLine('>Army of the Gulf is formed on ${Location.regionShipIsland.desc}.');
+    _state.setPieceLocation(Piece.armyGulf, Location.regionShipIsland);
+  }
 
+  void uinionAdvanceOnPath(Path path) {
+    if (_subStep == 0) {
+      if (_state.pathClosed(path)) {
+        return;
+      }
+      final army = _state.pathUnionArmy(path);
+      if (army == null) {
+        return;
+      }
 
+      final fromRegion = _state.pieceLocation(army);
+      final toRegion = _state.pathPrevLocation(path, fromRegion)!;
+
+      if (toRegion == Location.regionPaducah && _state.kentuckyNeutral) {
+        if (fromRegion != Location.regionCairo || _state.missouriRebelCount == 0) {
+          return;
+        }
+      }
+
+      logLine('### ${army.desc} advances on ${toRegion.desc}');
+
+      if (fromRegion == Location.regionCairo) {
+        final rebels = _state.piecesInLocation(PieceType.missouriRebel, fromRegion);
+        if (rebels.isNotEmpty) {
+          logLine('>Missouri Rebels delay Grant in Cairo');
+          for (final rebel in rebels) {
+            if (rebel.isType(PieceType.missouriRebel1)) {
+              _state.setPieceLocation(rebel, Location.discarded);
+              return;
+            }
+          }
+          _state.flipPiece(rebels[0]);
+          int count = _state.missouriRebelCount;
+          if (count > 0) {
+            logLine('>Missouri Rebel numbers reduced to $count.');
+          } else {
+            logLine('>Missouri Rebel resistance eliminated.');
+          }
+        }
+      }
+
+      final bushwhacker = _state.pieceInLocation(PieceType.bushwhacker, fromRegion);
+      if (bushwhacker != null) {
+        int die = rollD6();
+
+        logTableHeader();
+        logD6InTable(die);
+        int value = _state.bushwhackerValue(bushwhacker);
+        logLine('>|${bushwhacker.desc}|$value|');
+        logTableFooter();
+
+        if (die <= value) {
+          logLine('>${bushwhacker.desc} prevents Advance of ${army.desc}.');
+          return;
+        }
+        logLine('>${bushwhacker.desc} is eliminated by ${army.desc}.');
+        _state.setPieceLocation(bushwhacker, Location.trayMilitary);
+      }
+
+      final defensiveWorks = _state.pieceInLocation(PieceType.defensiveWorks, toRegion);
+      if (defensiveWorks != null) {
+        logLine('>Defensive Works');
+        logLine('>${army.desc} destroys the Defensive Works in ${toRegion.desc}.');
+        _state.setPieceLocation(defensiveWorks, Location.trayMilitary);
+        logLine('>${army.desc} ceases its Advance.');
+        return;
+      }
+
+      logLine('>${army.desc} Advances into ${toRegion.desc}.');
+      _state.setPieceLocation(army, toRegion);
+
+      final plantation = _state.pieceInLocation(PieceType.plantationUndepleted, toRegion);
+      if (plantation != null) {
+        logLine('>Plantation is depleted.');
+        _state.flipPiece(plantation);
+        increaseFreedmen();
+      }
+    }
+  }
+
+  void turnChitPhaseUnionAdvance(int index) {
+    Path? path;
+    final surpriseOffensiveLocation = _state.pieceLocation(Piece.surpriseOffensive);
+    if (surpriseOffensiveLocation.isType(LocationType.region)) {
+      if (index != 0) {
+        return;
+      }
+      path = _state.regionPath(surpriseOffensiveLocation);
+    }
+    if (path == null) {
+      final pathInfos = _state.turnChitPaths(_state.currentTurnChit);
+      if (index >= pathInfos.length) {
+        return;
+      }
+      final pathInfo = pathInfos[index];
+      path = pathInfo.$1;
+    }
+    uinionAdvanceOnPath(path);
+  }
+
+  void turnChitPhaseUnionAdvance0() {
+    turnChitPhaseUnionAdvance(0);
+  }
+
+  void turnChitPhaseUnionAdvance1() {
+    turnChitPhaseUnionAdvance(1);
+  }
+
+  void turnChitPhaseUnionAdvance2() {
+    turnChitPhaseUnionAdvance(2);
+  }
+
+  void turnChitPhaseUnionAdvance3() {
+    turnChitPhaseUnionAdvance(3);
   }
 
   void turnChitPhaseEnd() {
@@ -3564,6 +3786,10 @@ class Game {
       turnChitPhaseDefeatFizzledPlayerActions,
       turnChitPhaseNextCampaign,
       turnChitPhaseArmyOfTheGulf,
+      turnChitPhaseUnionAdvance0,
+      turnChitPhaseUnionAdvance1,
+      turnChitPhaseUnionAdvance2,
+      turnChitPhaseUnionAdvance3,
       turnChitPhaseEnd,
     ];
 
