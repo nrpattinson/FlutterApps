@@ -624,6 +624,24 @@ class GameState {
     setPieceLocation(Piece.markerTurn, Location.values[pieceLocation(Piece.markerTurn).index + 1]);
   }
 
+  // BCC
+
+  int get bbcNews {
+    final location = pieceLocation(Piece.markerBBCNews);
+    return location.index - LocationType.turn.firstIndex;
+  }
+
+  void adjustBbcNews(int delta) {
+    int newValue = bbcNews + delta;
+    if (newValue > 19) {
+      newValue = 19;
+    }
+    if (newValue < 0) {
+      newValue = 0;
+    }
+    setPieceLocation(Piece.markerBBCNews, turnBox(newValue));
+  }
+
   // Exocets
 
   int get exocetCount {
@@ -1256,6 +1274,15 @@ class Game {
 
   // Logging
 
+  void adjustBbcNews(int delta) {
+    _state.adjustBbcNews(delta);
+    if (delta > 0) {
+      logLine('> BBC News: +$delta → ${_state.bbcNews}');
+    } else if (delta < 0) {
+      logLine('> BBC News: $delta → ${_state.bbcNews}');
+    }
+  }
+
   void adjustExocetCount(int delta) {
     _state.adjustExocetCount(delta);
     if (delta > 0) {
@@ -1569,6 +1596,25 @@ class Game {
     }
   }
 
+  void appreciateTheSituationPhaseDiplomacy() {
+    final location = _state.pieceLocation(Piece.markerDiplomacy);
+    if (location.isType(LocationType.turn)) {
+      return;
+    }
+    if (choicesEmpty()) {
+      setPrompt('Make Diplomatic Feint?');
+      choiceChoosable(Choice.yes, true);
+      choiceChoosable(Choice.no, true);
+      throw PlayerChoiceException();
+    }
+    if (checkChoice(Choice.yes)) {
+      logLine('>Britain makes a Diplomatic Feint.');
+      _state.setPieceLocation(Piece.markerDiplomacy, _state.turnBox(_state.currentTurn));
+      adjustBbcNews(3);
+    }
+    clearChoices();
+  }
+
   PlayerChoiceInfo? playInSequence() {
 
     final stepHandlers = [
@@ -1577,6 +1623,7 @@ class Game {
       appreciateTheSituationPhaseDetermineWeather,
       appreciateTheSituationPhaseConductSASRaid,
       appreciateTheSituationPhaseStuft,
+      appreciateTheSituationPhaseDiplomacy,
     ];
 
     while (true) {
