@@ -426,27 +426,27 @@ class GamePageState extends State<GamePage> {
 
   (double, double) homelandCoordinates(Location homeland) {
     const coordinates = {
-      Location.homelandAlan: (1555.0, 561.0),
-      Location.homelandArabian: (2663.0, 1968.0),
-      Location.homelandAvar: (1839.0, 663.0),
-      Location.homelandBulgar: (2541.0, 715.0),
-      Location.homelandBurgundian: (1372.0, 452.0),
-      Location.homelandFrankish: (1244.0, 438.0),
-      Location.homelandHunnic0: (1672.0, 425.0),
-      Location.homelandHunnic1: (2081.0, 665.0),
-      Location.homelandHunnic2: (2712.0, 752.0),
-      Location.homelandMoorish: (962.0, 1691.0),
-      Location.homelandNubian: (2256.0, 2045.0),
-      Location.homelandOstrogothic: (2203.0, 684.0),
-      Location.homelandPersian: (2979.0, 1138.0),
-      Location.homelandPictish: (785.0, 61.0),
-      Location.homelandSarmatian: (1693.0, 553.0),
-      Location.homelandSaxon: (1363.0, 350.0),
-      Location.homelandScottish: (677.0, 52.0),
-      Location.homelandSlav: (1805.0, 544.0),
-      Location.homelandSuevian: (1397.0, 567.0),
-      Location.homelandVandal: (1508.0, 440.0),
-      Location.homelandVisigothic: (1979.0, 715.0),
+      Location.homelandAlan: (1561.0, 567.0),
+      Location.homelandArabian: (2669.0, 1974.0),
+      Location.homelandAvar: (1845.0, 669.0),
+      Location.homelandBulgar: (2547.0, 721.0),
+      Location.homelandBurgundian: (1378.0, 458.0),
+      Location.homelandFrankish: (1250.0, 444.0),
+      Location.homelandHunnic0: (1678.0, 431.0),
+      Location.homelandHunnic1: (2087.0, 671.0),
+      Location.homelandHunnic2: (2718.0, 758.0),
+      Location.homelandMoorish: (968.0, 1697.0),
+      Location.homelandNubian: (2262.0, 2051.0),
+      Location.homelandOstrogothic: (2209.0, 690.0),
+      Location.homelandPersian: (2985.0, 1144.0),
+      Location.homelandPictish: (791.0, 67.0),
+      Location.homelandSarmatian: (1699.0, 559.0),
+      Location.homelandSaxon: (1369.0, 356.0),
+      Location.homelandScottish: (683.0, 58.0),
+      Location.homelandSlav: (1811.0, 550.0),
+      Location.homelandSuevian: (1403.0, 573.0),
+      Location.homelandVandal: (1514.0, 446.0),
+      Location.homelandVisigothic: (1985.0, 721.0),
     };
     return coordinates[homeland]!;
   }
@@ -1236,7 +1236,7 @@ class GamePageState extends State<GamePage> {
       if (state.eventTypeCount(eventType) > 0) {
         int col = i ~/ 6;
         int row = i % 6;
-        const lefts = [2229.0, 2706.0, 3176.0];
+        const lefts = [2241.0, 2718.0, 3188.0];
         const tops = [134.0, 228.0, 273.0, 334.0, 396.0, 495.0];
         addEventMarkerToMap(state.eventTypeCount(eventType), lefts[col], tops[row]);
       }

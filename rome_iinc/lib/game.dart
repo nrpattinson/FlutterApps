@@ -6203,8 +6203,8 @@ class Game {
 
   // Randomness
 
-  String redDieFace(int die) {
-    return '![](resource:assets/images/d6_red_$die.png)';
+  String purpleDieFace(int die) {
+    return '![](resource:assets/images/d6_purple_$die.png)';
   }
 
   String whiteDieFace(int die) {
@@ -6283,12 +6283,12 @@ class Game {
     return (d0, d1, d2, omensModifier, d0 + d1 + d2 + omensModifier);
   }
 
-  void log3D6WithRed((int,int,int,int,int) rolls) {
+  void log3D6WithPurple((int,int,int,int,int) rolls) {
     int d0 = rolls.$1;
     int d1 = rolls.$2;
     int d2 = rolls.$3;
     logLine('>');
-    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}');
+    logLine('>${whiteDieFace(d0)} ${whiteDieFace(d1)} ${purpleDieFace(d2)}');
     logLine('>');
   }
 
@@ -6305,12 +6305,12 @@ class Game {
     }
   }
  
-  void log3D6WithRedInTable((int,int,int,int,int) rolls) {
+  void log3D6WithPurpleInTable((int,int,int,int,int) rolls) {
     int d0 = rolls.$1;
     int d1 = rolls.$2;
     int d2 = rolls.$3;
     int omensModifier = rolls.$4;
-    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${redDieFace(d2)}|${d0 + d1 + d2}|');
+    logLine('>|${whiteDieFace(d0)} ${whiteDieFace(d1)} ${purpleDieFace(d2)}|${d0 + d1 + d2}|');
     if (omensModifier == 1) {
       logLine('>|Bad Omens|+1|');
     } else if (omensModifier == -1) {
@@ -7115,6 +7115,9 @@ class Game {
     }
     int result = die + modifiers;
     logLine('|Total|$result|');
+    if (result == 6 && hasSavingRoll) {
+      logD6InTable(savingRoll);
+    }
     logTableFooter();
 
     bool fail = result >= 6 && (result != 6 || !hasSavingRoll || savingRoll != 1);
@@ -7327,7 +7330,7 @@ class Game {
     }
     modifier = _state.eventTypeCount(EventType.migration);
     if (modifier > 0) {
-      logLine('>|Migration: +$modifier');
+      logLine('>|Migration|+$modifier|');
       modifiers += modifier;
     }
     modifier = 0;
@@ -7805,7 +7808,7 @@ class Game {
     int d3 = rolls.$3;
     int omens = rolls.$4;
     int total = rolls.$5;
-    log3D6WithRed(rolls);
+    log3D6WithPurple(rolls);
 
     bool matchingWarAbility = false;
     bool stalemateAbility = false;
@@ -7868,7 +7871,7 @@ class Game {
       int modifier = 0;
 
       logTableHeader();
-      log3D6WithRedInTable(rolls);
+      log3D6WithPurpleInTable(rolls);
       int nonMatchingFoederatiProvinceCount = 0;
       modifier = _state.warStrength(war);
       logLine('>|${war.desc}|+$modifier|');
@@ -8174,7 +8177,7 @@ class Game {
     int modifier = 0;
 
     logTableHeader();
-    log3D6WithRedInTable(rolls);
+    log3D6WithPurpleInTable(rolls);
     modifier = _state.commandMilitary(rebelCommand);
     logLine('>|${_state.commanderName(rebelCommand)}|+$modifier|');
     modifiers += modifier;
@@ -8192,7 +8195,10 @@ class Game {
     logTableFooter();
 
     int lossCount = d3;
-    int destroyLegionsCount = (lossCount + 1) ~/ 2;
+    int destroyLegionsCount = 0;
+    if (rebelCommand.isType(LocationType.emperor)) {
+      destroyLegionsCount = (lossCount + 1) ~/ 2;
+    }
     int promoteCount = 0;
     int emperorPromoteCount = 0;
     int rebelPromoteCount = 0;
@@ -9943,7 +9949,7 @@ class Game {
         modifiers += modifier;
       }
       int result = roll + modifiers;
-      logLine('>|Total:$result|');
+      logLine('>|Total|$result|');
       logTableFooter();
 
       if (result > poolCount) {
@@ -10082,7 +10088,7 @@ class Game {
       }
     }
     if (wars.isNotEmpty) {
-      logLine('>Wars:');
+      logLine('>Wars');
       for (final war in wars) {
         final location = _state.pieceLocation(war);
         logLine('>- ${war.desc} in ${location.desc}');
@@ -10107,7 +10113,7 @@ class Game {
       }
     }
     if (leaders.isNotEmpty) {
-      logLine('>Leaders:');
+      logLine('>Leaders');
       for (final leader in leaders) {
         logLine('>- ${leader.desc}');
       }
@@ -10147,9 +10153,9 @@ class Game {
 
     if (legions.isNotEmpty) {
       if (_state.dynastyActive(Piece.dynastyValentinian)) {
-        logLine('>Troops Needed:');
+        logLine('>Troops Needed');
       } else {
-        logLine('>Legions Needed:');
+        logLine('>Legions Needed');
       }
       for (final legion in legions) {
          logLine('>- ${legion.$1.desc}');
@@ -10159,7 +10165,7 @@ class Game {
     }
 
     if (fleets.isNotEmpty) {
-      logLine('>Fleets Needed:');
+      logLine('>Fleets Needed');
       for (final fleet in fleets) {
          logLine('>- ${fleet.$1.desc}');
         amount += fleet.$2;
@@ -10168,7 +10174,7 @@ class Game {
     }
 
     if (grains.isNotEmpty) {
-      logLine('>Grain Supply Interrupted:');
+      logLine('>Grain Supply Interrupted');
       for (final grain in grains) {
          logLine('>- ${grain.desc}');
         amount += 1;
@@ -10340,6 +10346,8 @@ class Game {
     final phaseState = _phaseState as PhaseStateUnrest;
     if (_subStep == 0) {
       logLine('### Annexations');
+
+      logTableHeader();
       if (_state.dynastyActive(Piece.dynastyJustinian)) {
         logLine('>|Justinian Dynasty (Western)|+1|');
         logLine('>|Justinian Dynasty (Eastern)|+1|');
@@ -10362,6 +10370,8 @@ class Game {
       }
       logLine('>|Western|${phaseState.empireAnnexRemainingCounts[0]}|');
       logLine('>|Eastern|${phaseState.empireAnnexRemainingCounts[1]}|');
+      logTableFooter();
+
       if (phaseState.empireAnnexRemainingCounts[0] + phaseState.empireAnnexRemainingCounts[1] == 0) {
         return;
       }
@@ -11328,7 +11338,7 @@ class Game {
   void warPhaseFightRebels() {
     final phaseState = _phaseState as PhaseStateWar;
     while (_subStep >= 0 && _subStep <= 2) {
-      while (unfoughtRebels().isNotEmpty) {
+      while (_subStep >= 1 || unfoughtRebels().isNotEmpty) {
         if (_subStep == 0) {
           if (choicesEmpty()) {
             bool optional = true;

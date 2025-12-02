@@ -9430,7 +9430,7 @@ class Game {
     }
 
     if (banners.isNotEmpty) {
-      logLine('>Banners Needed:');
+      logLine('>Banners Needed');
       for (final banner in banners) {
          logLine('>- ${banner.$1.desc}');
         amount += banner.$2;
@@ -9439,7 +9439,7 @@ class Game {
     }
 
     if (fleets.isNotEmpty) {
-      logLine('>Fleets Needed:');
+      logLine('>Fleets Needed');
       for (final fleet in fleets) {
          logLine('>- ${fleet.$1.desc}');
         amount += fleet.$2;

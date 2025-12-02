@@ -12,7 +12,7 @@ class GameDatabase {
 
   Future<Database> _initializeDatabase() async {
     final appDocumentsDir = await getApplicationDocumentsDirectory();
-    final dbPath = path.join(appDocumentsDir.path, 'GLobalWar', 'global_war.db');
+    final dbPath = path.join(appDocumentsDir.path, 'GlobalWar', 'global_war.db');
     if (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.linux) {
       sqfliteFfiInit();
       final databaseFactory = databaseFactoryFfi;

@@ -6091,6 +6091,9 @@ class Game {
     }
     int result = die + modifiers;
     logLine('>|Total|$result|');
+    if (result == 6 && hasSavingRoll) {
+      logD6InTable(savingRoll);
+    }
     logTableFooter();
 
     bool fail = result >= 6 && (result != 6 || !hasSavingRoll || savingRoll != 1);
@@ -8160,7 +8163,7 @@ class Game {
       }
     }
     if (wars.isNotEmpty) {
-      logLine('>Wars:');
+      logLine('>Wars');
       for (final war in wars) {
         final location = _state.pieceLocation(war);
         logLine('>- ${war.desc} in ${location.desc}');
@@ -8177,7 +8180,7 @@ class Game {
       }
     }
     if (leaders.isNotEmpty) {
-      logLine('>Leaders:');
+      logLine('>Leaders');
       for (final leader in leaders) {
         logLine('>- ${leader.desc}');
       }
@@ -8214,7 +8217,7 @@ class Game {
     }
 
     if (praetorians.isNotEmpty) {
-      logLine('>Praetorian Guards Needed:');
+      logLine('>Praetorian Guards Needed');
       for (final praetorian in praetorians) {
         if (praetorian.$2 > 1) {
           logLine('>- ${praetorian.$1.desc} (${praetorian.$2})');
@@ -8227,7 +8230,7 @@ class Game {
     }
 
     if (legions.isNotEmpty) {
-      logLine('>Legions Needed:');
+      logLine('>Legions Needed');
       for (final legion in legions) {
          logLine('>- ${legion.$1.desc}');
         amount += legion.$2;
@@ -8236,7 +8239,7 @@ class Game {
     }
 
     if (fleets.isNotEmpty) {
-      logLine('>Fleets Needed:');
+      logLine('>Fleets Needed');
       for (final fleet in fleets) {
          logLine('>- ${fleet.$1.desc}');
         amount += fleet.$2;
@@ -8245,7 +8248,7 @@ class Game {
     }
 
     if (grains.isNotEmpty) {
-      logLine('>Grain Supply Interrupted:');
+      logLine('>Grain Supply Interrupted');
       for (final grain in grains) {
          logLine('>- ${grain.desc}');
         amount += 1;
@@ -8781,7 +8784,7 @@ class Game {
             bool addGold = false;
             bool promote = false;
             bool annex = false;
-            if (phaseState.destroyLegionsCount > 0 || (phaseState.lossCount > 0 && phaseState.destroyCount < 2)) {
+            if (phaseState.destroyLegionsCount > 0 || phaseState.lossCount > 0) { // Borrowing a rule from Rome, IInc where no limit on legions destroyed.
               if (phaseState.candidateDestroyLegions(_state).isNotEmpty) {
                 destroy = true;
                 actionsAvailable = true;
@@ -9049,7 +9052,7 @@ class Game {
 
   void warPhaseFightRebels() {
     final phaseState = _phaseState as PhaseStateWar;
-    while (unfoughtRebels().isNotEmpty) {
+    while (_subStep >= 1 || unfoughtRebels().isNotEmpty) {
       if (_subStep == 0) {
         if (choicesEmpty()) {
           setPrompt('Select Rebel to Fight');
