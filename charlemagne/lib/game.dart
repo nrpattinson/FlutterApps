@@ -1939,6 +1939,35 @@ class ReactionState {
   };
 }
 
+class BattleState {
+  Location space;
+  bool ambush;
+  int subStep = 0;
+  int rightCount = 0;
+  int leftCount = 0;
+  int cupAdjustmentCount = 0;
+
+  BattleState(this.space, this.ambush);
+
+  BattleState.fromJson(Map<String, dynamic> json)
+    : space = locationFromIndex(json['space'] as int)!
+    , ambush = json['ambush'] as bool
+    , subStep = json['subStep'] as int
+    , rightCount = json['rightCount'] as int
+    , leftCount = json['leftCount'] as int
+    , cupAdjustmentCount = json['cupAdjustmentCount'] as int
+    ;
+
+  Map<String, dynamic> toJson() => {
+    'space': locationToIndex(space),
+    'ambush': ambush,
+    'subStep': subStep,
+    'rightCount': rightCount,
+    'leftCount': leftCount,
+    'cupAdjustmentCount': cupAdjustmentCount,
+  };
+}
+
 class Game {
   final Scenario _scenario;
   final GameState _state;
@@ -1949,6 +1978,7 @@ class Game {
   String _log = '';
   PhaseState? _phaseState;
   ReactionState? _reactionState;
+  BattleState? _battleState;
   PlayerChoiceInfo _choiceInfo = PlayerChoiceInfo();
   final Random _random;
   final int _gameId;
@@ -1983,6 +2013,10 @@ class Game {
     if (reactionStateJson != null) {
       _reactionState = ReactionState.fromJson(reactionStateJson);
     }
+    final battleStateJson = json['battle'];
+    if (battleStateJson != null) {
+      _battleState = BattleState.fromJson(battleStateJson);
+    }
 
     _choiceInfo = PlayerChoiceInfo.fromJson(json['choiceInfo']);
   }
@@ -1995,6 +2029,9 @@ class Game {
     }
     if (_reactionState != null) {
       map['reaction'] = _reactionState!.toJson();
+    }
+    if (_battleState != null) {
+      map['battle'] = _battleState!.toJson();
     }
     map['choiceInfo'] = _choiceInfo.toJson();
     return map;
@@ -2411,7 +2448,7 @@ class Game {
     for (final space in [Location.spanishMarch, Location.gascony, Location.bordeaux, Location.poitiers]) {
       final charlemagne = _state.pieceInLocation(PieceType.mapCharlemagne, space);
       if (charlemagne != null) {
-        //ambush(space); TODO
+        battle(space, true);
         return;
       }
       final marquis = _state.pieceInLocation(PieceType.mapMarquis, space);
@@ -2529,11 +2566,193 @@ class Game {
     _reactionState = null;
   }
 
+  (int,int,int) enemyFormationTable(Piece? enemyUnit, int modifiedDie) {
+    if (enemyUnit == null) {
+      const moorsTable = {
+        1: (4,3,1),
+        2: (4,4,1),
+        3: (5,4,1),
+        4: (5,5,1),
+        5: (6,5,2),
+        6: (6,5,2),
+        7: (6,6,2),
+        8: (6,6,2),
+      };
+      return moorsTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitBlue)) {
+      const blueTable = {
+        4: (3,3,0),
+        5: (3,3,0),
+        6: (3,3,0),
+        7: (3,3,1),
+        8: (3,3,1),
+        9: (4,3,1),
+        10: (4,3,1),
+        11: (4,4,1),
+        12: (4,4,1),
+        13: (5,4,2),
+        14: (5,4,2),
+      };
+      return blueTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitYellow)) {
+      const yellowTable = {
+        4: (3,3,1),
+        5: (3,3,1),
+        6: (4,3,1),
+        7: (4,3,1),
+        8: (4,4,1),
+        9: (4,4,1),
+        10: (5,4,2),
+        11: (5,4,2),
+        12: (5,5,2),
+        13: (5,5,2),
+        14: (6,5,3),
+        15: (6,5,3),
+      };
+      return yellowTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitPurple)) {
+      const purpleTable = {
+        4: (3,3,1),
+        5: (4,3,1),
+        6: (4,3,1),
+        7: (4,4,1),
+        8: (4,4,1),
+        9: (5,4,2),
+        10: (5,4,2),
+        11: (5,5,2),
+        12: (5,5,2),
+        13: (6,5,3),
+        14: (6,5,3),
+        15: (6,6,3),
+      };
+      return purpleTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitGreen)) {
+      const greenTable = {
+        5: (4,3,1),
+        6: (4,4,1),
+        7: (4,4,1),
+        8: (5,4,2),
+        9: (5,4,2),
+        10: (5,5,2),
+        11: (5,5,2),
+        12: (6,5,3),
+        13: (6,5,3),
+        14: (6,6,3),
+        15: (6,6,3),
+        16: (6,6,3),
+        17: (6,6,3),
+      };
+      return greenTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitOrange)) {
+      const orangeTable = {
+        4: (3,3,2),
+        5: (4,3,2),
+        6: (4,3,2),
+        7: (4,4,2),
+        8: (4,4,2),
+        9: (5,4,3),
+        10: (5,4,3),
+        11: (5,5,3),
+        12: (5,5,3),
+        13: (6,5,4),
+        14: (6,5,4),
+        15: (6,5,4),
+        16: (6,5,4),
+      };
+      return orangeTable[modifiedDie]!;
+    } else if (enemyUnit.isType(PieceType.mapEnemyUnitBrown)) {
+      const brownTable = {
+        7: (4,4,2),
+        8: (5,4,3),
+        9: (5,4,3),
+        10: (5,5,3),
+        11: (5,5,3),
+        12: (6,5,4),
+        13: (6,5,4),
+        14: (6,6,4),
+        15: (6,6,4),
+        16: (6,6,4),
+        17: (6,6,4),
+        18: (6,6,4),
+      };
+      return brownTable[modifiedDie]!;
+    }
+    return (0,0,0);
+  }
+
   void gameOver(GameOutcome outcome) {
     _outcome = outcome;
   }
 
   // Sequence Helpers
+
+  void battle(Location space, bool ambush) {
+    _battleState ??= BattleState(space, ambush);
+    final localState = _battleState!;
+
+    final region = _state.spaceRegion(space);
+    final enemyUnit = _state.spaceTopmostEnemyUnit(space);
+    final enemyLeader = _state.pieceInLocation(PieceType.mapEnemyLeader, space);
+
+    if (localState.subStep == 0) {
+      if (localState.ambush) {
+        logLine('### Ambush by Moors in ${space.desc}');
+      } else {
+        logLine('### Battle in ${space.desc}');
+      }
+      int die = rollD8();
+      int modifiers = 0;
+      int modifier = 0;
+
+      logTableHeader();
+      logD8InTable(die);
+      if (enemyUnit != null) {
+        modifier = _state.enemyUnitResistanceRating(enemyUnit);
+        logLine('>|${enemyUnit.desc}|$modifier|');
+        modifiers += modifier;
+        if (enemyLeader != null) {
+          modifier = _state.enemyLeaderBonus(enemyLeader);
+          logLine('>|Leader|$modifier|');
+          modifiers += modifier;
+        } else {
+          modifier = _state.regionLeaderBonus(region);
+          if (modifier != 0) {
+            logLine('>|Leader|$modifier|');
+            modifiers += modifier;
+          }
+        }
+      }
+      int total = die + modifiers;
+      logLine('>|Total|$total');
+      logTableFooter();
+
+      final tableResults = enemyFormationTable(enemyUnit, total);
+      int rightCount = tableResults.$1;
+      int leftCount = tableResults.$2;
+      int adjustmentCount = tableResults.$3;
+      logLine('>Right: $rightCount Left: $leftCount Cup Adjustments: $adjustmentCount');
+
+      localState.rightCount = rightCount;
+      localState.leftCount = leftCount;
+      localState.cupAdjustmentCount = adjustmentCount;
+
+      localState.subStep = ambush ? 2 : 1;
+    }
+    if (localState.subStep == 1) { // Enemy Deploy
+      if (ambush) {
+        localState.subStep = 3;
+      } else {
+        localState.subStep = 2;
+      }
+    }
+    if (localState.subStep == 2) { // We Deploy
+      if (ambush) {
+        localState.subStep = 1;
+      } else {
+        localState.subStep = 3;
+      }
+    }
+  }
 
   // Sequence of Play
 
@@ -2744,7 +2963,7 @@ class Game {
       _subStep = 1;
     }
     if (_subStep == 1) {
-      // battle(space); TODO
+      battle(space, false);
       cupAdjustment(Location.cupFriendly, Location.cupUnfriendly);
       // TODO unfriendly->hostile
       _subStep == 2;
