@@ -405,7 +405,21 @@ enum PieceType {
   alliedBlueLightCavalry,
   alliedBlueHeavyCavalry,
   enemy,
+  enemyLightCavalry,
+  enemyLightCavalry1,
+  enemyLightCavalry2,
+  enemyHeavyCavalry,
+  enemyHeavyCavalry1,
+  enemyHeavyCavalry2,
+  enemyRedLightCavalry,
+  enemyRedHeavyCavalry,
+  enemyYellowLightCavalry,
+  enemyYellowHeavyCavalry,
+  enemyBlueLightCavalry,
+  enemyBlueHeavyCavalry,
   enemyInfantry,
+  enemyInfantry1,
+  enemyInfantry2,
   city,
   cityFront,
   siege,
@@ -462,7 +476,21 @@ extension PieceTypeExtension on PieceType {
     PieceType.alliedBlueLightCavalry: [Piece.alliedBlueLightCavalry0, Piece.alliedBlueLightCavalry2],
     PieceType.alliedBlueHeavyCavalry: [Piece.alliedBlueHeavyCavalry0, Piece.alliedBlueHeavyCavalry1],
     PieceType.enemy: [Piece.enemyLightCavalry1_0, Piece.enemyInfantry2_12],
+    PieceType.enemyLightCavalry: [Piece.enemyLightCavalry1_0, Piece.enemyLightCavalry2_3],
+    PieceType.enemyLightCavalry1: [Piece.enemyLightCavalry1_0, Piece.enemyLightCavalry1_3],
+    PieceType.enemyLightCavalry2: [Piece.enemyLightCavalry2_0, Piece.enemyLightCavalry2_3],
+    PieceType.enemyHeavyCavalry: [Piece.enemyHeavyCavalry1_0, Piece.enemyHeavyCavalry2_2],
+    PieceType.enemyHeavyCavalry1: [Piece.enemyHeavyCavalry1_0, Piece.enemyHeavyCavalry1_2],
+    PieceType.enemyHeavyCavalry2: [Piece.enemyHeavyCavalry2_0, Piece.enemyHeavyCavalry2_2],
+    PieceType.enemyRedLightCavalry: [Piece.enemyRedLightCavalry0, Piece.enemyRedLightCavalry2],
+    PieceType.enemyRedHeavyCavalry: [Piece.enemyRedHeavyCavalry0, Piece.enemyRedHeavyCavalry1],
+    PieceType.enemyYellowLightCavalry: [Piece.enemyYellowLightCavalry0, Piece.enemyYellowLightCavalry2],
+    PieceType.enemyYellowHeavyCavalry: [Piece.enemyYellowHeavyCavalry0, Piece.enemyYellowHeavyCavalry1],
+    PieceType.enemyBlueLightCavalry: [Piece.enemyBlueLightCavalry0, Piece.enemyBlueLightCavalry2],
+    PieceType.enemyBlueHeavyCavalry: [Piece.enemyBlueHeavyCavalry0, Piece.enemyBlueHeavyCavalry1],
     PieceType.enemyInfantry: [Piece.enemyInfantry1_0, Piece.enemyInfantry2_12],
+    PieceType.enemyInfantry1: [Piece.enemyInfantry1_0, Piece.enemyInfantry1_12],
+    PieceType.enemyInfantry2: [Piece.enemyInfantry2_0, Piece.enemyInfantry2_12],
     PieceType.city: [Piece.city0, Piece.city27],
     PieceType.cityFront: [Piece.city0, Piece.city23],
     PieceType.siege: [Piece.siege0, Piece.siege3],
@@ -545,6 +573,62 @@ enum AlliedColor {
   red,
   yellow,
   blue,
+}
+
+extension AlliedColorExtension on AlliedColor {
+  String get desc {
+    const colorDescs = {
+      AlliedColor.red: 'Red',
+      AlliedColor.yellow: 'Yellow',
+      AlliedColor.blue: 'Blue',
+    };
+    return colorDescs[this]!;
+  }
+
+  PieceType get alliedPieceType {
+    const pieceTypes = {
+      AlliedColor.red: PieceType.alliedRed,
+      AlliedColor.yellow: PieceType.alliedYellow,
+      AlliedColor.blue: PieceType.alliedBlue,
+    };
+    return pieceTypes[this]!;
+  }
+
+  PieceType get alliedLightCavalryPieceType {
+    const pieceTypes = {
+      AlliedColor.red: PieceType.alliedRedLightCavalry,
+      AlliedColor.yellow: PieceType.alliedYellowLightCavalry,
+      AlliedColor.blue: PieceType.alliedBlueLightCavalry,
+    };
+    return pieceTypes[this]!;
+  }
+
+  PieceType get alliedHeavyCavalryPieceType {
+    const pieceTypes = {
+      AlliedColor.red: PieceType.alliedRedHeavyCavalry,
+      AlliedColor.yellow: PieceType.alliedYellowHeavyCavalry,
+      AlliedColor.blue: PieceType.alliedBlueHeavyCavalry,
+    };
+    return pieceTypes[this]!;
+  }
+
+  PieceType get enemyLightCavalryPieceType {
+    const pieceTypes = {
+      AlliedColor.red: PieceType.enemyRedLightCavalry,
+      AlliedColor.yellow: PieceType.enemyYellowLightCavalry,
+      AlliedColor.blue: PieceType.enemyBlueLightCavalry,
+    };
+    return pieceTypes[this]!;
+  }
+
+  PieceType get enemyHeavyCavalryPieceType {
+    const pieceTypes = {
+      AlliedColor.red: PieceType.enemyRedHeavyCavalry,
+      AlliedColor.yellow: PieceType.enemyYellowHeavyCavalry,
+      AlliedColor.blue: PieceType.enemyBlueHeavyCavalry,
+    };
+    return pieceTypes[this]!;
+  }
 }
 
 extension PieceExtension on Piece {
@@ -849,9 +933,64 @@ class GameState {
     for (final piece in piecesInLocation(pieceType, mapLocation)) {
       strength += pieceStrength(piece);
     }
+    return strength;
   }
 
-  void mapLocationIncreaseInfantry(Location location, int count) 
+  void mapLocationIncreaseEnemyPieceType(Location mapLocation, int count, PieceType pieceType, PieceType pieceType1, PieceType pieceType2) {
+    int oldStrength = mapLocationPieceTypeStrength(mapLocation, pieceType);
+    int newStrength = oldStrength + count;
+    int strength = oldStrength;
+    if (strength < newStrength) {
+      for (final piece in piecesInLocation(pieceType1, mapLocation)) {
+        flipPiece(piece);
+        strength += 1;
+        if (strength == newStrength) {
+          break;
+        }
+      }
+    }
+    if (strength < newStrength) {
+      for (final piece in piecesInLocation(pieceType2, Location.offmap)) {
+        setPieceLocation(piece, mapLocation);
+        strength += 2;
+        if (strength > newStrength) {
+          flipPiece(piece);
+          strength -= 1;
+        }
+        if (strength == newStrength) {
+          break;
+        }
+      }
+    }
+  }
+
+  void mapLocationIncreaseEnemyInfantry(Location mapLocation, int count) {
+    mapLocationIncreaseEnemyPieceType(mapLocation, count, PieceType.enemyInfantry, PieceType.enemyInfantry1, PieceType.enemyInfantry2);
+  }
+
+  void mapLocationIncreaseEnemyLightCavalry(Location mapLocation, int count) {
+    mapLocationIncreaseEnemyPieceType(mapLocation, count, PieceType.enemyLightCavalry, PieceType.enemyLightCavalry1, PieceType.enemyLightCavalry2);
+  }
+
+  void mapLocationIncreaseEnemyHeavyCavalry(Location mapLocation, int count) {
+    mapLocationIncreaseEnemyPieceType(mapLocation, count, PieceType.enemyHeavyCavalry, PieceType.enemyHeavyCavalry1, PieceType.enemyHeavyCavalry2);
+  }
+
+  void mapLocationIncreaseEnemyAlliedColorPieceType(Location mapLocation, PieceType alliedPieceType, int count) {
+    final pieces = piecesInLocation(alliedPieceType, Location.offmap);
+    for (int i = 0; i < count && i < pieces.length; ++i) {
+      setPieceLocation(pieceFlipSide(pieces[i])!, mapLocation);
+    }
+  }
+
+  void mapLocationIncreaseEnemyAlliedColorLightCavalry(Location mapLocation, AlliedColor color, int count) {
+    mapLocationIncreaseEnemyAlliedColorPieceType(mapLocation, color.alliedLightCavalryPieceType, count);
+  }
+
+  void mapLocationIncreaseEnemyAlliedColorHeavyCavalry(Location mapLocation, AlliedColor color, int count) {
+    mapLocationIncreaseEnemyAlliedColorPieceType(mapLocation, color.alliedHeavyCavalryPieceType, count);
+  }
+
   // Cards
 
   int cardTerrainCount(Piece card, Terrain terrain) {
@@ -908,7 +1047,9 @@ class GameState {
 
   int pieceStrength(Piece piece) {
     const doublePieceTypes = [
-
+      PieceType.enemyLightCavalry2,
+      PieceType.enemyHeavyCavalry2,
+      PieceType.enemyInfantry2,
     ];
     for (final pieceType in doublePieceTypes) {
       if (piece.isType(pieceType)) {
@@ -1084,10 +1225,15 @@ enum Choice {
   mongolHeavyCavalry,
   alliedRedLightCavalry,
   alliedRedHeavyCavalry,
+  alliedYellow,
   alliedYellowLightCavalry,
   alliedYellowHeavyCavalry,
   alliedBlueLightCavalry,
   alliedBlueHeavyCavalry,
+  hostile,
+  hostileRed,
+  hostileYellow,
+  hostileBlue,
   siegeEngine,
   yes,
   no,
@@ -1574,10 +1720,34 @@ class Game {
     }
   }
 
-  void locationIncreaseInfantry(Location location, int count) {
+  void mapLocationIncreaseEnemyInfantry(Location location, int count) {
     final card = _state.pieceInLocation(PieceType.card, location)!;
     logLine('>$count Infantry are added in ${card.desc}.');
-    _state.locationIncreaseInfantry(location, count);
+    _state.mapLocationIncreaseEnemyInfantry(location, count);
+  }
+
+  void mapLocationIncreaseEnemyLightCavalry(Location location, int count) {
+    final card = _state.pieceInLocation(PieceType.card, location)!;
+    logLine('>$count Light Cavalry are added in ${card.desc}.');
+    _state.mapLocationIncreaseEnemyLightCavalry(location, count);
+  }
+
+  void mapLocationIncreaseEnemyHeavyCavalry(Location location, int count) {
+    final card = _state.pieceInLocation(PieceType.card, location)!;
+    logLine('>$count Heavy Cavalry are added in ${card.desc}.');
+    _state.mapLocationIncreaseEnemyHeavyCavalry(location, count);
+  }
+
+  void mapLocationIncreaseEnemyAlliedColorLightCavalry(Location location, AlliedColor color, int count) {
+    final card = _state.pieceInLocation(PieceType.card, location)!;
+    logLine('>$count ${color.desc} Light Cavalry are added in ${card.desc}.');
+    _state.mapLocationIncreaseEnemyAlliedColorLightCavalry(location, color, count);
+  }
+
+  void mapLocationIncreaseEnemyAlliedColorHeavyCavalry(Location location, AlliedColor color, int count) {
+    final card = _state.pieceInLocation(PieceType.card, location)!;
+    logLine('>$count ${color.desc} Heavy Cavalry are added in ${card.desc}.');
+    _state.mapLocationIncreaseEnemyAlliedColorHeavyCavalry(location, color, count);
   }
 
   // High-Level Functions
@@ -1874,7 +2044,7 @@ class Game {
         if (infantryCount == 0 && lightCavalryCount == 0 && heavyCavalryCount == 0) {
           logLine('>No increase.');
         } else if (infantryCount > 0) {
-          locationIncreaseInfantry(location, infantryCount);
+          mapLocationIncreaseEnemyInfantry(location, infantryCount);
         } else {
           phaseState.lightCavalryCount = lightCavalryCount;
           phaseState.heavyCavalryCount = heavyCavalryCount;
@@ -1884,14 +2054,50 @@ class Game {
       if (_subStep == 1) {
         if (choicesEmpty()) {
           setPrompt('Choose enemy cavalry type');
-          choiceChoosable(Choice.hostile);
+          choiceChoosable(Choice.hostile, true);
+          if (_state.piecesInLocationCount(PieceType.alliedRedLightCavalry, Location.offmap) >= phaseState.lightCavalryCount && _state.piecesInLocationCount(PieceType.alliedRedHeavyCavalry, Location.offmap) >= phaseState.heavyCavalryCount) {
+            choiceChoosable(Choice.hostileRed, true);
+          }
+          if (_state.piecesInLocationCount(PieceType.alliedYellowLightCavalry, Location.offmap) >= phaseState.lightCavalryCount && _state.piecesInLocationCount(PieceType.alliedYellowHeavyCavalry, Location.offmap) >= phaseState.heavyCavalryCount) {
+            choiceChoosable(Choice.hostileYellow, true);
+          }
+          if (_state.piecesInLocationCount(PieceType.alliedBlueLightCavalry, Location.offmap) >= phaseState.lightCavalryCount && _state.piecesInLocationCount(PieceType.alliedBlueHeavyCavalry, Location.offmap) >= phaseState.heavyCavalryCount) {
+            choiceChoosable(Choice.hostileBlue, true);
+          }
           throw PlayerChoiceException();
         }
         AlliedColor? alliedColor;
-
+        if (checkChoice(Choice.hostileRed)) {
+          alliedColor = AlliedColor.red;
+        } else if (checkChoice(Choice.hostileYellow)) {
+          alliedColor = AlliedColor.yellow;
+        } else if (checkChoice(Choice.hostileBlue)) {
+          alliedColor = AlliedColor.blue;
+        }
+        if (alliedColor == null) {
+          if (phaseState.lightCavalryCount > 0) {
+            mapLocationIncreaseEnemyLightCavalry(location, phaseState.lightCavalryCount);
+          }
+          if (phaseState.heavyCavalryCount > 0) {
+            mapLocationIncreaseEnemyHeavyCavalry(location, phaseState.heavyCavalryCount);
+          }
+        } else {
+          if (phaseState.lightCavalryCount > 0) {
+            mapLocationIncreaseEnemyAlliedColorLightCavalry(location, alliedColor, phaseState.lightCavalryCount);
+          }
+          if (phaseState.heavyCavalryCount > 0) {
+            mapLocationIncreaseEnemyAlliedColorHeavyCavalry(location, alliedColor, phaseState.heavyCavalryCount);
+          }
+        }
+        _subStep = 0;
       }
     }
   }
+
+  void enemyIncreasePhaseMoves() {
+
+  }
+
   PlayerChoiceInfo? playInSequence() {
 
     final stepHandlers = [
@@ -1905,6 +2111,7 @@ class Game {
       enemyIncreasesPhaseBegin,
       enemyIncreasesPhaseSetLocations,
       enemyIncreasesPhaseIncreases,
+      enemyIncreasePhaseMoves,
     ];
 
     while (true) {
