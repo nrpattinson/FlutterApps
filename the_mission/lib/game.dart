@@ -2414,6 +2414,24 @@ class GameState {
     return turnNames[turn - 1];
   }
 
+  String turnEraName(int turn) {
+    if (turn <= 2) {
+      return 'Apostolic Age';
+    } else if (turn <= 9) {
+      return 'Pax Romana';
+    } else if (turn <= 14) {
+      return 'Age of Constantine';
+    } else if (turn <= 20) {
+      return 'Fall of Rome';
+    } else if (turn <= 24) {
+      return 'Rise of Islam';
+    } else if (turn <= 27) {
+      return 'Early Middle Ages';
+    } else {
+      return 'Crusades';
+    }
+  }
+
   Location? turnGreatTheologian(int turn) {
     const turnGreatTheologians = {
       3: Location.greatTheologianIgnatius,
@@ -3740,7 +3758,7 @@ class Game {
       if (location.isType(LocationType.land)) {
         final succeedingLand = _state.pathSucceedingLand(path, location)!;
         if (succeedingLand == land) {
-          if (_state.landIsHomeland(succeedingLand)) {
+          if (!_state.landIsHomeland(succeedingLand)) {
             bool ok = true;
             if (attacker.isType(PieceType.romanControl) || attacker == Piece.romanArmy) {
               final defender = _state.landControl(succeedingLand);
@@ -3951,7 +3969,7 @@ class Game {
       if (!attackUsingIntrinsicStrength) {
         int attackerStrength = _state.advanceForceStrength(primaryInvader);
         for (final army in armies) {
-          logLine('> ${army.desc} defends.');
+          logLine('> ${army.desc} defend.');
           int die = rollD6();
 
           logTableHeader();
@@ -3964,11 +3982,11 @@ class Game {
             _invadeState = null;
             return;
           }
-          logLine('>${army.desc} is defeated.');
+          logLine('>${army.desc} are defeated.');
         }
       } else {
         for (final army in armies) {
-          logLine('>${army.desc} defends.');
+          logLine('>${army.desc} defend.');
           int die = rollD6();
 
           logTableHeader();
@@ -3982,7 +4000,7 @@ class Game {
             _invadeState = null;
             return;
           }
-          logLine('>${army.desc} is defeated.');
+          logLine('>${army.desc} are defeated.');
         }
       }
       for (final army in armies) {
@@ -4011,7 +4029,7 @@ class Game {
             }
             if (!retreated) {
               if (_state.pieceLocation(army) == toLand) {
-                logLine('>${army.desc} is eliminated.');
+                logLine('>${army.desc} are eliminated.');
                 if (army == Piece.romanArmy) {
                   _state.setPieceLocation(Piece.romanArmy, Location.boxDamagedArmies);
                 } else {
@@ -4020,7 +4038,7 @@ class Game {
               }
             }
           case ArmyType.vulnerableForce:
-            logLine('>${army.desc} is eliminated.');
+            logLine('>${army.desc} are eliminated.');
             if (army.isType(PieceType.persianEmpire)) {
               _state.setPieceLocation(army, Location.discarded);
             } else if (army.isType(PieceType.king)) {
@@ -4035,7 +4053,7 @@ class Game {
         }
       }
       if (!attackUsingIntrinsicStrength) {
-        logLine('>${primaryInvader.desc} seize control of ${toLand.desc}.');
+        logLine('>${primaryInvader.desc} seizes control of ${toLand.desc}.');
         for (final invader in invaders) {
           _state.setPieceLocation(invader, toLand);
         }
@@ -4073,7 +4091,7 @@ class Game {
             final romanControl = _state.pathActiveRomanControl(path);
             if (romanControl != null) {
               if (romanControl.index >= Location.landSpain.index) {
-                logLine('>${romanControl.desc} retreats to ${Location.landMilan.desc}.');
+                logLine('>${romanControl.desc} retreat to ${Location.landMilan.desc}.');
                 _state.setPieceLocation(romanControl, Location.landMilan);
               }
             }
@@ -5466,9 +5484,14 @@ class Game {
           if (phaseState.moveApostleFree) {
             logLine('>Martyrdom');
             int die = rollD6();
-            logD6(die);
+
+            logTableHeader();
+            logD6InTable(die);
             final locationType = _state.pathLocationType(path);
             final sequence = land.index - locationType.firstIndex + 1;
+            logLine('>|${land.desc}|$sequence|');
+            logTableFooter();
+
             if (die <= sequence) {
               logLine('>${missionary.desc} is Martyred.');
               final relics = _state.pieceFlipSide(missionary)!;
@@ -6168,7 +6191,7 @@ class Game {
     }
     while (_subStep == 1) {
       if (choicesEmpty()) {
-        setPrompt('Select lands to Prevent Apostasy in');
+        setPrompt('Select Lands to Prevent Apostasy in');
         for (final land in apostasyLands) {
           if (!phaseState.preventApostasyLands.contains(land)) {
             if (_state.solidi >= preventApostasyCostForLand(land)) {
@@ -6205,15 +6228,12 @@ class Game {
     }
   }
 
-  void endOfTurnPhaseTheCrusades() {
-    if (_state.currentTurn != 27) {
-      return;
-    }
-    logLine('# The Crusades');
-    _state.setPieceLocation(Piece.gameTurn, _state.actsBox(28));
+  int victoryPoints(bool log) {
     int score = 0;
 
-    logTableHeader();
+    if (log) {
+      logTableHeader();
+    }
     int christianLandValues = 0;
     int untouchedLandCount = 0;
     for (final land in LocationType.pathLand.locations) {
@@ -6228,7 +6248,9 @@ class Game {
         }
       }
     }
-    logLine('>|Christian Land Values|+$christianLandValues|');
+    if (log) {
+      logLine('>|Christian Land Values|+$christianLandValues|');
+    }
     score += christianLandValues;
     for (final path in Path.values) {
       final locationType = _state.pathLocationType(path);
@@ -6242,17 +6264,23 @@ class Game {
         }
       }
       if (pathChristian) {
-        logLine('>|${path.desc} fully Christian|+5|');
+        if (log) {
+          logLine('>|${path.desc} fully Christian|+5|');
+        }
         score += 5;
       }
     }
     if (_state.pieceLocation(Piece.reconquista) == Location.landSpain) {
-      logLine('>|Spanish Reconquista|+5|');
+      if (log) {
+        logLine('>|Spanish Reconquista|+5|');
+      }
       score += 5;
     }
     for (final land in [Location.landCtesiphon, Location.landPersia, Location.landMerv]) {
       if (_state.pieceInLocation(PieceType.persianEmpire, land) != null) {
-        logLine('>|Persian Empire controls ${land.desc}|+5|');
+        if (log) {
+          logLine('>|Persian Empire controls ${land.desc}|+5|');
+        }
         score += 5;
       }
     }
@@ -6260,19 +6288,25 @@ class Game {
       final location = _state.pieceLocation(pope);
       if (location.isType(LocationType.land)) {
         if (_state.piecesInLocationCount(PieceType.heresy, location) == 0) {
-          logLine('>|${pope.desc}|+3|');
+          if (log) {
+            logLine('>|${pope.desc}|+3|');
+          }
           score += 3;
         }
       }
     }
     if (_state.solidi > 0) {
-      logLine('>|Solidi|+${_state.solidi}|');
+      if (log) {
+        logLine('>|Solidi|+${_state.solidi}|');
+      }
       score += _state.solidi;
     }
     for (final relics in PieceType.relics.pieces) {
       final location = _state.pieceLocation(relics);
       if (location.isType(LocationType.land)) {
-        logLine('>|Relics in ${location.desc}|+3|');
+        if (log) {
+          logLine('>|Relics in ${location.desc}|+3|');
+        }
         score += 3;
       }
     }
@@ -6280,45 +6314,70 @@ class Game {
       final location = _state.pieceLocation(infrastructure);
       if (location.isType(LocationType.land)) {
         int value = _state.landControlChristian(location) ? 4 : 3;
-        logLine('>|${infrastructure.desc} in ${location.desc}|+$value|');
+        if (log) {
+          logLine('>|${infrastructure.desc} in ${location.desc}|+$value|');
+        }
         score += value;
       }
     }
     if (untouchedLandCount > 0) {
-      logLine('>|Lands untouched by Christianity|-$untouchedLandCount|');
+      if (log) {
+        logLine('>|Lands untouched by Christianity|-$untouchedLandCount|');
+      }
       score -= untouchedLandCount;
     }
     for (final heresy in PieceType.heresy.pieces) {
       final location = _state.pieceLocation(heresy);
       if (location.isType(LocationType.land)) {
-        logLine('>|${heresy.desc} in ${location.desc}|-5|');
+        if (log) {
+          logLine('>|${heresy.desc} in ${location.desc}|-5|');
+        }
         score -= 5;
       }
     }
     for (final path in Path.values) {
       final faith = _state.pathFaith(path);
       if (faith != null && faith.isType(PieceType.faithSubmit)) {
-        logLine('>|${path.desc} Submit|-5|');
+        if (log) {
+          logLine('>|${path.desc} Submit|-5|');
+        }
         score -= 5;
       }
     }
     final land = _state.pieceLocation(Piece.romanCapitalChristian);
     if (!_state.landControlChristian(land)) {
-      logLine('>|Roman Capital in ${land.desc} not under Christian Control|-10|');
+      if (log) {
+        logLine('>|Roman Capital in ${land.desc} not under Christian Control|-10|');
+      }
       score -= 10;
     }
     if (_state.darkAges > 0) {
-      logLine('>|Dark Ages|-${_state.darkAges}|');
+      if (log) {
+        logLine('>|Dark Ages|-${_state.darkAges}|');
+      }
       score -= _state.darkAges;
     }
     for (final bible in _state.piecesInLocation(PieceType.bible, Location.trayBible)) {
-      logLine('>|${bible.desc} not Translated|-5|');
+      if (log) {
+        logLine('>|${bible.desc} not Translated|-5|');
+      }
       score -= 5;
     }
-    logLine('>|Score|$score|');
-    logTableFooter();
+    if (log) {
+      logLine('>|Score|$score|');
+      logTableFooter();
+    }
+    return score;
+  }
 
-    throw GameOverException(GameResult.victory, score);
+  void endOfTurnPhaseTheCrusades() {
+    if (_state.currentTurn != 27) {
+      return;
+    }
+    logLine('# The Crusades');
+    _state.setPieceLocation(Piece.gameTurn, _state.actsBox(28));
+
+    throw GameOverException(GameResult.victory, victoryPoints(true));
   }
 
   void endOfTurnPhaseResets() {

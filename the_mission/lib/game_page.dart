@@ -804,27 +804,27 @@ class GamePageState extends State<GamePage> {
       var sk = (land, 0);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
         ulPieces.sort((a, b) => mapPieceZOrder(state, a, b));
-        layoutStack(appState, sk, ulPieces, BoardArea.map, xLand - 62.0, yLand - 62.0, -4.0, -4.0);
+        layoutStack(appState, sk, ulPieces, BoardArea.map, xLand - 62.0, yLand - 62.0, -6.0, -6.0);
       }
       sk = (land, 1);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
         urPieces.sort((a, b) => mapPieceZOrder(state, a, b));
-        layoutStack(appState, sk, urPieces, BoardArea.map, xLand + 2.0, yLand - 62.0, 4.0, -4.0);
+        layoutStack(appState, sk, urPieces, BoardArea.map, xLand + 2.0, yLand - 62.0, 6.0, -6.0);
       }
       sk = (land, 2);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
         llPieces.sort((a, b) => mapPieceZOrder(state, a, b));
-        layoutStack(appState, sk, llPieces, BoardArea.map, xLand - 62.0, yLand + 2.0, -4.0, 4.0);
+        layoutStack(appState, sk, llPieces, BoardArea.map, xLand - 62.0, yLand + 2.0, -6.0, 6.0);
       }
       sk = (land, 3);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
         lrPieces.sort((a, b) => mapPieceZOrder(state, a, b));
-        layoutStack(appState, sk, lrPieces, BoardArea.map, xLand + 2.0, yLand + 2.0, 4.0, 4.0);
+        layoutStack(appState, sk, lrPieces, BoardArea.map, xLand + 2.0, yLand + 2.0, 6.0, 6.0);
       }
       sk = (land, 4);
       if (_expandedStacks.contains(sk) == (pass == 1)) {
         cPieces.sort((a, b) => mapPieceZOrder(state, a, b));
-        layoutStack(appState, sk, cPieces, BoardArea.map, xLand - 55.0, yLand, 4.0, 4.0);
+        layoutStack(appState, sk, cPieces, BoardArea.map, xLand - 55.0, yLand, 6.0, 6.0);
       }
     }
 
@@ -1051,7 +1051,17 @@ class GamePageState extends State<GamePage> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    String christendomStatus = '';
+
     if (gameState != null) {
+
+      christendomStatus = '''
+# Christendom during The ${gameState.turnEraName(gameState.currentTurn)}, ${gameState.turnName(gameState.currentTurn)}
+___
+|\$olidus|Dark Ages|Victory Points|
+|:---:|:---:|:---:|
+|${gameState.solidi}|${gameState.darkAges}|${appState.game!.victoryPoints(false)}|
+''';
 
       layoutTrack(appState);
       layoutActsTrack(appState);
@@ -1283,26 +1293,45 @@ class GamePageState extends State<GamePage> {
           ),
           SizedBox(
             width: 500.0,
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: colorScheme.surface),
-              child: Markdown(
-                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                  h1: textTheme.headlineMedium,
-                  h1Align: WrapAlignment.center,
-                  h1Padding: const EdgeInsets.all(5.0),
-                  h2: textTheme.titleLarge,
-                  h2Align: WrapAlignment.center,
-                  h2Padding: const EdgeInsets.all(3.0),
-                  h3: textTheme.bodyLarge,
-                  blockquote: textTheme.bodyMedium,
-                  blockquoteDecoration: BoxDecoration(
-                    color: colorScheme.tertiaryContainer,
+            child: Column(
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(color: colorScheme.primaryContainer),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: MarkdownBody(
+                        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                          h1: textTheme.titleMedium,
+                          tableBorder: TableBorder.all(style: BorderStyle.none),
+                        ),
+                      data: christendomStatus,
+                    ),
                   ),
-                  strong: textTheme.headlineMedium,
                 ),
-                controller: _logScrollController,
-                data: log,
-              ),
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: colorScheme.surface),
+                    child: Markdown(
+                      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                        h1: textTheme.headlineMedium,
+                        h1Align: WrapAlignment.center,
+                        h1Padding: const EdgeInsets.all(5.0),
+                        h2: textTheme.titleLarge,
+                        h2Align: WrapAlignment.center,
+                        h2Padding: const EdgeInsets.all(3.0),
+                        h3: textTheme.bodyLarge,
+                        blockquote: textTheme.bodyMedium,
+                        blockquoteDecoration: BoxDecoration(
+                          color: colorScheme.tertiaryContainer,
+                        ),
+                        strong: textTheme.headlineMedium,
+                      ),
+                      controller: _logScrollController,
+                      data: log,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
