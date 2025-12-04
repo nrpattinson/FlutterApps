@@ -41,8 +41,9 @@ class GamePageState extends State<GamePage> {
 
   final _displayOptionsFormKey = GlobalKey<FormState>();
  
-  bool _provinceRevoltModifiers = false;
   bool _provinceLoyalty = false;
+  bool _provinceRevoltModifiers = false;
+  bool _fightWarModifiers = false;
   bool _emptyMap = false;
 
   final _pieceImages = <Piece,Image>{};
@@ -411,6 +412,44 @@ class GamePageState extends State<GamePage> {
     return coordinates[entryArea]!;
   }
 
+  Color commandColor(Location command) {
+    switch (command) {
+    case Location.commandEmperor:
+    case Location.commandPresident:
+      return const Color.fromRGBO(0xFF, 0xFF, 0x00, 1.0);
+    case Location.commandNorthChina:
+      return const Color.fromRGBO(0xFF, 0xC0, 0x00, 1.0);
+    case Location.commandSouthChina:
+      return const Color.fromRGBO(0xFF, 0x00, 0x00, 1.0);
+    case Location.commandEastChina:
+      return const Color.fromRGBO(0x00, 0xB0, 0x50, 1.0);
+    case Location.commandWestChina:
+      return const Color.fromRGBO(0x00, 0xB0, 0xF0, 1.0);
+    case Location.commandManchuria:
+      return const Color.fromRGBO(0x92, 0xD0, 0x50, 1.0);
+    case Location.commandMongolia:
+      return const Color.fromRGBO(0x00, 0x00, 0x00, 1.0);
+    case Location.commandTibet:
+      return const Color.fromRGBO(0xFF, 0x66, 0x00, 1.0);
+    case Location.commandXinjiang:
+      return const Color.fromRGBO(0xD6, 0x00, 0x93, 1.0);
+    case Location.commandEast:
+      return const Color.fromRGBO(0x00, 0x70, 0xC0, 1.0);
+    case Location.commandSouth:
+      return const Color.fromRGBO(0xC0, 0x00, 0x00, 1.0);
+    default:
+      return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
+    }
+  }
+
+  Color commandForegroundColor(Location command) {
+    if (command == Location.commandMongolia) {
+      return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
+    } else {
+      return const Color.fromRGBO(0x00, 0x00, 0x00, 1.0);
+    }
+  }
+
   void addProvinceStatusToMap(MyAppState appState, ProvinceStatus status, double x, double y) {
     Widget widget = _provinceStatusImages[status]!;
 
@@ -437,6 +476,9 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToMap(MyAppState appState, Piece piece, double x, double y) {
+    final game = appState.game;
+    final gameState = appState.gameState;
+
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -515,6 +557,72 @@ class GamePageState extends State<GamePage> {
     );
 
     _mapStackChildren.add(widget);
+
+    if (_fightWarModifiers && game != null && gameState != null && piece.isType(PieceType.war)) {
+      final location = gameState.pieceLocation(piece);
+      if (location.isType(LocationType.province)) {
+        final commands = game.fightWarCommandCandidates(piece);
+        commands.sort((a, b) => a.index.compareTo(b.index));
+        int commandIndex = 0;
+        for (final command in commands) {
+          final provinces = game.fightWarProvinceCandidates(piece, command);
+          final modifierResults = game.calculateFightWarModifier(piece, command, provinces, false);
+
+          int fightWarModifier = modifierResults.$1;
+          bool fleetShortage = modifierResults.$2;
+          bool cavalryShortage = modifierResults.$3;
+
+          final fightWarColor = commandColor(command);
+          final textColor = commandForegroundColor(command);
+
+          final textTheme = Theme.of(context).textTheme;
+
+          String code = '${9 + fightWarModifier!}';
+          if (fleetShortage) {
+            code += 'F';
+          } else if (cavalryShortage) {
+            code += 'C';
+          }
+
+          final fightWarTextStyle = textTheme.displayMedium!.copyWith(color: textColor);
+
+          Widget fightWarWidget = Text(
+            code,
+            style: fightWarTextStyle,
+            selectionColor: textColor,
+          );
+
+          const fightWarHalfWidth = 45.0;
+
+          fightWarWidget = SizedBox(
+            width: 2.0 * fightWarHalfWidth,
+            height: 50.0,
+            child: Center(
+              child: fightWarWidget,
+            ),
+          );
+
+          fightWarWidget = DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: fightWarColor,
+              border: Border.all(color: Colors.black, width: 2.0),
+            ),
+            child: fightWarWidget,
+          );
+
+
+          fightWarWidget = Positioned(
+            left: x + 24.0 - fightWarHalfWidth * commands.length + commandIndex * 2.0 * fightWarHalfWidth,
+            top: y + 50.0,
+            child: fightWarWidget,
+          );
+          _mapStackChildren.add(fightWarWidget);
+
+          commandIndex += 1;
+        }
+      }
+    }
   }
 
   void addRebelMarkerToMap(MyAppState appState, double x, double y) {
@@ -650,32 +758,10 @@ class GamePageState extends State<GamePage> {
       if (status != ProvinceStatus.barbarian) {
         final command = gameState.provinceCommand(province);
         if (gameState.commandLoyal(command)) {
-          innerColor = const Color.fromRGBO(0xFF, 0xFF, 0x00, 1.0);
+          innerColor = commandColor(gameState.rulingCommand);
         } else {
           final loyalty = gameState.commandAllegiance(command);
-          switch (loyalty) {
-          case Location.commandNorthChina:
-            innerColor = const Color.fromRGBO(0xFF, 0xC0, 0x00, 1.0);
-          case Location.commandSouthChina:
-            innerColor = const Color.fromRGBO(0xFF, 0x00, 0x00, 1.0);
-          case Location.commandEastChina:
-            innerColor = const Color.fromRGBO(0x00, 0xB0, 0x50, 1.0);
-          case Location.commandWestChina:
-            innerColor = const Color.fromRGBO(0x00, 0xB0, 0xF0, 1.0);
-          case Location.commandManchuria:
-            innerColor = const Color.fromRGBO(0x92, 0xD0, 0x50, 1.0);
-          case Location.commandMongolia:
-            innerColor = const Color.fromRGBO(0x00, 0x00, 0x00, 1.0);
-          case Location.commandTibet:
-            innerColor = const Color.fromRGBO(0xFF, 0x66, 0x00, 1.0);
-          case Location.commandXinjiang:
-            innerColor = const Color.fromRGBO(0xD6, 0x00, 0x93, 1.0);
-          case Location.commandEast:
-            innerColor = const Color.fromRGBO(0x00, 0x70, 0xC0, 1.0);
-          case Location.commandSouth:
-            innerColor = const Color.fromRGBO(0xC0, 0x00, 0x00, 1.0);
-          default:
-          }
+          innerColor = commandColor(loyalty);
         }
       }
     }
@@ -684,7 +770,7 @@ class GamePageState extends State<GamePage> {
       final textTheme = Theme.of(context).textTheme;
 
       Widget revoltWidget = Text(
-        '${7 - revoltModifier!}',
+        '${6 - revoltModifier!}',
         style: textTheme.displayMedium,
       );
       revoltWidget = SizedBox(
@@ -1477,6 +1563,21 @@ ___
                             children: [
                               CheckboxListTile(
                                 title: Text(
+                                  'Province Loyalty',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _provinceLoyalty,
+                                onChanged: (bool? provinceLoyalty) {
+                                  setState(() {
+                                    if (provinceLoyalty != null) {
+                                      _provinceLoyalty = provinceLoyalty;
+                                    }
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
+                                title: Text(
                                   'Province Revolt Modifiers',
                                   style: textTheme.labelMedium
                                 ),
@@ -1492,15 +1593,15 @@ ___
                               ),
                               CheckboxListTile(
                                 title: Text(
-                                  'Province Loyalty',
+                                  'Fight War Modifiers',
                                   style: textTheme.labelMedium
                                 ),
                                 controlAffinity: ListTileControlAffinity.leading,
-                                value: _provinceLoyalty,
-                                onChanged: (bool? provinceLoyalty) {
+                                value: _fightWarModifiers,
+                                onChanged: (bool? fightWarModifiers) {
                                   setState(() {
-                                    if (provinceLoyalty != null) {
-                                      _provinceLoyalty = provinceLoyalty;
+                                    if (fightWarModifiers != null) {
+                                      _fightWarModifiers = fightWarModifiers;
                                     }
                                   });
                                 },
