@@ -844,41 +844,41 @@ class GameState {
   String turnName(int turn) {
     switch (turn) {
     case 1:
-      return '300-201 BC (1)';
+      return '300-201 BC';
     case 2:
-      return '200-101 BC (2)';
+      return '200-101 BC';
     case 3:
-      return '100-1 BC (3)';
+      return '100-1 BC';
     case 4:
-      return '1-100 AD (4)';
+      return '1-100 AD';
     case 5:
-      return '101-200 AD (5)';
+      return '101-200 AD';
     case 6:
-      return '201-300 AD (6)';
+      return '201-300 AD';
     case 7:
-      return '301-400 AD (7)';
+      return '301-400 AD';
     case 8:
-      return '401-500 AD (8)';
+      return '401-500 AD';
     case 9:
-      return '501-600 AD (9)';
+      return '501-600 AD';
     case 10:
-      return '601-700 AD (10)';
+      return '601-700 AD';
     case 11:
-      return '701-800 AD (11)';
+      return '701-800 AD';
     case 12:
-      return '801-900 AD (12)';
+      return '801-900 AD';
     case 13:
-      return '901-1000 AD (13)';
+      return '901-1000 AD';
     case 14:
-      return '1001-1100 AD (14)';
+      return '1001-1100 AD';
     case 15:
-      return '1101-1200 AD (15)';
+      return '1101-1200 AD';
     case 16:
-      return '1201-1300 AD (16)';
+      return '1201-1300 AD';
     case 17:
-      return '1301-1400 AD (17)';
+      return '1301-1400 AD';
     case 18:
-      return '1401-1500 AD (18)';
+      return '1401-1500 AD';
     default:
       return '';
     }
@@ -1364,9 +1364,15 @@ class PhaseStateBarbarian extends PhaseState {
     }
     if (currentGroupIndex! < groupInitialProvinces.length) {
       currentGroupProvince = groupInitialProvinces[currentGroupIndex!];
+      currentGroupNextProvince = null;
       currentGroupCount = groupInitialCounts[currentGroupIndex!];
       currentGroupTrailRaw = [currentGroupProvince!];
       currentGroupTrail = [currentGroupProvince!];
+      barbarianLossCount = null;
+      legionLossCount = null;
+      emperorLossCount = null;
+      emperorRetreatCount = null;
+      cityLossCount = null;
     }
   }
 }
@@ -2071,7 +2077,7 @@ class Game {
   // Sequence of Play
 
   void turnBegin() {
-    logLine('# ${_state.turnName(_state.currentTurn)}');
+    logLine('# Turn ${_state.currentTurn} ${_state.turnName(_state.currentTurn)}');
   }
 
   void romanPhaseBegin() {
@@ -2431,13 +2437,14 @@ class Game {
       if (_subStep == 9) { // invasion successful
         final toProvince = phaseState.toProvince!;
         logLine('>${toProvince.desc} becomes Friendly.');
+        _subStep = 10;
+      }
+      if (_subStep == 10) { // Move complete
+        final toProvince = phaseState.toProvince!;
         final control = _state.pieceInLocation(PieceType.romanControl, toProvince);
         if (control != null) {
           _state.setPieceLocation(control, Location.offmap);
         }
-        _subStep = 10;
-      }
-      if (_subStep == 10) { // Move complete
         phaseState.movingLegionOrEmperor = null;
         phaseState.toProvince = null;
         _subStep = 0;
@@ -2523,35 +2530,27 @@ class Game {
     if (_subStep == 0) {
       String civilizedDesc = barbarianPieceType == PieceType.barbarianCivilized ? 'Civilized' : 'Uncivilized';
       logLine('### Move ${phaseState.groupInitialCounts[groupIndex]} $civilizedDesc Barbarians in ${phaseState.currentGroupProvince!.desc}.');
+      final offmapBarbarians = _state.piecesInLocation(barbarianPieceType, Location.offmap);
+      for (int i = 0; i < phaseState.currentGroupCount!; ++i) {
+        _state.setPieceLocation(offmapBarbarians[i], phaseState.currentGroupProvince!);
+      }
       _subStep = 1;
     }
     final barbarians = <Piece>[];
-    if (phaseState.currentGroupProvince!.isType(LocationType.provinceWild)) {
-      final offmapBarbarians = _state.piecesInLocation(barbarianPieceType, Location.offmap);
-      for (int i = 0; i < phaseState.currentGroupCount!; ++i) {
-        barbarians.add(offmapBarbarians[i]);
-      }
-      for (final barbarian in barbarians) {
-        _state.setPieceLocation(barbarian, phaseState.currentGroupProvince!);
-      }
-    } else {
-      final provinceBarbarians = _state.piecesInLocation(barbarianPieceType, phaseState.currentGroupProvince!);
-      for (int i = 0; i < phaseState.currentGroupCount!; ++i) {
-        barbarians.add(provinceBarbarians[i]);
-      }
+    final provinceBarbarians = _state.piecesInLocation(barbarianPieceType, phaseState.currentGroupProvince!);
+    for (int i = 0; i < phaseState.currentGroupCount!; ++i) {
+      barbarians.add(provinceBarbarians[i]);
     }
     var logPath = <Location>[];
-    while (_subStep < 12) {
+    while (_subStep >= 1 && _subStep <= 11) {
       if (_subStep == 1) {  // Potentially leave 1 Barbarian in current province
         final fromProvince = phaseState.currentGroupProvince!;
-        if (_state.provinceType(fromProvince) != ProvinceType.wild && _state.pieceInLocation(PieceType.barbarian, fromProvince) == null) {
+        if (_state.provinceType(fromProvince) != ProvinceType.wild && _state.piecesInLocationCount(PieceType.barbarian, fromProvince) == phaseState.currentGroupCount) {
           barbarians.removeLast();
-          logLine('>Barbarians occupy ${fromProvince.desc}');
           phaseState.currentGroupCount = barbarians.length;
         }
         if (barbarians.isEmpty) {
-          _subStep = 12;
-          break;
+          return;
         }
         _subStep = 2;
       }
@@ -2565,17 +2564,17 @@ class Game {
           phaseState.currentGroupTrail.add(nextProvince);
         }
         logPath.add(nextProvince);
+        logBarbarianMove(barbarians.length, barbarianPieceType == PieceType.barbarianCivilized, logPath);
+        logPath.clear();
         final otherBarbarian = _state.pieceInLocation(PieceType.barbarian, nextProvince);
         if (otherBarbarian == null) {
           _subStep = 3;
         } else {
-          _subStep = 11;
+          _subStep = 10;
         }
       }
       if (_subStep == 3) { // Advance into non-Barbarian province
         final nextProvince = phaseState.currentGroupNextProvince!;
-        logBarbarianMove(barbarians.length, barbarianPieceType == PieceType.barbarianCivilized, logPath);
-        logPath.clear();
         final legions = _state.piecesInLocation(PieceType.legion, nextProvince);
         int emperorCount = _state.pieceLocation(Piece.emperor) == nextProvince ? 1 : 0;
         final city = _state.pieceInLocation(PieceType.city, nextProvince);
@@ -2591,12 +2590,13 @@ class Game {
             _subStep = 7;
           }
         } else {
-          for (final barbarian in barbarians) {
-            _state.setPieceLocation(barbarian, nextProvince);
+          final control = _state.pieceInLocation(PieceType.romanControl, nextProvince);
+          if (control != null) {
+            logLine('>${nextProvince.desc} falls to the Barbarians.');
+            _state.setPieceLocation(control, Location.offmap);
+          } else {
+            logLine('>Barbarians occupy ${nextProvince.desc}');
           }
-          barbarians.removeLast();
-          logLine('>Barbarians occupy ${nextProvince.desc}');
-          phaseState.currentGroupCount = barbarians.length;
           _subStep = 10;
         }
       }
@@ -2761,18 +2761,26 @@ class Game {
           for (final barbarian in barbarians) {
             _state.setPieceLocation(barbarian, nextProvince);
           }
-          barbarians.removeLast();
           logLine('>Barbarians occupy ${nextProvince.desc}');
         }
-        _subStep = 10;
         phaseState.barbarianLossCount = null;
         phaseState.legionLossCount = null;
         phaseState.emperorLossCount = null;
         phaseState.emperorRetreatCount = null;
         phaseState.cityLossCount = null;
-        phaseState.currentGroupCount = barbarians.length;
+        _subStep = 10;
       }
-      if (_subStep == 10) { // Prompt
+      if (_subStep == 10) { // Province move complete
+        final nextProvince = phaseState.currentGroupNextProvince!;
+        for (final piece in barbarians) {
+          _state.setPieceLocation(piece, nextProvince);
+        }
+        phaseState.currentGroupCount = barbarians.length;
+        phaseState.currentGroupProvince = nextProvince;
+        phaseState.currentGroupNextProvince = null;
+        _subStep = 11;
+      }
+      if (_subStep == 11) { // Prompt
         if (choicesEmpty()) {
           setPrompt('Proceed');
           choiceChoosable(Choice.next, true);
@@ -2780,24 +2788,14 @@ class Game {
         }
         clearChoices();
         if (barbarians.isEmpty) {
+          phaseState.currentGroupCount = null;
+          phaseState.currentGroupProvince = null;
+          phaseState.currentGroupNextProvince = null;
           return;
         }
-        _subStep = 11;
-      }
-      if (_subStep == 11) { // Province move complete
-        phaseState.currentGroupProvince = phaseState.currentGroupNextProvince;
-        phaseState.currentGroupNextProvince = null;
         _subStep = 1;
       }
     }
-    if (_subStep == 12) {
-      if (choicesEmpty()) {
-        setPrompt('Proceed');
-        choiceChoosable(Choice.next, true);
-        throw PlayerChoiceException();
-      }
-    }
-    clearChoices();
   }
 
   void barbarianPhaseEnd() {
@@ -2862,6 +2860,7 @@ class Game {
         }
       }
     }
+    logLine('>');
     logLine('>Score: $count');
     adjustVictoryPoints(count);
   }

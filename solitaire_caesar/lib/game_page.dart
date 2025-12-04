@@ -307,7 +307,39 @@ class GamePageState extends State<GamePage> {
 
     final sk = (province, 0);
     if (_expandedStacks.contains(sk) == (pass == 1)) {
-      layoutStack(appState, sk, state.piecesInLocation(PieceType.all, province), BoardArea.map, xProvince, yProvince, 4.0, 4.0);
+      Piece? romanControl;
+      Piece? city;
+      Piece? capital;
+      Piece? emperor;
+      final others = <Piece>[];
+      for (final piece in state.piecesInLocation(PieceType.all, province)) {
+        if (piece.isType(PieceType.romanControl)) {
+          romanControl = piece;
+        } else if (piece.isType(PieceType.city)) {
+          city = piece;
+        } else if (piece == Piece.emperor) {
+          emperor = piece;
+        } else if (piece == Piece.capital) {
+          capital = piece;
+        } else {
+          others.add(piece);
+        }
+      }
+      var stackPieces = <Piece>[];
+      if (romanControl != null) {
+        stackPieces.add(romanControl);
+      }
+      if (city != null) {
+        stackPieces.add(city);
+      }
+      if (capital != null) {
+        stackPieces.add(capital);
+      }
+      stackPieces += others;
+      if (emperor != null) {
+        stackPieces.add(emperor);
+      }
+      layoutStack(appState, sk, stackPieces, BoardArea.map, xProvince, yProvince, 8.0, 8.0);
     }
  
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(province)) {
@@ -351,13 +383,13 @@ class GamePageState extends State<GamePage> {
         int xIndex = index % 9;
         int yIndex = index ~/ 9;
         final xBox = xFirst + 108.0 * xIndex;
-        final yBox = yFirst + 95.0 * yIndex;
+        final yBox = yFirst + 230.0 * yIndex;
         const turnPieces = [Piece.turn, Piece.skilledGeneral];
         final pieces = <Piece>[];
         for (int i = 0; i < turnPieces.length; ++i) {
           final piece = turnPieces[i];
           if (state.pieceLocation(piece) == box) {
-            pieces.add;
+            pieces.add(piece);
           }
         }
         layoutStack(appState, sk, pieces, BoardArea.reference, xBox, yBox, 5.0, 5.0);
