@@ -611,6 +611,15 @@ class GameState {
     setPieceLocation(marker, turnBox(newValue));
   }
 
+  int piecesInStateCount(PieceType pieceType, Location state) {
+    final countyLocationType = stateCountyLocationType(state);
+    int count = 0;
+    for (final county in countyLocationType.locations) {
+      count += piecesInLocationCount(pieceType, county);
+    }
+    return count;
+  }
+
   // Ground Units
 
   bool groundUnitIsHorse(Piece groundUnit) {
@@ -1534,8 +1543,36 @@ class Game {
     return candidates;
   }
 
-  List<Location> candidateForcedMarchDestinations(Location county) {
+  List<Location> candidateForcedMarchDestinations(Location originCounty) {
+    final originState = originCounty == Location.boxQuebec ? originCounty : _state.countyState(originCounty);
+    final cavalryLocation = _state.pieceLocation(Piece.groundContinentalHLee);
+    Location? cavalryState;
+    if (cavalryLocation.isType(LocationType.countyOrQuebec)) {
+      cavalryState = cavalryLocation == Location.boxQuebec ? cavalryLocation : _state.countyState(cavalryLocation);
+    }
+    final candidates = <Location>[];
+    if (originState != cavalryState) {
+      for (final county in LocationType.countyOrQuebec.locations) {
+        final destinationState = county == Location.boxQuebec ? county : _state.countyState(county);
+        if (destinationState != originState && destinationState != cavalryState) {
+          final interveningStates = _state.stateInterveningStates(originState, destinationState);
+          if (!interveningStates.contains(cavalryState)) {
+            candidates.add(county);
+          }
+        }
+      }
+    }
+    return candidates;
+  }
 
+  void unitLeavesState(Piece unit, Location state) {
+    if (!state.isType(LocationType.state)) {
+      return;
+    }
+    if (_state.piecesInStateCount(PieceType.groundBritish, state) == 0) {
+      logLine('>{unit.desc} abandons ${state.desc}.');
+      adjustStateLoyalty(state, -1);
+    }
   }
 
   void gameOver(GameOutcome outcome) {
@@ -2458,21 +2495,8 @@ class Game {
       final destinationCounty = selectedLocation();
       if (destinationCounty == null) {
         setPrompt('Select County to move ${unit.desc} to');
-        final cavalryLocation = _state.pieceLocation(Piece.groundContinentalHLee);
-        Location? cavalryState;
-        if (cavalryLocation.isType(LocationType.countyOrQuebec)) {
-          cavalryState = cavalryLocation == Location.boxQuebec ? cavalryLocation : _state.countyState(cavalryLocation);
-        }
-        if (currentState != cavalryState) {
-          for (final county in LocationType.countyOrQuebec.locations) {
-            final destinationState = county == Location.boxQuebec ? county : _state.countyState(county);
-            if (destinationState != currentState && destinationState != cavalryState) {
-              final interveningStates = _state.stateInterveningStates(currentState, destinationState);
-              if (!interveningStates.contains(cavalryState)) {
-                locationChoosable(county);
-              }
-            }
-          }
+        for (final county in candidateForcedMarchDestinations(currentCounty)) {
+          locationChoosable(county);
         }
         choiceChoosable(Choice.cancel, true);
         throw PlayerChoiceException();
@@ -2484,7 +2508,7 @@ class Game {
       logTableHeader();
       logD6InTable(die);
       if (_state.piecesInLocationCount(PieceType.groundRebel, destinationCounty) > 0) {
-        logLine('>|Enemy-occupied county|+1|');
+        logLine('>|Enemy-occupied County|+1|');
         modifiers += 1;
       }
       final destinationState = destinationCounty == Location.boxQuebec ? destinationCounty : _state.countyState(destinationCounty);
@@ -2497,9 +2521,16 @@ class Game {
       logLine('>|Total|$total|');
       logTableFooter();
 
-      if (total >= )
+      if (total >= 6) {
+        logLine('>${unit.desc} evaporates.');
+        _state.setPieceLocation(unit, Location.poolBritishForce);
+        return;
+      }
 
+      logLine('>${unit.desc} arrives intact in ${destinationCounty.desc}.');
       _state.setPieceLocation(unit, destinationCounty);
+
+      unitLeavesState(unit, currentState);
     }
   }
 

@@ -289,7 +289,7 @@ class GamePageState extends State<GamePage> {
     const coordinates = {
       Location.countyNewEnglandConnecticutCoast: (BoardArea.map, 0.0, 0.0),
       Location.countyNewEnglandRhodeIsland: (BoardArea.map, 1020.0, 140.0),
-      Location.countyNewEnglandMassachusettsShore: (BoardArea.map, 890.0, 245.0),
+      Location.countyNewEnglandMassachusettsShore: (BoardArea.map, 849.0, 232.0),
       Location.countyNewEnglandMaineAndNovaScotia: (BoardArea.map, 1020.0, 245.0),
       Location.countyNewYorkTheFrontier: (BoardArea.map, 602.0, 570.0),
       Location.countyNewYorkRiverForts: (BoardArea.map, 0.0, 0.0),
@@ -313,7 +313,7 @@ class GamePageState extends State<GamePage> {
       Location.seaZoneDelawareBay: (BoardArea.map, 900.0, 1080.0),
       Location.seaZoneChesapeakeBay: (BoardArea.map, 0.0, 0.0),
       Location.seaZoneCapeFear: (BoardArea.map, 0.0, 0.0),
-      Location.boxQuebec: (BoardArea.map, 332.0, 190.0),
+      Location.boxQuebec: (BoardArea.map, 272.0, 195.0),
       Location.boxBoston: (BoardArea.map, 950.0, 515.0),
       Location.boxCaribbean: (BoardArea.map, 577.0, 1920.0),
       Location.boxBritishShipsAtSea: (BoardArea.map, 1024.0, 1880.0),
@@ -382,13 +382,66 @@ class GamePageState extends State<GamePage> {
       addCountyToMap(appState, county, xCounty, yCounty);
     }
 
-    final sk = (county, 0);
+    final british = <Piece>[];
+    final rebels = <Piece>[];
+    final others = <Piece>[];
+
+    for (final piece in state.piecesInLocation(PieceType.all, county)) {
+      if (piece.isType(PieceType.groundBritishPlayer)) {
+        british.add(piece);
+      } else if (piece.isType(PieceType.groundRebel)) {
+        rebels.add(piece);
+      } else {
+        others.add(piece);
+      }
+    }
+
+    var sk = (county, 0);
     if (_expandedStacks.contains(sk) == (pass == 1)) {
-      layoutStack(appState, sk, state.piecesInLocation(PieceType.all, county), BoardArea.map, xCounty, yCounty, 4.0, 4.0);
+      double xStack = xCounty + 6.0;
+      double yStack = yCounty + 30.0;
+      layoutStack(appState, sk, british, BoardArea.map, xStack, yStack, -4.0, 4.0);
+    }
+  
+    sk = (county, 1);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      double xStack = xCounty + 73.0;
+      double yStack = yCounty + 30.0;
+      layoutStack(appState, sk, rebels, BoardArea.map, xStack, yStack, 4.0, 4.0);
+    }
+  
+    sk = (county, 2);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      double xStack = xCounty + 2.0;
+      double yStack = yCounty - 40.0;
+      layoutStack(appState, sk, others, BoardArea.map, xStack, yStack, 4.0, -4.0);
     }
   
     if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(county)) {
       addCountyToMap(appState, county, xCounty, yCounty);
+    }
+  }
+
+  void layoutBoston(MyAppState appState, int pass) {
+    final state = appState.gameState!;
+
+    final coordinates = locationCoordinates(Location.boxBoston);
+    final xCounty = coordinates.$2;
+    final yCounty = coordinates.$3;
+
+    if (pass == 0 && appState.playerChoices != null && appState.playerChoices!.selectedLocations.contains(Location.boxBoston)) {
+      addCountyToMap(appState, Location.boxBoston, xCounty, yCounty);
+    }
+
+    final pieces = state.piecesInLocation(PieceType.all, Location.boxBoston);
+
+    var sk = (Location.boxBoston, 0);
+    if (_expandedStacks.contains(sk) == (pass == 1)) {
+      layoutStack(appState, sk, pieces, BoardArea.map, xCounty, yCounty, 4.0, 4.0);
+    }
+  
+    if (pass == 1 && appState.playerChoices != null && appState.playerChoices!.locations.contains(Location.boxBoston)) {
+      addCountyToMap(appState, Location.boxBoston, xCounty, yCounty);
     }
   }
 
@@ -397,7 +450,7 @@ class GamePageState extends State<GamePage> {
       layoutCounty(appState, county, pass);
     }
     layoutCounty(appState, Location.boxQuebec, pass);
-    layoutCounty(appState, Location.boxBoston, pass);
+    layoutBoston(appState, pass);
   }
 
   void layoutBoxes(MyAppState appState, int pass) {
@@ -434,7 +487,7 @@ class GamePageState extends State<GamePage> {
       int rows = info.$2;
       double xGap = info.$3;
       double yGap = info.$4;
-      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 4.0, 4.0);
+      layoutBoxStacks(appState, box, pass, state.piecesInLocation(PieceType.all, box), boardArea, cols, rows, xBox, yBox, 60.0 + xGap, 60.0 + yGap, 6.0, -6.0);
     }
   }
 
