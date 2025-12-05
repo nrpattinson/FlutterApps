@@ -10,16 +10,19 @@ enum Location {
   spaceMarcomanni3,
   spacePannoniaSuperior0,
   spacePannoniaSuperior1,
+  spaceRome,
   homeQuadi,
   spaceQuadi1,
   spaceQuadi2,
   spaceQuadi3,
   spacePannoniaInferior,
+  spaceRaidIntoPannonia,
   homeIazyges,
   spaceIazyges1,
   spaceIazyges2,
   spaceIazyges3,
   spaceIazyges4,
+  spaceRaidIntoMoesia,
   leaderMarcomanni,
   leaderQuadi,
   leaderIazyges,
@@ -59,6 +62,13 @@ enum Location {
   roundHousekeeping,
   deckBarbarian,
   deckRoman,
+  barbarianCard1,
+  barbarianCard2,
+  barbarianCard3,
+  surge1,
+  surge2,
+  surge3,
+  handRoman,
   discardsBarbarian,
   discardsRoman,
   history,
@@ -106,7 +116,7 @@ enum LocationType {
 
 extension LocationTypeExtension on LocationType {
   static const _bounds = {
-    LocationType.space: [Location.homeMarcomanni, Location.spaceIazyges4],
+    LocationType.space: [Location.homeMarcomanni, Location.spaceRaidIntoMoesia],
     LocationType.offMapConflict: [Location.offMapConflictWestern, Location.offMapConflictEastern],
     LocationType.leader: [Location.leaderMarcomanni, Location.leaderIazyges],
     LocationType.army: [Location.armyMarcomanni, Location.armyIazyges],
@@ -145,16 +155,19 @@ extension LocationExtension on Location {
       Location.spaceMarcomanni3: 'Marcomanni (+2)',
       Location.spacePannoniaSuperior0: 'Pannonia Superior North',
       Location.spacePannoniaSuperior1: 'Pannonia Superior South',
+      Location.spaceRome: 'Rome',
       Location.homeQuadi: 'Quadi Home (+8)',
       Location.spaceQuadi1: 'Quadi (+7)',
       Location.spaceQuadi2: 'Quadi (+4)',
       Location.spaceQuadi3: 'Quadi (+2)',
       Location.spacePannoniaInferior: 'Pannonia Inferior',
+      Location.spaceRaidIntoPannonia: 'Raid into Pannonia',
       Location.homeIazyges: 'Iazyges Home (+8)',
       Location.spaceIazyges1: 'Iazyges (+6)',
       Location.spaceIazyges2: 'Iazyges (+4)',
       Location.spaceIazyges3: 'Iazyges (+3)',
       Location.spaceIazyges4: 'Iazyges (+2)',
+      Location.spaceRaidIntoMoesia: 'Raid into Moesia',
     };
     return locationDescs[this]!;
   }
@@ -286,6 +299,8 @@ enum PieceType {
   barbarianIazyges,
   legion,
   leader,
+  fort,
+  fortLevel2,
   fortLevel1,
   truce,
   mutiny,
@@ -301,6 +316,8 @@ extension PieceTypeExtension on PieceType {
     PieceType.barbarianIazyges: [Piece.barbarianIazygesBold, Piece.barbarianIazygesDemoralized],
     PieceType.legion: [Piece.legionAdiutrix1, Piece.legionSlaves],
     PieceType.leader: [Piece.leaderMarcusAureliusBold, Piece.leaderMaximianus],
+    PieceType.fort: [Piece.fort0Level1, Piece.fort12Level2],
+    PieceType.fortLevel2: [Piece.fort0Level2, Piece.fort12Level2],
     PieceType.fortLevel1: [Piece.fort0Level1, Piece.fort12Level1],
     PieceType.truce: [Piece.truceMarcomanni, Piece.truceIazyges],
     PieceType.mutiny: [Piece.mutiny0, Piece.mutiny2],
@@ -735,6 +752,7 @@ Location cardLocation(Card card) {
         Location.spaceMarcomanni3,
         Location.spacePannoniaSuperior0,
         Location.spacePannoniaSuperior1,
+        Location.spaceRome,
       ],
       Path.quadi: [
         Location.homeQuadi,
@@ -742,6 +760,7 @@ Location cardLocation(Card card) {
         Location.spaceQuadi2,
         Location.spaceQuadi3,
         Location.spacePannoniaInferior,
+        Location.spaceRaidIntoPannonia,
       ],
       Path.iazyges: [
         Location.homeIazyges,
@@ -749,6 +768,7 @@ Location cardLocation(Card card) {
         Location.spaceIazyges2,
         Location.spaceIazyges3,
         Location.spaceIazyges4,
+        Location.spaceRaidIntoMoesia,
       ],
     };
     return pathSpaces[path]!;
@@ -1114,11 +1134,7 @@ class PlayerChoiceException implements Exception {
 }
 
 enum GameResult {
-  defeatBattle,
-  defeatLegion,
-  defeatTreasury,
-  defeatVictoryThreshold,
-  defeatCalgacus,
+  defeatRomeRaided,
   victory,
 }
 
@@ -1377,6 +1393,38 @@ class Game {
 
   // Sequence Helpers
 
+  void advanceMarcomanni() {
+    final marcomanni = _state.pathBarbarianPiece(Path.marcomanni)!;
+    final space = _state.pieceLocation(marcomanni);
+    var nextSpace = _state.pathNextSpace(Path.marcomanni, space)!;
+    final fort = _state.pieceInLocation(PieceType.fort, space);
+    if (fort != null) {
+      if (choicesEmpty()) {
+        setPrompt('Use Fort to halt Advance?');
+        choiceChoosable(Choice.yes, true);
+        choiceChoosable(Choice.no, true);
+        throw PlayerChoiceException();
+      }
+      if (checkChoiceAndClear(Choice.yes)) {
+        logLine('>Fort halts Marcomanni Advance.');
+        if (fort.isType(PieceType.fortLevel2)) {
+          logLine('>Fort is reduced to Level 1');
+          _state.flipPiece(fort);
+        } else {
+          logLine('>Fort is eliminated.');
+          _state.setPieceLocation(fort, Location.offmap);
+        }
+        return;
+      }
+      clearChoices();
+    }
+    if (nextSpace == Location.spaceRome) {
+      logLine('# Marcomanni Raid into Italy!');
+      throw GameOverException(GameResult.defeatRomeRaided, 0);
+    }
+    logLine('Marcomanni occupy ${nextSpace.desc}.');
+  }
+
   // Sequence of Play
 
   void setUpLegions() {
@@ -1584,24 +1632,53 @@ class Game {
     logLine('## Spring Round Barbarian Phase');
   }
 
-  void advanceMarcomanni() {
-    final marcomanni = _state.pathBarbarianPiece(Path.marcomanni)!;
-    final space = _state.pieceLocation(marcomanni);
-    var nextSpace = _state.pathNextSpace(Path.marcomanni, space)!;
-  }
-
   void activateMarcomanni() {
-    logLine('### Marcomanni');
-    final marcomanni = _state.pathBarbarianPiece(Path.marcomanni);
-    if (marcomanni == null) {
-      return;
+    if (_subStep == 0) {
+      logLine('### Marcomanni');
+      final marcomanni = _state.pathBarbarianPiece(Path.marcomanni);
+      if (marcomanni == null) {
+        return;
+      }
+      if (marcomanni == Piece.barbarianMarcomanniDemoralized) {
+        logLine('>Marcomanni are Emboldened.');
+        _state.flipPiece(marcomanni);
+        _subStep = 1;
+      } else {
+        final marcomanni = _state.pathBarbarianPiece(Path.marcomanni)!;
+        final space = _state.pieceLocation(marcomanni);
+        var nextSpace = _state.pathNextSpace(Path.marcomanni, space)!;
+        logLine('>Marcomanni advance on ${nextSpace.desc}.');
+        _subStep = 2;
+      }
     }
-    if (marcomanni == Piece.barbarianMarcomanniDemoralized) {
-      logLine('>Marcomanni are Emboldened.');
-      _state.flipPiece(marcomanni);
-      return;
+    if (_subStep == 1) { // Advance
+      advanceMarcomanni();
+      _subStep = 2;
     }
-    advanceMarcomanni();
+    if (_subStep == 2) { // Prevent Surge
+      if (_state.cardsInLocationCount(CardType.roman, Location.handRoman) > 0) {
+        if (choicesEmpty()) {
+          setPrompt('Select card to discard to prevent Surge');
+          for (final card in _state.cardsInLocation(CardType.roman, Location.handRoman)) {
+            cardChoosable(card);
+          }
+          choiceChoosable(Choice.next, true);
+          throw PlayerChoiceException();
+        }
+        final card = selectedCard();
+        if (card != null) {
+          logLine('>${card.desc} is discarded to prevent Surge.');
+          // TODO discard
+          _subStep = 4;
+        } else {
+          _subStep = 3;
+        }
+        clearChoices();
+      }
+    }
+    if (_subStep == 3) { // Surge
+      // TODO
+    }
   }
 
   void activateQuadi() {
