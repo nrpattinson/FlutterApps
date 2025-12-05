@@ -419,7 +419,7 @@ class GamePageState extends State<GamePage> {
   }
 
   void layoutLands(MyAppState appState, int pass) {
-    for (final land in LocationType.land.locations) {
+    for (final land in LocationType.space.locations) {
       layoutLand(appState, land, pass);
     }
   }

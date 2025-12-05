@@ -128,7 +128,7 @@ List<int> locationListToIndices(List<Location> locations) {
 }
 
 enum LocationType {
-  land,
+  space,
   pathRussia,
   pathBaltics,
   pathCaucasus,
@@ -143,7 +143,7 @@ enum LocationType {
 
 extension LocationTypeExtension on LocationType {
   static const _bounds = {
-    LocationType.land: [Location.moscow, Location.communistParty12],
+    LocationType.space: [Location.moscow, Location.communistParty12],
     LocationType.pathRussia: [Location.russiaSedition, Location.russiaWorkersParadise],
     LocationType.pathBaltics: [Location.balticsSedition, Location.balticsWorkersParadise],
     LocationType.pathCaucasus: [Location.caucasusSedition, Location.caucasusWorkersParadise],
@@ -206,6 +206,19 @@ enum Path {
   caucasus,
   centralAsia,
   communistParty,
+}
+
+extension PathExtension on Path {
+  String get desc {
+    const pathDescs = {
+      Path.russia: 'Russia',
+      Path.baltics: 'the Baltics',
+      Path.caucasus: 'the Caucasus',
+      Path.centralAsia: 'Central Asia',
+      Path.communistParty: 'the CPSU',
+    };
+    return pathDescs[this]!;
+  }
 }
 
 enum Piece {
@@ -345,6 +358,8 @@ enum PieceType {
   politburo,
   pravda,
   demonstration,
+  demonstrationN,
+  demonstrationP,
   kgb,
   nuke,
   forces,
@@ -372,6 +387,8 @@ extension PieceTypeExtension on PieceType {
     PieceType.politburo: [Piece.politburoGorbachev, Piece.politburoYaneyev],
     PieceType.pravda: [Piece.pravda0, Piece.pravda3],
     PieceType.demonstration: [Piece.demonstrationN0, Piece.demonstrationP3],
+    PieceType.demonstrationN: [Piece.demonstrationN0, Piece.demonstrationN3],
+    PieceType.demonstrationP: [Piece.demonstrationP0, Piece.demonstrationP3],
     PieceType.kgb: [Piece.kgbD, Piece.kgb5],
     PieceType.nuke: [Piece.nukeInf, Piece.nukeIcbm],
     PieceType.forces: [Piece.forces40Army, Piece.forces28Corps],
@@ -500,6 +517,11 @@ class GameState {
     return pathLocationTypes[path]!;
   }
 
+  Location pathSequenceSpace(Path path, int sequence) {
+    final locationType = pathLocationType(path);
+    return Location.values[locationType.firstIndex + sequence];
+  }
+
   PieceType pathPeoplePieceType(Path path) {
     final pathPeoplePieceTypes = {
       Path.russia: PieceType.peopleRussia,
@@ -514,11 +536,44 @@ class GameState {
   Piece pathPeople(Path path) {
     final pieceType = pathPeoplePieceType(path);
     for (final piece in pieceType.pieces) {
-      if (pieceLocation(piece).isType(LocationType.land)) {
+      if (pieceLocation(piece).isType(LocationType.space)) {
         return piece;
       }
     }
     return Piece.berlinWall;
+  }
+
+  Piece? pathDemonstraiton(Path path) {
+    final locationType = pathLocationType(path);
+    for (final region in locationType.locations) {
+      final demonstration = pieceInLocation(PieceType.demonstration, region);
+      if (demonstration != null) {
+        return demonstration;
+      }
+    }
+    return null;
+  }
+
+  // Spaces
+
+  Path? spacePath(Location space) {
+    for (final path in Path.values) {
+      final locationType = pathLocationType(path);
+      if (space.isType(locationType)) {
+        return path;
+      }
+    }
+    return null;
+  }
+
+  bool spaceIsPlayerControlled(Location space) {
+    if (space == Location.moscow) {
+      return true;
+    }
+    final path = spacePath(space)!;
+    final people = pathPeople(path);
+    final peopleSpace = pieceLocation(people);
+    return space.index < peopleSpace.index;
   }
 
   // Turns
@@ -1193,6 +1248,87 @@ class Game {
 
   // Sequence Helpers
 
+  void downPath(Path path) {
+    // TODO
+  }
+
+  void upPath(Path path) {
+    // TODO
+  }
+
+  void downAsset(Piece asset) {
+    // TODO
+  }
+
+  void upAsset(Piece asset) {
+    // TODO
+  }
+
+  void downAssetFiveYearPlan() {
+    downAsset(Piece.assetFiveYearPlan);
+  }
+
+  void downAssetMediaAndCulture() {
+    downAsset(Piece.assetMediaCulture);
+  }
+
+  void downAssetMilitaryMight() {
+    downAsset(Piece.assetMilitaryMight);
+  }
+
+  void downPathBaltics() {
+    downPath(Path.baltics);
+  }
+
+  void downPathCaucasus() {
+    downPath(Path.caucasus);
+  }
+
+  void downPathCentralAsia() {
+    downPath(Path.centralAsia);
+  }
+
+  void downPathCPSU() {
+    downPath(Path.communistParty);
+  }
+
+  void downPathRussia() {
+    downPath(Path.russia);
+  }
+
+  void upAssetFiveYearPlan() {
+    upAsset(Piece.assetFiveYearPlan);
+  }
+
+  void upAssetMediaAndCulture() {
+    upAsset(Piece.assetMediaCulture);
+  }
+
+  void upAssetMilitaryMight() {
+    upAsset(Piece.assetMilitaryMight);
+  }
+
+  void upPathBaltics() {
+    upPath(Path.baltics);
+  }
+
+  void upPathCaucasus() {
+    upPath(Path.caucasus);
+  }
+
+  void upPathCentralAsia() {
+    upPath(Path.centralAsia);
+  }
+
+  void upPathCPSU() {
+    upPath(Path.communistParty);
+
+  }
+
+  void upPathRussia() {
+    upPath(Path.russia);
+  }
+
   // Sequence of Play
 
   void turnBegin() {
@@ -1295,43 +1431,81 @@ class Game {
   }
 
   void demonstration() {
-    
+    logLine('### Demonstration');
+    final antis = _state.piecesInLocation(PieceType.demonstrationN, Location.trayDemonstration);
+    final pros = _state.piecesInLocation(PieceType.demonstrationP, Location.trayDemonstration);
+    int d0 = rollD6();
+    logD6(d0);
+    if (d0 == 6) {
+      if (_state.piecesInLocationCount(PieceType.demonstrationN, Location.moscow) > 0) {
+        logLine('> Anti-government demonstrations continue in Moscow.');
+        return;
+      }
+      if (antis.isEmpty) {
+        logLine('> Anti-government demonstrations continue throughout the USSR.');
+        return;
+      }
+      logLine('>Anti-government demonstrations begin in Moscow.');
+      _state.setPieceLocation(antis[0], Location.moscow);
 
+    } else {
+      bool yeltsinInRussia = _state.pieceLocation(Piece.politburoYeltsin).isType(LocationType.pathRussia);
+      final path = Path.values[d0 - 1];
+      int d1 = rollD6();
+      if (d1 == 6) {
+        if (yeltsinInRussia) {
+          logLine('>Yeltsin stirs up anti-government feeling in Russia.');
+          downPathRussia();
+          return;
+        }
+        logLine('>Demonstrations have no effect.');
+        return;
+      }
+      final space = _state.pathSequenceSpace(path, d1 - 1);
+      bool newNegative = _state.spaceIsPlayerControlled(space);
+      final priorDemonstration = _state.pathDemonstraiton(path);
+      if (priorDemonstration != null) {
+        if (priorDemonstration.isType(PieceType.demonstrationN)) {
+          if (newNegative) {
+            if (yeltsinInRussia) {
+              logLine('>Yeltsin stirs up anti-government feeling in Russia.');
+              downPathRussia();
+              return;
+            }
+            logLine('>Anti-government demonstrations continue in ${path.desc}.');
+          } else {
+            logLine('>Anti-government demonstrations die down in ${path.desc}.');
+            _state.setPieceLocation(priorDemonstration, Location.trayDemonstration);
+          }
+        } else {
+          if (newNegative) {
+            logLine('>Pro-government demonstrations evaporate in ${path.desc}.');
+            _state.setPieceLocation(priorDemonstration, Location.trayDemonstration);
+          } else {
+            logLine('>Pro-government demonstrations continue in ${path.desc}.');
+          }
+        }
+      } else {
+        if (newNegative) {
+          if (antis.isEmpty) {
+            logLine('>Anti-government demonstrations continue throughout the USSR.');
+          } else {
+            logLine('>Anti-government demonstrations break out in ${path.desc}.');
+            _state.setPieceLocation(antis[0], space);
+          }
+        } else {
+          if (pros.isEmpty) {
+            logLine('>Pro-government demonstrations continue throughout the USSR.');
+          } else {
+            logLine('>Pro-government demonstrations break out in ${path.desc}.');
+            _state.setPieceLocation(pros[0], space);
+          }
+        }
+      }
+    }
   }
 
   void disaster() {
-
-  }
-
-  void downAssetFiveYearPlan() {
-
-  }
-
-  void downAssetMediaAndCulture() {
-
-  }
-
-  void downAssetMilitaryMight() {
-
-  }
-
-  void downPathBaltics() {
-
-  }
-
-  void downPathCaucasus() {
-
-  }
-
-  void downPathCentralAsia() {
-
-  }
-
-  void downPathCPSU() {
-
-  }
-
-  void downPathRussia() {
 
   }
 
@@ -1360,7 +1534,7 @@ class Game {
       return;
     }
     final uzbekLocation = _state.pieceLocation(Piece.uzbekMafia);
-    if (uzbekLocation.isType(LocationType.land)) {
+    if (uzbekLocation.isType(LocationType.space)) {
       return;
     }
     logLine('### Loyal Communists');
@@ -1416,33 +1590,28 @@ class Game {
   }
 
   void specialEventPresidentialPowers() {
-    if (_subStep == 0) {
-      logLine('### Presidential Powers');
-      int die = rollD6();
-      logD6(die);
-      switch (die) {
-      case 1:
-        logLine('>The Baltics and Caucasus disapprove of the use of Presidential Powers.');
-        downPathBaltics();
-        _subStep = 1;
-      case 2:
-        logLine('>The Baltics disapprove of the use of Presidential Powers.');
-        downPathBaltics();
-      case 3:
-        logLine('>The Caucasus disapproves of the use of Presidential Powers.');
-        downPathCaucasus();
-      case 4:
-        logLine('>Nobody notices the use of Presidential Powers.');
-      case 5:
-        logLine('>Russians approve of the use of Presidential Powers.');
-        upPathRussia();
-      case 6:
-        logLine('>Presidential Powers are used to increase Military Might.');
-        upAssetMilitaryMight();
-      }
-    }
-    if (_subStep == 1) {
+    logLine('### Presidential Powers');
+    int die = rollD6();
+    logD6(die);
+    switch (die) {
+    case 1:
+      logLine('>The Baltics and Caucasus disapprove of the use of Presidential Powers.');
+      downPathBaltics();
       downPathCaucasus();
+    case 2:
+      logLine('>The Baltics disapprove of the use of Presidential Powers.');
+      downPathBaltics();
+    case 3:
+      logLine('>The Caucasus disapproves of the use of Presidential Powers.');
+      downPathCaucasus();
+    case 4:
+      logLine('>Nobody notices the use of Presidential Powers.');
+    case 5:
+      logLine('>Russians approve of the use of Presidential Powers.');
+      upPathRussia();
+    case 6:
+      logLine('>Presidential Powers are used to increase Military Might.');
+      upAssetMilitaryMight();
     }
   }
 
@@ -1539,30 +1708,6 @@ class Game {
     logLine('>Yeltsin is placed in ${location.desc}.');
     _state.setPieceLocation(Piece.politburoYeltsin, location);
     _state.setPieceLocation(Piece.markerPopularVote, location);
-  }
-
-  void upAssetFiveYearPlan() {
-
-  }
-
-  void upAssetMediaAndCulture() {
-
-  }
-
-  void upAssetMilitaryMight() {
-
-  }
-
-  void upPathCentralAsia() {
-
-  }
-
-  void upPathCPSU() {
-
-  }
-
-  void upPathRussia() {
-
   }
 
   void eventsPhaseEvent(int index) {

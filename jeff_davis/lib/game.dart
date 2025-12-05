@@ -1137,7 +1137,6 @@ class GameState {
       }
     }
     return null;
-
   }
 
   List<Location> get richmondAndAdjacentRegions {
