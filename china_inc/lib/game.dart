@@ -7177,13 +7177,13 @@ class Game {
       if (space.isType(LocationType.province)) {
         if (canProvinceContributeToWar(war, warProvince)) {
           var command = _state.provinceCommand(space);
-          if (_state.commandActive(command)) {
+          command = _state.commandAllegiance(command);
+          if (!commands.contains(command) &&_state.commandActive(command)) {
             if (phaseState == null || !phaseState.commandsFought.contains(command)) {
-              command = _state.commandAllegiance(command);
-              if (!commands.contains(command)) {
-                commands.add(command);
-                if (_state.commandLoyal(command)) {
-                  if (!commands.contains(_state.rulingCommand)) {
+              commands.add(command);
+              if (_state.commandLoyal(command)) {
+                if (!commands.contains(_state.rulingCommand)) {
+                  if (phaseState == null || !phaseState.commandsFought.contains(_state.rulingCommand)) {
                     if (_state.rulingCommand == Location.commandPresident || !_state.treatyActive(Piece.treatyNerchinsk)) {
                       commands.add(_state.rulingCommand);
                     }
@@ -7250,6 +7250,7 @@ class Game {
     int modifiers = 0;
     int modifier = 0;
     int nonMatchingForeignProvinceCount = 0;
+
     modifier = _state.warStrength(war);
     if (log) {
       logLine('>|${war.desc}|+$modifier|');
@@ -7343,7 +7344,7 @@ class Game {
     }
     if (matchingWarAbility) {
       modifier = -1;
-      logLine('>|${general!.desc} Ability|-1|');
+      logLine('>|${general.desc} Ability|-1|');
       modifiers += modifier;
     }
     modifier = -_state.commandMilitary(warCommand);

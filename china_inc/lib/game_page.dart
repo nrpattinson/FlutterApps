@@ -24,6 +24,7 @@ enum MarkerValueType {
 }
 
 typedef StackKey = (Location, int);
+typedef WarInfo = (Piece, double, double);
 
 class GamePage extends StatefulWidget {
 
@@ -60,6 +61,8 @@ class GamePageState extends State<GamePage> {
 
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
+
+  final _warInfos = <WarInfo>[];
 
   GamePageState() {
 
@@ -443,10 +446,12 @@ class GamePageState extends State<GamePage> {
   }
 
   Color commandForegroundColor(Location command) {
-    if (command == Location.commandMongolia) {
-      return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
-    } else {
+    switch (command) {
+    case Location.commandEmperor:
+    case Location.commandPresident:
       return const Color.fromRGBO(0x00, 0x00, 0x00, 1.0);
+    default:
+      return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
     }
   }
 
@@ -476,9 +481,6 @@ class GamePageState extends State<GamePage> {
   }
 
   void addPieceToMap(MyAppState appState, Piece piece, double x, double y) {
-    final game = appState.game;
-    final gameState = appState.gameState;
-
     final playerChoices = appState.playerChoices;
 
     bool choosable = playerChoices != null && playerChoices.pieces.contains(piece);
@@ -558,70 +560,8 @@ class GamePageState extends State<GamePage> {
 
     _mapStackChildren.add(widget);
 
-    if (_fightWarModifiers && game != null && gameState != null && piece.isType(PieceType.war)) {
-      final location = gameState.pieceLocation(piece);
-      if (location.isType(LocationType.province)) {
-        final commands = game.fightWarCommandCandidates(piece);
-        commands.sort((a, b) => a.index.compareTo(b.index));
-        int commandIndex = 0;
-        for (final command in commands) {
-          final provinces = game.fightWarProvinceCandidates(piece, command);
-          final modifierResults = game.calculateFightWarModifier(piece, command, provinces, false);
-
-          int fightWarModifier = modifierResults.$1;
-          bool fleetShortage = modifierResults.$2;
-          bool cavalryShortage = modifierResults.$3;
-
-          final fightWarColor = commandColor(command);
-          final textColor = commandForegroundColor(command);
-
-          final textTheme = Theme.of(context).textTheme;
-
-          String code = '${9 + fightWarModifier!}';
-          if (fleetShortage) {
-            code += 'F';
-          } else if (cavalryShortage) {
-            code += 'C';
-          }
-
-          final fightWarTextStyle = textTheme.displayMedium!.copyWith(color: textColor);
-
-          Widget fightWarWidget = Text(
-            code,
-            style: fightWarTextStyle,
-            selectionColor: textColor,
-          );
-
-          const fightWarHalfWidth = 45.0;
-
-          fightWarWidget = SizedBox(
-            width: 2.0 * fightWarHalfWidth,
-            height: 50.0,
-            child: Center(
-              child: fightWarWidget,
-            ),
-          );
-
-          fightWarWidget = DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: fightWarColor,
-              border: Border.all(color: Colors.black, width: 2.0),
-            ),
-            child: fightWarWidget,
-          );
-
-
-          fightWarWidget = Positioned(
-            left: x + 24.0 - fightWarHalfWidth * commands.length + commandIndex * 2.0 * fightWarHalfWidth,
-            top: y + 50.0,
-            child: fightWarWidget,
-          );
-          _mapStackChildren.add(fightWarWidget);
-
-          commandIndex += 1;
-        }
-      }
+    if (piece.isType(PieceType.war)) {
+      _warInfos.add((piece, x, y));
     }
   }
 
@@ -1378,6 +1318,84 @@ class GamePageState extends State<GamePage> {
     }
   }
 
+  void displayWarModifiers(MyAppState appState) {
+    final game = appState.game;
+    final gameState = appState.gameState;
+    if (!_fightWarModifiers || game == null || gameState == null) {
+      return;
+    }
+
+    for (final warInfo in _warInfos) {
+      final war = warInfo.$1;
+      double x = warInfo.$2;
+      double y = warInfo.$3;
+
+      final location = gameState.pieceLocation(war);
+      if (location.isType(LocationType.province)) {
+        final commands = game.fightWarCommandCandidates(war);
+        commands.sort((a, b) => a.index.compareTo(b.index));
+        int commandIndex = 0;
+        for (final command in commands) {
+          final provinces = game.fightWarProvinceCandidates(war, command);
+          final modifierResults = game.calculateFightWarModifier(war, command, provinces, false);
+
+          int fightWarModifier = modifierResults.$1;
+          bool fleetShortage = modifierResults.$2;
+          bool cavalryShortage = modifierResults.$3;
+
+          final fightWarColor = commandColor(command);
+          final textColor = commandForegroundColor(command);
+
+          final textTheme = Theme.of(context).textTheme;
+
+          String code = '${9 + fightWarModifier}';
+          if (fleetShortage) {
+            code += 'F';
+          } else if (cavalryShortage) {
+            code += 'C';
+          }
+
+          final fightWarTextStyle = textTheme.displayMedium!.copyWith(color: textColor);
+
+          Widget fightWarWidget = Text(
+            code,
+            style: fightWarTextStyle,
+            selectionColor: textColor,
+          );
+
+          const fightWarHalfWidth = 45.0;
+
+          fightWarWidget = SizedBox(
+            width: 2.0 * fightWarHalfWidth,
+            height: 50.0,
+            child: Center(
+              child: fightWarWidget,
+            ),
+          );
+
+          fightWarWidget = DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: fightWarColor,
+              border: Border.all(color: Colors.black, width: 2.0),
+            ),
+            child: fightWarWidget,
+          );
+
+
+          fightWarWidget = Positioned(
+            left: x + 24.0 - fightWarHalfWidth * commands.length + commandIndex * 2.0 * fightWarHalfWidth,
+            top: y + 50.0,
+            child: fightWarWidget,
+          );
+          _mapStackChildren.add(fightWarWidget);
+
+          commandIndex += 1;
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
@@ -1439,6 +1457,7 @@ ___
         layoutProvinces(context, appState, 0);
         layoutEntryAreas(appState, 1);
         layoutProvinces(context, appState, 1);
+        displayWarModifiers(appState);
       }
 
       const choiceTexts = {
