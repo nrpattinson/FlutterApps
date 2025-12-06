@@ -75,6 +75,12 @@ enum Location {
   houseOfAssembly7,
   houseOfAssembly8,
   houseOfAssembly9,
+  zrElection5,
+  zrElection6,
+  zrElection7,
+  zrElection8,
+  zrElection9,
+  zrElection10,
   poolForce,
   unavailable,
   flipped,
@@ -114,6 +120,7 @@ enum LocationType {
   province,
   region,
   turn,
+  zrElection,
 }
 
 extension LocationTypeExtension on LocationType {
@@ -122,6 +129,7 @@ extension LocationTypeExtension on LocationType {
     LocationType.province: [Location.provinceMidlands, Location.provinceVictoria],
     LocationType.region: [Location.regionZambia, Location.regionBotswana],
     LocationType.turn: [Location.turn0, Location.turn16],
+    LocationType.zrElection: [Location.zrElection5, Location.zrElection10],
   };
 
   int get firstIndex {
@@ -368,7 +376,8 @@ enum PieceType {
   troopieRhodesiaSouthAfricaUnused,
   troopieRhodesiaSouthAfricaUsed,
   fortification,
-  politicianTananzia,
+  politicianBlack,
+  politicianTanzania,
   policyFront,
   foreignBritain,
   foreignSouthAfrica,
@@ -389,7 +398,8 @@ extension PieceTypeExtension on PieceType {
     PieceType.troopieRhodesiaSouthAfricaUnused: [Piece.troopieRhodesiaRAR1, Piece.troopieSouthAfricaSAP2],
     PieceType.troopieRhodesiaSouthAfricaUsed: [Piece.troopieRhodesiaRAR1Used, Piece.troopieSouthAfricaSAP2Used],
     PieceType.fortification: [Piece.fortification0, Piece.fortification2],
-    PieceType.politicianTananzia: [Piece.politicianTanzaniaNyerere, Piece.politicianTanzaniaCoup],
+    PieceType.politicianBlack: [Piece.politicianBlackChitepo, Piece.politicianBlackNkomoZapu],
+    PieceType.politicianTanzania: [Piece.politicianTanzaniaNyerere, Piece.politicianTanzaniaCoup],
     PieceType.policyFront: [Piece.policyProvincialCouncils, Piece.policyAfricanAdvancement],
     PieceType.foreignBritain: [Piece.foreignBritainAnti, Piece.foreignBritainPro],
     PieceType.foreignSouthAfrica: [Piece.foreignSouthAfricaAnti, Piece.foreignSouthAfricaPro],
@@ -807,6 +817,12 @@ class GameState {
     setPieceLocation(Piece.markerTreasury, turnBox(newValue));
   }
 
+  // ZR Election
+
+  int zrElectionBoxValue(Location box) {
+    return box.index - Location.zrElection5.index + 5;
+  }
+
   // Setup
 
   void setupPieces(List<(Piece, Location)> pieces) {
@@ -1016,12 +1032,17 @@ class PlayerChoiceException implements Exception {
 }
 
 enum GameResult {
-  defeatBattle,
-  defeatLegion,
-  defeatTreasury,
-  defeatVictoryThreshold,
-  defeatCalgacus,
-  victory,
+  apocalypticDefeat,
+  catastrophicDefeat,
+  decisiveDefeat,
+  substantialDefeat,
+  narrowDefeat,
+  marginalDefeat,
+  marginalVictory,
+  narrowVictory,
+  substantialVictory,
+  decisiveVictory,
+  overwhelmingVictory,
 }
 
 class GameOutcome {
@@ -1480,63 +1501,195 @@ class Game {
     }
   }
 
-  void lancasterHouse() {
-    logLine('>Peace conferences is held in Lancaster House in London.');
+  int calculateVictoryPoints(bool log) {
     int total = 0;
-
-    logTableHeader();
     int handshakeCount = 5 - _state.fistCount;
-    logLine('>|Handshake markers|+$handshakeCount|');
+    if (log) {
+      logLine('>|Handshake markers|+$handshakeCount|');
+    }
     total += handshakeCount;
     if (_state.rfPopularity > 0) {
-      logLine('>|RF popularity|+${_state.rfPopularity}|');
+      if (log) {
+        logLine('>|RF popularity|+${_state.rfPopularity}|');
+      }
     } else {
-      logLine('>|RF popularity|${_state.rfPopularity}|');
+      if (log) {
+        logLine('>|RF popularity|${_state.rfPopularity}|');
+      }
     }
     total += _state.rfPopularity;
     if (_state.populationUp) {
-      logLine('>|Population rising|+2|');
+      if (log) {
+        logLine('>|Population rising|+2|');
+      }
       total += 2;
     } else {
-      logLine('>|Population falling|-2|');
+      if (log) {
+        logLine('>|Population falling|-2|');
+      }
       total -= 2;
     }
     if (_state.pieceLocation(Piece.politicianZambiaKaunda) == Location.frontLineZambia) {
-      logLine('>|Kaunda controls Zambia|+1|');
+      if (log) {
+        logLine('>|Kaunda controls Zambia|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignPortugalMocambique) == Location.frontLineMocambique) {
-      logLine('>|Portugal controls Moçambique|+1|');
+      if (log) {
+        logLine('>|Portugal controls Moçambique|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignPortugalTete) == Location.frontLineTete) {
-      logLine('>|Portugal controls Tete|+1|');
+      if (log) {
+        logLine('>|Portugal controls Tete|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.politicianUsReagan) == Location.boxUSPresident) {
-      logLine('>|President Reagan|+1|');
+      if (log) {
+        logLine('>|President Reagan|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignSouthAfricaPro) == Location.boxSouthAfricaGovernment) {
-      logLine('>|Sympathetic South African government|+1|');
+      if (log) {
+        logLine('>|Sympathetic South African government|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.politicianTanzaniaCoup) == Location.frontLineTanzania) {
-      logLine('>|Nyerere ousted from Tanzania|+1|');
+      if (log) {
+        logLine('>|Nyerere ousted from Tanzania|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignBritainPro) == Location.boxUKGovernment) {
-      logLine('>|Sympathetic UK government|+1|');
+      if (log) {
+        logLine('>|Sympathetic UK government|+1|');
+      }
       total += 1;
     }
     if (_state.pieceLocation(Piece.foreignUSAPro) == Location.boxUSAGovernment) {
-      logLine('>|Sympathetic US government|+1|');
+      if (log) {
+        logLine('>|Sympathetic US government|+1|');
+      }
       total += 1;
     }
-    // TODO incomplete
-
-    logTableFooter();
+    final houseOfAssemblyLocation = _state.pieceLocation(Piece.markerHouseOfAssembly);
+    if (houseOfAssemblyLocation.isType(LocationType.zrElection)) {
+      int zrElectionValue = _state.zrElectionBoxValue(houseOfAssemblyLocation);
+      if (log) {
+        logLine('>|ZR Election Result|+$zrElectionValue');
+      }
+      total += zrElectionValue;
+    }
+    final liberalConstitutionLocation = _state.pieceLocation(Piece.policyProclaimRepublicEnacted);
+    if (liberalConstitutionLocation.isType(LocationType.turn)) {
+      if (log) {
+        logLine('>|Liberal Constitution|+3|');
+      }
+      total += 3;
+    }
+    final africanTrainingLocation = _state.pieceLocation(Piece.policyAfricanAdvancementEnacted);
+    if (africanTrainingLocation.isType(LocationType.turn)) {
+      if (log) {
+        logLine('>|African Training|+3|');
+      }
+      total += 3;
+    }
+    final landTenureLocation = _state.pieceLocation(Piece.policyLandTenureAmendmentEnacted);
+    if (landTenureLocation.isType(LocationType.turn)) {
+      if (log) {
+        logLine('>|Land Tenure Amendment|+2|');
+      }
+      total += 2;
+    }
+    final integrationLocation = _state.pieceLocation(Piece.policyIntegrationEnacted);
+    if (integrationLocation.isType(LocationType.turn)) {
+      if (log) {
+        logLine('>|Integration|+1|');
+      }
+      total += 1;
+    }
+    int collaboratorsCount = _state.piecesInLocationCount(PieceType.politicianBlack, Location.boxCollaborators);
+    if (collaboratorsCount > 0) {
+      if (log) {
+        logLine('>|Collaborators|+$collaboratorsCount');
+      }
+      total += collaboratorsCount;
+    }
+    int terrCount = 0;
+    for (final terr in PieceType.terr.pieces) {
+      if (_state.pieceLocation(terr).isType(LocationType.province)) {
+        terrCount += 1;
+      }
+    }
+    if (terrCount > 0) {
+      if (log) {
+        logLine('>|Terr units|-$terrCount|');
+      }
+      total -= terrCount;
+    }
+    return total;
   }
+
+  void lancasterHouse() {
+    logLine('# Peace conference is held in Lancaster House in London.');
+    int die = rollD6();
+
+    logTableHeader();
+    int total = calculateVictoryPoints(true);
+    logD6InTable(die);
+    total += die;
+    logLine('>|Total|$total|');
+    logTableFooter();
+
+    GameResult result;
+    if (total >= 27) {
+      result = GameResult.overwhelmingVictory;
+      logLine('## The world community accepts the current government of Zimbabwe Rhodesia as legitimate and withdraws its support for the guerillas.');
+    } else if (total >= 19) {
+      logLine('>A compromise is reached, but you are forced to hold elections.');
+      switch (total) {
+      case 19:
+        result = GameResult.decisiveDefeat;
+        logLine('## Landslide ZANU victory.');
+      case 20:
+        result = GameResult.substantialDefeat;
+        logLine('## Large ZANU victory.');
+      case 21:
+        result = GameResult.narrowDefeat;
+        logLine('## Narrow ZANU victory.');
+      case 22:
+        result = GameResult.marginalDefeat;
+        logLine('## ZANU–ZAPU coalition.');
+      case 23:
+        result = GameResult.marginalVictory;
+        logLine('## ZAPU–UANC form coalition under Nkomo.');
+      case 24:
+        result = GameResult.narrowVictory;
+        logLine('## UANC–ZAPU form coalition under Muzorewa.');
+      case 25:
+        result = GameResult.substantialVictory;
+        logLine('## Muzorewa’s UANC wins slim majority.');
+      case 26:
+        result = GameResult.decisiveVictory;
+        logLine('## Muzorewa’s UANC wins decisive majority.');
+      default:
+        result = GameResult.catastrophicDefeat;
+      }
+    } else if (total >= 11) {
+      result = GameResult.catastrophicDefeat;
+      logLine('## International community is divded and the war continues; either way you are out of power and other leaders take over.');
+    } else {
+      result = GameResult.apocalypticDefeat;
+      logLine('## International community rejects all solutions and Rhodesia descends into civil war with Cuban intervention and the flight of the White community.');
+    }
+    throw GameOverException(result, total);
+  }
+
   void gameOver(GameOutcome outcome) {
     _outcome = outcome;
   }
@@ -1622,7 +1775,7 @@ class Game {
         if (politicianFront == Piece.politicianBlackMugabe) {
           adjustTerror(1);
         } else if (location == Location.boxCollaborators) {
-          _state.setPieceLocation(_state.politician(politicianFront!), Location.regionZambia);
+          _state.setPieceLocation(_state.politician(politicianFront), Location.regionZambia);
         }
       }
     }
@@ -1741,7 +1894,7 @@ class Game {
     final results = roll2D6();
     log2D6(results);
     if (results.$3 == 12) {
-      final piece = _state.pieceInLocation(PieceType.politicianTananzia, Location.frontLineTanzania)!;
+      final piece = _state.pieceInLocation(PieceType.politicianTanzania, Location.frontLineTanzania)!;
       if (piece == Piece.politicianTanzaniaNyerere) {
         logLine('>Coup ousts Nyerere in Tanzania.');
         adjustTerror(-1);
