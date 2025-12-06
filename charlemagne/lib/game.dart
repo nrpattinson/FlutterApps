@@ -181,6 +181,12 @@ enum LocationType {
   turn,
   treasury,
   evp,
+  boxTacticalEnemyRight,
+  boxTacticalEnemyLeft,
+  boxTacticalYour,
+  boxTacticalYourLeftRight,
+  boxTacticalYourLeft,
+  boxTacticalYourRight,
 }
 
 extension LocationTypeExtension on LocationType {
@@ -199,6 +205,12 @@ extension LocationTypeExtension on LocationType {
     LocationType.turn: [Location.turn1, Location.turn12],
     LocationType.treasury: [Location.treasury0, Location.treasury30],
     LocationType.evp: [Location.evp0, Location.evp9],
+    LocationType.boxTacticalEnemyRight: [Location.boxTacticalEnemyRight1, Location.boxTacticalEnemyRight6],
+    LocationType.boxTacticalEnemyLeft: [Location.boxTacticalEnemyLeft1, Location.boxTacticalEnemyLeft6],
+    LocationType.boxTacticalYour: [Location.boxTacticalYourLeft1, Location.boxTacticalYourReserve],
+    LocationType.boxTacticalYourLeftRight: [Location.boxTacticalYourLeft1, Location.boxTacticalYourRight5],
+    LocationType.boxTacticalYourLeft: [Location.boxTacticalYourLeft1, Location.boxTacticalYourLeft5],
+    LocationType.boxTacticalYourRight: [Location.boxTacticalYourRight1, Location.boxTacticalYourRight5],
   };
 
   int get firstIndex {
@@ -612,7 +624,9 @@ enum PieceType {
   mapMarquis,
   mapMarquisNoCrown,
   mapMarquisCrown,
+  enemyBattle,
   enemyBattleFull,
+  friendlyBattle,
   infantry,
   infantry1,
   infantry2,
@@ -648,6 +662,7 @@ extension PieceTypeExtension on PieceType {
     PieceType.mapMarquisNoCrown: [Piece.marquisNoCrown0, Piece.marquisNoCrown3],
     PieceType.mapMarquisCrown: [Piece.marquisCrown0, Piece.marquisCrown3],
     PieceType.enemyBattleFull: [Piece.enemyBattleFull0, Piece.enemyBattleFull15],
+    PieceType.friendlyBattle: [Piece.infantry1_0, Piece.cavalry4_7],
     PieceType.infantry: [Piece.infantry1_0, Piece.infantry4_7],
     PieceType.infantry1: [Piece.infantry1_0, Piece.infantry1_7],
     PieceType.infantry2: [Piece.infantry2_0, Piece.infantry2_7],
@@ -1592,6 +1607,24 @@ class GameState {
       12: 135,
     };
     return victoryThresholds[turn]!;
+  }
+
+  // Tactical
+
+  Location enemyRightBox(int index) {
+    return Location.values[LocationType.boxTacticalEnemyRight.firstIndex + index];
+  }
+
+  Location enemyLeftBox(int index) {
+    return Location.values[LocationType.boxTacticalEnemyLeft.firstIndex + index];
+  }
+
+  Location yourLeftBox(int index) {
+    return Location.values[LocationType.boxTacticalYourLeft.firstIndex + index];
+  }
+
+  Location yourRightBox(int index) {
+    return Location.values[LocationType.boxTacticalYourRight.firstIndex + index];
   }
 
   // Setup
@@ -2680,6 +2713,24 @@ class Game {
     return (0,0,0);
   }
 
+  List<Location> get candidateBattleInitialDeployBoxes {
+    final localState = _battleState!;
+    final candidates = <Location>[];
+    for (int i = 0; i < 5 && i < localState.rightCount; ++i) {
+      final box = _state.yourLeftBox(i);
+      if (_state.piecesInLocationCount(PieceType.friendlyBattle, box) == 0) {
+        candidates.add(box);
+      }
+    }
+    for (int i = 0; i < 5 && i < localState.leftCount; ++i) {
+      final box = _state.yourRightBox(i);
+      if (_state.piecesInLocationCount(PieceType.friendlyBattle, box) == 0) {
+        candidates.add(box);
+      }
+    }
+    return candidates;
+  }
+
   void gameOver(GameOutcome outcome) {
     _outcome = outcome;
   }
@@ -2738,19 +2789,67 @@ class Game {
 
       localState.subStep = ambush ? 2 : 1;
     }
-    if (localState.subStep == 1) { // Enemy Deploy
-      if (ambush) {
-        localState.subStep = 3;
-      } else {
-        localState.subStep = 2;
+
+    while (localState.subStep >= 1 && localState.subStep <= 2) {
+      if (localState.subStep == 1) { // Enemy Deploy
+        for (int i = 0; i < localState.rightCount; ++i) {
+          final piece = randPiece(_state.piecesInLocation(PieceType.enemyBattleFull, Location.cupBattle))!;
+          _state.setPieceLocation(piece, _state.enemyRightBox(i));
+        }
+        for (int i = 0; i < localState.leftCount; ++i) {
+          final piece = randPiece(_state.piecesInLocation(PieceType.enemyBattleFull, Location.cupBattle))!;
+          _state.setPieceLocation(piece, _state.enemyLeftBox(i));
+        }
+        if (ambush) {
+          localState.subStep = 3;
+        } else {
+          localState.subStep = 2;
+        }
+      }
+      if (localState.subStep == 2) { // We Deploy
+        if (checkChoice(Choice.cancel)) {
+          clearChoices();
+        }
+        if (choicesEmpty()) {
+          setPrompt('Select unit to deploy');
+          bool complete = candidateBattleInitialDeployBoxes.isEmpty;
+          final locationType = complete ? LocationType.boxTacticalYourLeftRight : LocationType.boxTacticalYour;
+          for (final box in locationType.locations) {
+            for (final piece in _state.piecesInLocation(PieceType.friendlyBattle, box)) {
+              pieceChoosable(piece);
+            }
+          }
+          choiceChoosable(Choice.next, complete);
+          throw PlayerChoiceException();
+        }
+        if (checkChoiceAndClear(Choice.next)) {
+          if (ambush) {
+            localState.subStep = 1;
+          } else {
+            localState.subStep = 3;
+          }
+          continue;
+        }
+        final piece = selectedPiece()!;
+        if (_state.pieceLocation(piece).isType(LocationType.boxTacticalYourLeftRight)) {
+          _state.setPieceLocation(piece, Location.boxTacticalYourReserve);
+        } else {
+          final location = selectedLocation();
+          if (location == null) {
+            setPrompt('Select square to deploy ${piece.desc} to');
+            for (final box in candidateBattleInitialDeployBoxes) {
+              locationChoosable(box);
+            }
+            choiceChoosable(Choice.cancel, true);
+            throw PlayerChoiceException();
+          }
+          _state.setPieceLocation(piece, location);
+          clearChoices();
+        }
       }
     }
-    if (localState.subStep == 2) { // We Deploy
-      if (ambush) {
-        localState.subStep = 1;
-      } else {
-        localState.subStep = 3;
-      }
+    if (localState.subStep == 3) {
+      // TODO
     }
   }
 
