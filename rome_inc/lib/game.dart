@@ -6781,6 +6781,220 @@ class Game {
     return rebels;
   }
 
+  bool canProvinceContributeToWar(Location province, Location command) {
+    final status = _state.provinceStatus(province);
+    switch (status) {
+    case ProvinceStatus.barbarian:
+      return false;
+    case ProvinceStatus.allied:
+    case ProvinceStatus.veteranAllied:
+      return true;
+    case ProvinceStatus.insurgent:
+    case ProvinceStatus.roman:
+      return _state.provinceViableWarUnits(province, command).isNotEmpty;
+    }
+  }
+
+  List<Location> fightWarCommandCandidates(Piece war) {
+    PhaseStateWar? phaseState = _phaseState is PhaseStateWar ? _phaseState as PhaseStateWar : null;  // NB could be null if called from game page
+
+    final warProvince = _state.pieceLocation(war);
+    final commands = <Location>[];
+    bool haveLoyalCommands = false;
+    for (final space in _state.spaceConnectedSpaces(warProvince)) {
+      if (space.isType(LocationType.province)) {
+        var command = _state.provinceCommand(space);
+        final loyaltyCommand = _state.commandLoyalty(command);
+        if (loyaltyCommand != Location.commandCaesar) {
+          command = loyaltyCommand;
+        }
+        if (phaseState == null || !phaseState.commandsFought.contains(command)) {
+          if (!commands.contains(command) && _state.commandActive(command)) {
+            if (canProvinceContributeToWar(space, command)) {
+              commands.add(command);
+            }
+            if (loyaltyCommand == Location.commandCaesar) {
+              if (canProvinceContributeToWar(space, Location.commandCaesar)) {
+                haveLoyalCommands = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (haveLoyalCommands && _state.emperorsActive(Piece.emperorsFlavian)) {
+      if (phaseState == null || !phaseState.commandsFought.contains(Location.commandCaesar)) {
+        commands.add(Location.commandCaesar);
+      }
+    }
+    return commands;
+  }
+
+  List<Location> fightWarProvinceCandidates(Piece war, Location command) {
+    PhaseStateWar? phaseState = _phaseState is PhaseStateWar ? _phaseState as PhaseStateWar : null;  // NB could be null if called from game page
+
+    final warProvince = _state.pieceLocation(war);
+    final provinces = <Location>[];
+    final spaces = _state.spaceConnectedSpaces(warProvince);
+    spaces.add(warProvince);
+    for (final space in spaces) {
+      if (space.isType(LocationType.province)) {
+        if (phaseState == null || !phaseState.provincesFought.contains(space)) {
+          if (canProvinceContributeToWar(space, command)) {
+            bool commandOk = false;
+            if (command != Location.commandCaesar) {
+              commandOk = _state.commandOverallCommand(_state.provinceCommand(space)) == command;
+            } else {
+              commandOk = _state.commandLoyal(_state.provinceCommand(space));
+            }
+            if (commandOk) {
+              provinces.add(space);
+            }
+          }
+        }
+      }
+    }
+    return provinces;
+  }
+
+  (int, bool) calculateFightWarModifier(Piece war, Location warCommand, List<Location> warProvinces, bool log) {
+    PhaseStateWar? phaseState = _phaseState is PhaseStateWar ? _phaseState as PhaseStateWar : null;  // NB could be null if called from game page
+
+    final warProvince = _state.pieceLocation(war);
+    final leader = _state.pieceInLocation(PieceType.leader, warProvince);
+    final enemy = _state.warEnemy(war);
+    final warUnits = <Piece>[];
+    final warFleets = <Piece>[];
+    final general = _state.commandCommander(warCommand);
+    for (final unit in PieceType.unit.pieces) {
+      final location = _state.pieceLocation(unit);
+      if (warProvinces.contains(location) && (phaseState == null || !phaseState.unitsFought.contains(unit))) {
+        if (unit.isType(PieceType.fleet)) {
+          warFleets.add(unit);
+        } else {
+          warUnits.add(unit);
+        }
+      }
+    }
+
+    bool matchingWarAbility = general != null && _state.statesmanAbility(general).warEnemy == enemy;
+
+    int modifiers = 0;
+    int modifier = 0;
+
+    modifier = _state.warStrength(war);
+    if (log) {
+      logLine('>|${war.desc}|+$modifier|');
+    }
+    modifiers += modifier;
+    if (leader != null) {
+      modifier = _state.leaderStrength(leader);
+      if (log) {
+        logLine('>|${leader.desc}|+$modifier|');
+      }
+      modifiers += modifier;
+    }
+    final spaces = _state.spaceConnectedSpaces(warProvince);
+    spaces.add(warProvince);
+    for (final space in spaces) {
+      if (space.isType(LocationType.homeland)) {
+        if (space == _state.warHomeland(war)) {
+          modifier = 2;
+        } else {
+          modifier = 1;
+        }
+        if (log) {
+          logLine('>|${space.desc}|+$modifier|');
+        }
+        modifiers += modifier;
+      } else {
+        modifier = 0;
+        final status = _state.provinceStatus(space);
+        switch (status) {
+        case ProvinceStatus.barbarian:
+          modifier = 1;
+        case ProvinceStatus.allied:
+          if (warProvinces.contains(space)) {
+            modifier = -1;
+          }
+        case ProvinceStatus.veteranAllied:
+          if (warProvinces.contains(space)) {
+            modifier = -2;
+          }
+        case ProvinceStatus.insurgent:
+        case ProvinceStatus.roman:
+        }
+        if (modifier > 0) {
+          if (log) {
+            logLine('>|${space.desc}|+$modifier|');
+          }
+        } else if (modifier < 0) {
+          if (log) {
+            logLine('>|${space.desc}|$modifier|');
+          }
+        }
+        modifiers += modifier;
+      }
+    }
+    modifier = 0;
+    for (final unit in warUnits) {
+      if (_state.unitVeteran(unit)) {
+        modifier -= 2;
+      } else {
+        modifier -= 1;
+      }
+    }
+    if (modifier != 0) {
+      if (log) {
+        logLine('>|Units|$modifier|');
+      }
+      modifiers += modifier;
+    }
+    if (matchingWarAbility) {
+      modifier = -1;
+      if (log) {
+        logLine('>|${_state.statesmanName(general)} Ability|-1|');
+      }
+      modifiers += modifier;
+    }
+    modifier = -_state.commandMilitary(warCommand);
+    if (log) {
+      logLine('>|${_state.commanderName(warCommand)}|$modifier|');
+    }
+    modifiers += modifier;
+
+    modifier = _options.warRollModifier;
+    if (modifier != 0) {
+      if (modifier == 1) {
+        if (log) {
+          logLine('> Harder Wars Option|+1|');
+        }
+      } else if (modifier == -1) {
+        if (log) {
+          logLine('> Easier Wars Option|-1|');
+        }
+      }
+      modifiers += modifier;
+    }
+
+    bool fleetShortage = false;
+    if (_state.warNavalStrength(war) > 0) {
+      int fleetStrength = 0;
+      for (final fleet in warFleets) {
+        if (fleet.isType(PieceType.fleetVeteran)) {
+          fleetStrength += 2;
+        } else {
+          fleetStrength += 1;
+        }
+      }
+      if (fleetStrength < _state.warNavalStrength(war)) {
+        fleetShortage = true;
+      }
+    }
+
+    return (modifiers, fleetShortage);
+  }
+
   void fightWar(Location warProvince, Location warCommand, List<Location> warProvinces) {
     final phaseState = _phaseState as PhaseStateWar;
     final war = _state.pieceInLocation(PieceType.war, warProvince)!;
@@ -6864,88 +7078,16 @@ class Game {
     } else if (stalemate) {
       logLine('>Campaign against $warDesc results in a Stalemate.');
     } else {
-      int modifiers = 0;
-      int modifier = 0;
 
       logTableHeader();
       log3D6WithRedInTable(rolls);
-      modifier = _state.warStrength(war);
-      logLine('>|${war.desc}|+$modifier|');
-      modifiers += modifier;
-      if (leader != null) {
-        modifier = _state.leaderStrength(leader);
-        logLine('>|${leader.desc}|+$modifier|');
-        modifiers += modifier;
-      }
-      final spaces = _state.spaceConnectedSpaces(warProvince);
-      spaces.add(warProvince);
-      for (final space in spaces) {
-        if (space.isType(LocationType.homeland)) {
-          if (space == _state.warHomeland(war)) {
-            modifier = 2;
-          } else {
-            modifier = 1;
-          }
-          logLine('>|${space.desc}|+$modifier|');
-          modifiers += modifier;
-        } else {
-          modifier = 0;
-          final status = _state.provinceStatus(space);
-          switch (status) {
-          case ProvinceStatus.barbarian:
-            modifier = 1;
-          case ProvinceStatus.allied:
-            if (warProvinces.contains(space)) {
-              modifier = -1;
-            }
-          case ProvinceStatus.veteranAllied:
-            if (warProvinces.contains(space)) {
-              modifier = -2;
-            }
-          case ProvinceStatus.insurgent:
-          case ProvinceStatus.roman:
-          }
-          if (modifier > 0) {
-            logLine('>|${space.desc}|+$modifier|');
-          } else if (modifier < 0) {
-            logLine('>|${space.desc}|$modifier|');
-          }
-          modifiers += modifier;
-        }
-      }
-      modifier = 0;
-      for (final unit in warUnits) {
-        if (_state.unitVeteran(unit)) {
-          modifier -= 2;
-        } else {
-          modifier -= 1;
-        }
-      }
-      if (modifier != 0) {
-        logLine('>|Units|$modifier|');
-        modifiers += modifier;
-      }
-      if (matchingWarAbility) {
-        modifier = -1;
-        logLine('>|${_state.statesmanName(general!)} Ability|-1|');
-        modifiers += modifier;
-      }
-      modifier = -_state.commandMilitary(warCommand);
-      logLine('>|${_state.commanderName(warCommand)}|$modifier|');
-      modifiers += modifier;
-
-      modifier = _options.warRollModifier;
-      if (modifier != 0) {
-        if (modifier == 1) {
-          logLine('> Harder Wars Option|+1|');
-        } else if (modifier == -1) {
-          logLine('> Easier Wars Option|-1|');
-        }
-        modifiers += modifier;
-      }
+      final modifierResults = calculateFightWarModifier(war, warCommand, warProvinces, true);
+      int modifiers = modifierResults.$1;
       int result = total + modifiers;
       logLine('>|Total|$result|');
       logTableFooter();
+
+      bool fleetShortage = modifierResults.$2;
 
       if (result >= 12) {
         if (matchingWarAbility) {
@@ -6967,24 +7109,16 @@ class Game {
         draw = true;
         logLine('>Campaign against $warDesc results in a Draw.');
       } else {
-        int fleetStrength = 0;
-        for (final fleet in warFleets) {
-          if (fleet.isType(PieceType.fleetVeteran)) {
-            fleetStrength += 2;
-          } else {
-            fleetStrength += 1;
-          }
-        }
-        if (fleetStrength >= _state.warNavalStrength(war)) {
+        if (fleetShortage) {
+          draw = true;
+          logLine('>Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
+        } else {
           triumph = true;
           if (result - omens >= 10) {
             logLine('>Campaign against $warDesc end in Triumph, in accordance with the Omens.');
           } else {
             logLine('>Campaign against $warDesc ends in Triumph.');
           }
-        } else {
-          draw = true;
-          logLine('>Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
         }
       }
     }
@@ -8690,26 +8824,8 @@ class Game {
             }
             if (phaseState.command == null) {
               setPrompt('Select Command to Fight War with');
-              final commands = <Location>[];
-              bool haveLoyalCommands = false;
-              for (final space in _state.spaceConnectedSpaces(province)) {
-                if (space.isType(LocationType.province)) {
-                  var command = _state.provinceCommand(space);
-                  final loyaltyCommand = _state.commandLoyalty(command);
-                  if (loyaltyCommand != Location.commandCaesar) {
-                    command = loyaltyCommand;
-                  }
-                  if (!commands.contains(command) && !phaseState.commandsFought.contains(command)) {
-                    commands.add(command);
-                    locationChoosable(command);
-                    if (loyaltyCommand == Location.commandCaesar) {
-                      haveLoyalCommands = true;
-                    }
-                  }
-                }
-              }
-              if (haveLoyalCommands && _state.emperorsActive(Piece.emperorsFlavian) && !phaseState.commandsFought.contains(Location.commandCaesar)) {
-                locationChoosable(Location.commandCaesar);
+              for (final command in fightWarCommandCandidates(phaseState.war!)) {
+                locationChoosable(command);
               }
               choiceChoosable(Choice.cancel, true);
               throw PlayerChoiceException();
@@ -8717,30 +8833,10 @@ class Game {
             final command = phaseState.command;
             if (!checkChoice(Choice.fightWar)) {
               if (selectedLocations().length == phaseState.provinces.length) {
-                setPrompt('Select Province to Fight War from');
-                final spaces = _state.spaceConnectedSpaces(province);
-                spaces.add(province);
-                for (final space in spaces) {
-                  if (space.isType(LocationType.province) && !phaseState.provincesFought.contains(space) && !phaseState.provinces.contains(space)) {
-                    bool commandOk = false;
-                    if (command! != Location.commandCaesar) {
-                      commandOk = _state.commandOverallCommand(_state.provinceCommand(space)) == command;
-                    } else {
-                      commandOk = _state.commandLoyal(_state.provinceCommand(space));
-                    }
-                    if (commandOk) {
-                      switch (_state.provinceStatus(space)) {
-                      case ProvinceStatus.allied:
-                      case ProvinceStatus.veteranAllied:
-                        locationChoosable(space);
-                      case ProvinceStatus.insurgent:
-                      case ProvinceStatus.roman:
-                        if (_state.provinceViableWarUnits(space, command).isNotEmpty) {
-                          locationChoosable(space);
-                        }
-                      case ProvinceStatus.barbarian:
-                      }
-                    }
+                setPrompt('Select Provinces to Fight War from');
+                for (final province in fightWarProvinceCandidates(phaseState.war!, command!)) {
+                  if (!phaseState.provinces.contains(province)) {
+                    locationChoosable(province);
                   }
                 }
                 choiceChoosable(Choice.fightWar, true);

@@ -7144,7 +7144,7 @@ class Game {
     return rebels;
   }
 
-  bool canProvinceContributeToWar(Piece war, Location province) {
+  bool canProvinceContributeToWar(Location province, Piece war) {
     final status = _state.provinceStatus(province);
     switch (status) {
     case ProvinceStatus.foreignAmerican:
@@ -7175,7 +7175,7 @@ class Game {
     final commands = <Location>[];
     for (final space in _state.spaceConnectedSpaces(warProvince)) {
       if (space.isType(LocationType.province)) {
-        if (canProvinceContributeToWar(war, warProvince)) {
+        if (canProvinceContributeToWar(warProvince, war)) {
           var command = _state.provinceCommand(space);
           command = _state.commandAllegiance(command);
           if (!commands.contains(command) &&_state.commandActive(command)) {
@@ -7208,7 +7208,7 @@ class Game {
     for (final space in spaces) {
       if (space.isType(LocationType.province)) {
         if (phaseState == null || !phaseState.provincesFought.contains(space)) {
-          if (canProvinceContributeToWar(war, space)) {
+          if (canProvinceContributeToWar(space, war)) {
             final provinceCommand = _state.provinceCommand(space);
             bool commandOk = false;
             if (command.isType(LocationType.governorship)) {
@@ -7527,8 +7527,7 @@ class Game {
         } else if (cavalryShortage) {
           draw = true;
           logLine('>Campaign against $warDesc results in a Draw due to a shortage of Cavalry.');
-        }
-        if (!draw) {
+        } else {
           triumph = true;
           if (result - omens >= 10) {
             logLine('>Campaign against $warDesc end in Triumph, in accordance with the Omens.');
@@ -10232,7 +10231,7 @@ class Game {
           final command = phaseState.command!;
           if (!checkChoice(Choice.fightWar)) {
             if (selectedLocations().length == phaseState.provinces.length) {
-              setPrompt('Select Province to Fight War from');
+              setPrompt('Select Provinces to Fight War from');
               for (final province in fightWarProvinceCandidates(phaseState.war!, command)) {
                 if (!phaseState.provinces.contains(province)) {
                   locationChoosable(province);

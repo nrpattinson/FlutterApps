@@ -7781,7 +7781,7 @@ class Game {
     return rebels;
   }
 
-  bool canProvinceContributeToWar(Piece war, Location province) {
+  bool canProvinceContributeToWar(Location province, Piece war) {
     final status = _state.provinceStatus(province);
     switch (status) {
     case ProvinceStatus.foederatiFrankish:
@@ -7808,7 +7808,7 @@ class Game {
     final commands = <Location>[];
     for (final space in _state.spaceConnectedSpaces(warProvince)) {
       if (space.isType(LocationType.province)) {
-        if (canProvinceContributeToWar(war, warProvince)) {
+        if (canProvinceContributeToWar(warProvince, war)) {
           var command = _state.provinceCommand(space);
           command = _state.commandAllegiance(command);
           if (!commands.contains(command) && _state.commandActive(command)) {
@@ -7846,7 +7846,7 @@ class Game {
     for (final space in spaces) {
       if (space.isType(LocationType.province)) {
         if (phaseState == null || !phaseState.provincesFought.contains(space)) {
-          if (canProvinceContributeToWar(war, space)) {
+          if (canProvinceContributeToWar(space, war)) {
             final provinceCommand = _state.provinceCommand(space);
             bool commandOk = false;
             if (command.isType(LocationType.governorship)) {
@@ -7977,7 +7977,7 @@ class Game {
     if (matchingWarAbility) {
       modifier = -1;
       if (log) {
-        logLine('>|${_state.statesmanName(general!)} Ability|-1|');
+        logLine('>|${_state.statesmanName(general)} Ability|-1|');
       }
       modifiers += modifier;
     }
@@ -8120,98 +8120,17 @@ class Game {
     } else if (stalemate) {
       logLine('>Campaign against $warDesc results in a Stalemate.');
     } else {
-      int modifiers = 0;
-      int modifier = 0;
 
       logTableHeader();
       log3D6WithPurpleInTable(rolls);
-      int nonMatchingFoederatiProvinceCount = 0;
-      modifier = _state.warStrength(war);
-      logLine('>|${war.desc}|+$modifier|');
-      modifiers += modifier;
-      if (leader != null) {
-        modifier = _state.leaderStrength(leader);
-        logLine('>|${leader.desc}|+$modifier|');
-        modifiers += modifier;
-      }
-      final spaces = _state.spaceConnectedSpaces(warProvince);
-      spaces.add(warProvince);
-      for (final space in spaces) {
-        if (space.isType(LocationType.homeland)) {
-          if (enemy.homelands.contains(space)) {
-            modifier = 2;
-          } else {
-            modifier = 1;
-          }
-          logLine('>|${space.desc}|+$modifier|');
-          modifiers += modifier;
-        } else {
-          if (enemy == Enemy.isaurians && space == Location.provinceIsauria) {
-            modifier = space == warProvince ? 2 : 1;
-            logLine('>|${space.desc}|+$modifier|');
-            modifiers += modifier;
-          }
-          modifier = 0;
-          final status = _state.provinceStatus(space);
-          switch (status) {
-          case ProvinceStatus.barbarian:
-            modifier = 1;
-          case ProvinceStatus.foederatiFrankish:
-          case ProvinceStatus.foederatiOstrogothic:
-          case ProvinceStatus.foederatiSuevian:
-          case ProvinceStatus.foederatiVandal:
-          case ProvinceStatus.foederatiVisigothic:
-            if (status.foederati != enemy) {
-              nonMatchingFoederatiProvinceCount += 1;
-              modifier = -2;
-            }
-          case ProvinceStatus.allied:
-            if (warProvinces.contains(space)) {
-              modifier = -1;
-            }
-          case ProvinceStatus.insurgent:
-          case ProvinceStatus.roman:
-          }
-          if (modifier > 0) {
-            logLine('>|${space.desc}|+$modifier|');
-          } else if (modifier < 0) {
-            logLine('>|${space.desc}|$modifier|');
-          }
-          modifiers += modifier;
-        }
-      }
-      modifier = 0;
-      for (final unit in warUnits) {
-        if (_state.unitVeteran(unit)) {
-          modifier -= 2;
-        } else {
-          modifier -= 1;
-        }
-      }
-      if (modifier != 0) {
-        logLine('>|Units|$modifier|');
-        modifiers += modifier;
-      }
-      if (matchingWarAbility) {
-        modifier = -1;
-        logLine('>|${_state.statesmanName(general!)} Ability|-1|');
-        modifiers += modifier;
-      }
-      modifier = -_state.commandMilitary(warCommand);
-      logLine('>|${_state.commanderName(warCommand)}|$modifier|');
-      modifiers += modifier;
-      modifier = _options.warRollModifier;
-      if (modifier != 0) {
-        if (modifier == 1) {
-          logLine('>|Harder Wars Option|+1|');
-        } else if (modifier == -1) {
-          logLine('>|Easier Wars Option|-1|');
-        }
-        modifiers += modifier;
-      }
+      final modifierResults = calculateFightWarModifier(war, warCommand, warProvinces, true);
+      int modifiers = modifierResults.$1;
       int result = total + modifiers;
       logLine('>|Total|$result|');
       logTableFooter();
+
+      bool fleetShortage = modifierResults.$2;
+      bool cavalryShortage = modifierResults.$3;
 
       if (result >= 12) {
         if (matchingWarAbility) {
@@ -8233,37 +8152,13 @@ class Game {
         draw = true;
         logLine('>Campaign against $warDesc results in a Draw.');
       } else {
-        if (_state.warNavalStrength(war) > 0) {
-          int fleetStrength = 0;
-          for (final fleet in warFleets) {
-            if (fleet.isType(PieceType.fleetVeteran)) {
-              fleetStrength += 2;
-            } else {
-              fleetStrength += 1;
-            }
-          }
-          if (fleetStrength + nonMatchingFoederatiProvinceCount < _state.warNavalStrength(war)) {
-            draw = true;
-            logLine('>Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
-          }
-        }
-        if (_state.warCavalryStrength(war) > 0) {
-          int cavalryStrength = 0;
-          for (final unit in warUnits) {
-            if (unit.isType(PieceType.cavalry)) {
-              if (unit.isType(PieceType.cavalryVeteran)) {
-                cavalryStrength += 2;
-              } else {
-                cavalryStrength += 1;
-              }
-            }
-          }
-          if (cavalryStrength + nonMatchingFoederatiProvinceCount < _state.warCavalryStrength(war)) {
-            draw = true;
-            logLine('>Campaign against $warDesc results in a Draw due to a shortage of Cavalry.');
-          }
-        }
-        if (!draw) {
+        if (fleetShortage) {
+          draw = true;
+          logLine('>Campaign against $warDesc results in a Draw due to a shortage of Fleets.');
+        } else if (cavalryShortage) {
+          draw = true;
+          logLine('>Campaign against $warDesc results in a Draw due to a shortage of Cavalry.');
+        } else {
           triumph = true;
           if (result - omens >= 10) {
             logLine('>Campaign against $warDesc end in Triumph, in accordance with the Omens.');
@@ -11184,7 +11079,7 @@ class Game {
           final command = phaseState.command!;
           if (!checkChoice(Choice.fightWar)) {
             if (selectedLocations().length == phaseState.provinces.length) {
-              setPrompt('Select Province to Fight War from');
+              setPrompt('Select Provinces to Fight War from');
               for (final province in fightWarProvinceCandidates(phaseState.war!, command)) {
                 if (!phaseState.provinces.contains(province)) {
                   locationChoosable(province);

@@ -24,6 +24,7 @@ enum MarkerValueType {
 }
 
 typedef StackKey = (Location, int);
+typedef WarInfo = (Piece, double, double);
 
 class GamePage extends StatefulWidget {
 
@@ -41,8 +42,9 @@ class GamePageState extends State<GamePage> {
 
   final _displayOptionsFormKey = GlobalKey<FormState>();
 
-  bool _provinceRevoltModifiers = false;
   bool _provinceLoyalty = false;
+  bool _provinceRevoltModifiers = false;
+  bool _fightWarModifiers = false;
   bool _emptyMap = false;
 
   final _pieceImages = <Piece,Image>{};
@@ -60,6 +62,8 @@ class GamePageState extends State<GamePage> {
 
   final _logScrollController = ScrollController();
   bool _hadPlayerChoices = false;
+
+  final _warInfos = <WarInfo>[];
 
   GamePageState() {
 
@@ -585,6 +589,39 @@ class GamePageState extends State<GamePage> {
     return coordinates[homeland]!;
   }
 
+  Color commandColor(Location command) {
+    switch (command) {
+    case Location.commandCaesar:
+      return const Color.fromRGBO(0xB0, 0x33, 0x1C, 1.0);
+    case Location.commandPrefect:
+      return const Color.fromRGBO(0xD2, 0x53, 0x7C, 1.0);
+    case Location.commandBritannia:
+      return const Color.fromRGBO(0x85, 0x3C, 0x2D, 1.0);
+    case Location.commandGallia:
+      return const Color.fromRGBO(0x56, 0x8E, 0x47, 1.0);
+    case Location.commandPannonia:
+      return const Color.fromRGBO(0x21, 0x21, 0x21, 1.0);
+    case Location.commandMoesia:
+      return const Color.fromRGBO(0x45, 0xA8, 0xC7, 1.0);
+    case Location.commandHispania:
+      return const Color.fromRGBO(0xE7, 0xB0, 0x3D, 1.0);
+    case Location.commandAfrica:
+      return const Color.fromRGBO(0x84, 0x6F, 0x44, 1.0);
+    case Location.commandAegyptus:
+      return const Color.fromRGBO(0x80, 0xC3, 0x42, 1.0);
+    case Location.commandSyria:
+      return const Color.fromRGBO(0xE6, 0x35, 0x2B, 1.0);
+    case Location.commandPontica:
+      return const Color.fromRGBO(0x3F, 0x57, 0x95, 1.0);
+    default:
+      return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
+    }
+  }
+
+  Color commandForegroundColor(Location command) {
+    return const Color.fromRGBO(0xFF, 0xFF, 0xFF, 1.0);
+  }
+
   void addProvinceStatusToMap(MyAppState appState, ProvinceStatus status, double x, double y) {
     Widget widget = _provinceStatusImages[status]!;
 
@@ -676,6 +713,10 @@ class GamePageState extends State<GamePage> {
     );
 
     _mapStackChildren.add(widget);
+
+    if (piece.isType(PieceType.war)) {
+      _warInfos.add((piece, x, y));
+    }
   }
 
   void addGovernorshipMarkerToMap(MyAppState appState, Location command, double x, double y, bool loyal) {
@@ -1356,6 +1397,81 @@ class GamePageState extends State<GamePage> {
     }
   }
 
+  void displayWarModifiers(MyAppState appState) {
+    final game = appState.game;
+    final gameState = appState.gameState;
+    if (!_fightWarModifiers || game == null || gameState == null) {
+      return;
+    }
+
+    for (final warInfo in _warInfos) {
+      final war = warInfo.$1;
+      double x = warInfo.$2;
+      double y = warInfo.$3;
+
+      final location = gameState.pieceLocation(war);
+      if (location.isType(LocationType.province)) {
+        final commands = game.fightWarCommandCandidates(war);
+        commands.sort((a, b) => a.index.compareTo(b.index));
+        int commandIndex = 0;
+        for (final command in commands) {
+          final provinces = game.fightWarProvinceCandidates(war, command);
+          final modifierResults = game.calculateFightWarModifier(war, command, provinces, false);
+
+          int fightWarModifier = modifierResults.$1;
+          bool fleetShortage = modifierResults.$2;
+
+          final fightWarColor = commandColor(command);
+          final textColor = commandForegroundColor(command);
+
+          final textTheme = Theme.of(context).textTheme;
+
+          String code = '${9 + fightWarModifier}';
+          if (fleetShortage) {
+            code += 'F';
+          }
+
+          final fightWarTextStyle = textTheme.displayMedium!.copyWith(color: textColor);
+
+          Widget fightWarWidget = Text(
+            code,
+            style: fightWarTextStyle,
+            selectionColor: textColor,
+          );
+
+          const fightWarHalfWidth = 45.0;
+
+          fightWarWidget = SizedBox(
+            width: 2.0 * fightWarHalfWidth,
+            height: 50.0,
+            child: Center(
+              child: fightWarWidget,
+            ),
+          );
+
+          fightWarWidget = DecoratedBox(
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: fightWarColor,
+              border: Border.all(color: Colors.black, width: 2.0),
+            ),
+            child: fightWarWidget,
+          );
+
+
+          fightWarWidget = Positioned(
+            left: x + 24.0 - fightWarHalfWidth * commands.length + commandIndex * 2.0 * fightWarHalfWidth,
+            top: y + 50.0,
+            child: fightWarWidget,
+          );
+          _mapStackChildren.add(fightWarWidget);
+
+          commandIndex += 1;
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<MyAppState>();
@@ -1374,6 +1490,7 @@ class GamePageState extends State<GamePage> {
     _mapStackChildren.add(_mapImage);
 
     _pieceStackKeys.clear();
+    _warInfos.clear();
 
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -1410,6 +1527,7 @@ ___
         layoutProvinces(appState, 0);
         layoutHomelands(appState, 1);
         layoutProvinces(appState, 1);
+        displayWarModifiers(appState);
       }
 
       const choiceTexts = {
@@ -1524,6 +1642,21 @@ ___
                             children: [
                               CheckboxListTile(
                                 title: Text(
+                                  'Province Loyalty',
+                                  style: textTheme.labelMedium
+                                ),
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: _provinceLoyalty,
+                                onChanged: (bool? provinceLoyalty) {
+                                  setState(() {
+                                    if (provinceLoyalty != null) {
+                                      _provinceLoyalty = provinceLoyalty;
+                                    }
+                                  });
+                                },
+                              ),
+                              CheckboxListTile(
+                                title: Text(
                                   'Province Revolt Modifiers',
                                   style: textTheme.labelMedium
                                 ),
@@ -1539,15 +1672,15 @@ ___
                               ),
                               CheckboxListTile(
                                 title: Text(
-                                  'Province Loyalty',
+                                  'Fight War Modifiers',
                                   style: textTheme.labelMedium
                                 ),
                                 controlAffinity: ListTileControlAffinity.leading,
-                                value: _provinceLoyalty,
-                                onChanged: (bool? provinceLoyalty) {
+                                value: _fightWarModifiers,
+                                onChanged: (bool? fightWarModifiers) {
                                   setState(() {
-                                    if (provinceLoyalty != null) {
-                                      _provinceLoyalty = provinceLoyalty;
+                                    if (fightWarModifiers != null) {
+                                      _fightWarModifiers = fightWarModifiers;
                                     }
                                   });
                                 },
