@@ -2764,18 +2764,21 @@ class PhaseStateUnitedNationsAttack extends PhaseState {
 class PhaseStatePacificNaval extends PhaseState {
   int? japaneseNavalMissionRoll;
   Location? yamamotoSea;
+  int? spruanceDie;
 
   PhaseStatePacificNaval();
 
   PhaseStatePacificNaval.fromJson(Map<String, dynamic> json)
     : japaneseNavalMissionRoll = json['japaneseNavalMissionRoll'] as int?
     , yamamotoSea = locationFromIndex(json['yamamotoSea'] as int?)
+    , spruanceDie = json['spruanceDie'] as int?
     ;
   
   @override
   Map<String, dynamic> toJson() => {
     'japaneseNavalMissionRoll': japaneseNavalMissionRoll,
     'yamamotoSea': locationToIndex(yamamotoSea),
+    'spruanceDie': spruanceDie,
   };
 
   @override
@@ -6356,6 +6359,9 @@ class Game {
   }
 
   void pacificNavalPhaseUSCarriers() {
+    if (_phaseState == null) {
+      return;
+    }
     if (choicesEmpty()) {
       setPrompt('Draw Carrier?');
       choiceChoosable(Choice.yes, true);
@@ -6374,68 +6380,101 @@ class Game {
   }
 
   void pacificNavalPhaseAmericanNavalCombat() {
+    if (_phaseState == null) {
+      return;
+    }
+    final phaseState = _phaseState as PhaseStatePacificNaval;
     while (_state.navalActions > 0 && _state.dollars > 0) {
-      final spruance = _state.spruance;
-      final spruanceLocation = _state.pieceLocation(spruance);
-      if (choicesEmpty()) {
-        bool haveSeas = false;
-        for (final sea in LocationType.sea.locations) {
-          bool hasShips = false;
-          for (final ship in _state.piecesInLocation(PieceType.ship, sea)) {
-            pieceChoosable(ship);
-            hasShips = true;
-          }
-          if (hasShips) {
-            haveSeas = true;
-            if (spruanceLocation == Location.boxHawaii) {
-              locationChoosable(sea);
+      if (_subStep == 0) {
+        final spruance = _state.spruance;
+        final spruanceLocation = _state.pieceLocation(spruance);
+        if (choicesEmpty()) {
+          bool haveSeas = false;
+          for (final sea in LocationType.sea.locations) {
+            bool hasShips = false;
+            for (final ship in _state.piecesInLocation(PieceType.ship, sea)) {
+              pieceChoosable(ship);
+              hasShips = true;
+            }
+            if (hasShips) {
+              haveSeas = true;
+              if (spruanceLocation == Location.boxHawaii) {
+                locationChoosable(sea);
+              }
             }
           }
+          if (spruanceLocation == Location.boxHawaii && haveSeas) {
+            setPrompt('Select Japanese Ship to attack, or Sea for Admiral Spruance');
+          } else {
+            setPrompt('Select Japanese Ship to attack');
+          }
+          choiceChoosable(Choice.next, true);
+          throw PlayerChoiceException();
         }
-        if (spruanceLocation == Location.boxHawaii && haveSeas) {
-          setPrompt('Select Japanese Ship to attack, or Sea for Admiral Spruance');
-        } else {
-          setPrompt('Select Japanese Ship to attack');
+        if (checkChoiceAndClear(Choice.next)) {
+          if (phaseState.spruanceDie != null) {
+            final calendarBox = _state.futureCalendarBox(phaseState.spruanceDie!);
+            logLine('>Admiral Spruance is out of action until ${calendarBox.desc}.');
+            _state.setPieceLocation(Piece.spruanceP1, calendarBox);
+            phaseState.spruanceDie = null;
+          }
+          return;
         }
-        choiceChoosable(Choice.next, true);
-        throw PlayerChoiceException();
-      }
-      if (checkChoiceAndClear(Choice.next)) {
-        return;
-      }
-      if (selectedLocation() != null) {
-        final sea = selectedLocation()!;
-        logLine('>Admiral Spruance takes command of US fleet in ${sea.desc}.');
-        _state.setPieceLocation(spruance, sea);
-        continue;
-      }
-      final ship = selectedPiece()!;
-      final sea = _state.pieceLocation(ship);
-      logLine('>${ship.desc} is attacked.');
-      adjustNavalActions(-1);
-      int die = rollD6();
-      int modifiers = 0;
+        if (selectedLocation() != null) {
+          final sea = selectedLocation()!;
+          logLine('>Admiral Spruance takes command of US fleet in ${sea.desc}.');
+          _state.setPieceLocation(spruance, sea);
+          continue;
+        }
+        final ship = selectedPiece()!;
+        clearChoices();
+        final sea = _state.pieceLocation(ship);
+        logLine('>${ship.desc} is attacked.');
+        adjustNavalActions(-1);
+        int die = rollD6();
+        int modifiers = 0;
 
-      logTableHeader();
-      logD6InTable(die);
-      if (spruanceLocation == sea) {
-        if (spruance == Piece.spruanceP2) {
-          logLine('>|Admiral Spruance|+2|');
-          modifiers += 2;
-        } else {
-          logLine('>|Admiral Spruance|+1|');
-          modifiers += 1;
+        logTableHeader();
+        logD6InTable(die);
+        if (spruanceLocation == sea) {
+          if (spruance == Piece.spruanceP2) {
+            logLine('>|Admiral Spruance|+2|');
+            modifiers += 2;
+          } else {
+            logLine('>|Admiral Spruance|+1|');
+            modifiers += 1;
+          }
+        }
+        int total = die + modifiers;
+        logLine('>|Total|$total|');
+        logTableFooter();
+
+        int strength = _state.shipStrength(ship);
+        if (total > strength) {
+          sinkShip(ship);
+        }
+
+        if (spruanceLocation == sea) {
+          phaseState.spruanceDie = die;
+          _subStep = 1;
         }
       }
-      int total = die + modifiers;
-      logLine('>|Total|$total|');
-      logTableFooter();
-
-      int strength = _state.shipStrength(ship);
-      if (total > strength) {
-        sinkShip(ship);
+      if (_subStep == 1) {
+        if (choicesEmpty()) {
+          setPrompt('Remove Admiral Spruance from the action?');
+          choiceChoosable(Choice.yes, true);
+          choiceChoosable(Choice.no, true);
+          throw PlayerChoiceException();
+        }
+        if (checkChoice(Choice.yes)) {
+          final calendarBox = _state.futureCalendarBox(phaseState.spruanceDie!);
+          logLine('>Admiral Spruance is out of action until ${calendarBox.desc}.');
+          _state.setPieceLocation(Piece.spruanceP1, calendarBox);
+          phaseState.spruanceDie = null;
+        }
+        clearChoices();
+        _subStep = 0;
       }
-      // TODO spruance
     }
   }
 
