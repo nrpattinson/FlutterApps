@@ -853,6 +853,24 @@ class GameState {
     return siegeCitySpaces[siege]!;
   }
 
+  int spaceDefenceValue(Location space) {
+    const defenceValues = {
+      Location.homeConstantine: 7,
+      Location.homeVandals: 7,
+      Location.homeGoths: 7,
+      Location.regionBononia: 4,
+      Location.regionLocoritum: 6,
+      Location.regionMogontiacum: 2,
+      Location.regionPyrenaeiMontes: 2,
+      Location.regionDalmatia: 4,
+      Location.regionTarsatica: 2,
+      Location.cityArelate: 4,
+      Location.cityRavenna: 6,
+      Location.cityRoma: 4,
+    };
+    return defenceValues[space] ?? 0;
+  }
+
   bool spacePotentialCollision(Location space) {
     return [Location.regionDurocortorum, Location.regionVerona].contains(space);
   }
@@ -1590,6 +1608,56 @@ class Game {
 
   // Sequence Helpers
 
+  void attackGarrison(Piece besieger, Location garrisonSpace) {
+    logLine('>${besieger.desc} attacks Garrison in ${garrisonSpace.desc}.');
+
+    int enemyRoll = rollD6();
+    int garrisonRoll = rollD6();
+
+    logTableHeader();
+    int enemyAttackValue = _state.enemyAttackValue(besieger);
+    logLine('>|${besieger.desc}|$enemyAttackValue|');
+    logD6InTable(enemyRoll);
+    int enemyTotal = enemyAttackValue + enemyRoll;
+    logLine('>|Enemy Total|$enemyTotal|');
+    int garrisonAttackValue = 1;
+    logLine('>|Garrison|$garrisonAttackValue|');
+    logD6InTable(garrisonRoll);
+    int spaceDefenceValue = _state.spaceDefenceValue(garrisonSpace);
+    if (spaceDefenceValue != 0) {
+      logLine('>|${garrisonSpace.desc}|$spaceDefenceValue|');
+    }
+    int garrisonTotal = garrisonAttackValue + garrisonRoll + spaceDefenceValue;
+    logLine('>|Garrison Total|$garrisonTotal|');
+
+    // TODO Reserve Actions
+  }
+
+  bool advanceConstantine() {
+    final constantine = _state.pathEnemyPiece(Path.constantine)!;
+    final space = _state.pieceLocation(constantine);
+    if (space.isType(LocationType.siege)) {
+      attackCityGarrison(constantine);
+    }
+    var nextSpace = _state.pathNextSpace(Path.constantine, space)!;
+    if (_state.spacePotentialCollision(nextSpace)) {
+      final enemy = _state.pieceInLocation(PieceType.enemy, nextSpace);
+      if (enemy != null) {
+        collisionAttack(constantine, enemy);
+        return true;
+      }
+    }
+    if (nextSpace.isType(LocationType.siege)) {
+      final citySpace = _state.siegeCitySpace(nextSpace);
+      if (_state.piecesInLocationCount(PieceType.garrison, citySpace) > 0) {
+        logLine('>${constantine.desc} lays siege to ${citySpace.desc}.');
+        _state.setPieceLocation(constantine, nextSpace);
+        return false;
+      }
+      nextSpace = citySpace;
+    }
+  }
+
   // Sequence of Play
 
   void setUpComitatensesAndGarrisons() {
@@ -1855,10 +1923,6 @@ class Game {
     logLine('## Enemy Phase');
   }
 
-  void attackGarrison(Piece besieger) {
-
-  }
-
   void collisionAttack(Piece originalAttacker, Piece originalDefender) {
     var attacker = originalAttacker;
     var defender = originalDefender;
@@ -1923,31 +1987,6 @@ class Game {
       if (attackerTotal != defenderTotal) {
         return;
       }
-    }
-  }
-
-  bool advanceConstantine() {
-    final constantine = _state.pathEnemyPiece(Path.constantine)!;
-    final space = _state.pieceLocation(constantine);
-    if (space.isType(LocationType.siege)) {
-      attackGarrison(constantine);
-    }
-    var nextSpace = _state.pathNextSpace(Path.constantine, space)!;
-    if (_state.spacePotentialCollision(nextSpace)) {
-      final enemy = _state.pieceInLocation(PieceType.enemy, nextSpace);
-      if (enemy != null) {
-        collisionAttack(constantine, enemy);
-        return true;
-      }
-    }
-    if (nextSpace.isType(LocationType.siege)) {
-      final citySpace = _state.siegeCitySpace(nextSpace);
-      if (_state.piecesInLocationCount(PieceType.garrison, citySpace) > 0) {
-        logLine('>${constantine.desc} lays siege to ${citySpace.desc}.');
-        _state.setPieceLocation(constantine, nextSpace);
-        return false;
-      }
-      nextSpace = citySpace;
     }
   }
 
