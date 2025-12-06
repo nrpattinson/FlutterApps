@@ -951,10 +951,52 @@ class GameState {
 
   // Treasury
 
+  Location treasuryBox(int value) {
+    return Location.values[Location.boxIncome0.index + value];
+  }
+
   int get treasury {
     return pieceLocation(Piece.markerTreasury).index - LocationType.income.firstIndex;
   }
 
+  bool adjustTreasury(int delta) {
+    int newValue = treasury + delta;
+    if (newValue < 0) {
+      return false;
+    }
+    if (newValue > 49) {
+      newValue = 49;
+    }
+    setPieceLocation(Piece.markerTreasury, treasuryBox(newValue));
+    return true;
+  }
+
+  // Victory Points
+
+  Location victoryPointsBox(int value) {
+    return Location.values[Location.boxVictory0.index + value];
+  }
+
+  int victoryPointsBoxValue(Location box) {
+    return box.index - Location.boxVictory0.index;
+  }
+
+  int get victoryPoints {
+    return victoryPointsBoxValue(pieceLocation(Piece.markerVictoryPoints10)) * 10 + victoryPointsBoxValue(pieceLocation(Piece.markerVictoryPoints1));
+  }
+
+  bool adjustVictoryPoints(int delta) {
+    int newValue = victoryPoints + delta;
+    if (newValue < 0) {
+      return false;
+    }
+    if (newValue > 99) {
+      newValue = 99;
+    }
+    setPieceLocation(Piece.markerVictoryPoints10, victoryPointsBox(newValue ~/ 10));
+    setPieceLocation(Piece.markerVictoryPoints1, victoryPointsBox(newValue % 10));
+    return true;
+  }
   // Turns
 
   int get currentTurn {
@@ -1180,11 +1222,8 @@ class PlayerChoiceException implements Exception {
 }
 
 enum GameResult {
-  defeatBattle,
-  defeatLegion,
-  defeatTreasury,
-  defeatVictoryThreshold,
-  defeatCalgacus,
+  defeatBankrupt,
+  defeatNegativeVictory,
   victory,
 }
 
@@ -1515,6 +1554,30 @@ class Game {
 
   // Logging
 
+  void adjustTreasury(int delta) {
+    if (!_state.adjustTreasury(delta)) {
+      logLine('# Treasury falls below zero!');
+      throw GameOverException(GameResult.defeatBankrupt, 0);
+    }
+    if (delta > 0) {
+      logLine('>Treasury: +$delta → ${_state.treasury}');
+    } else if (delta < 0) {
+      logLine('>Treasury: $delta → ${_state.treasury}');
+    }
+  }
+
+  void adjustVictoryPoints(int delta) {
+    if (!_state.adjustVictoryPoints(delta)) {
+      logLine('# Victory Points fall below zero!');
+      throw GameOverException(GameResult.defeatNegativeVictory, 0);
+    }
+    if (delta > 0) {
+      logLine('>Victory Points: +$delta → ${_state.victoryPoints}');
+    } else if (delta < 0) {
+      logLine('>Victory Points: $delta → ${_state.victoryPoints}');
+    }
+  }
+
   // High-Level Functions
 
   bool spaceIsSuppressCandidate(Location space) {
@@ -1796,6 +1859,7 @@ class Game {
         logLine('>Usurper handles the Barbarian incursion.');
         localState.subStep = 1;
       } else {
+        // TODO
         
 
       }
@@ -1808,10 +1872,11 @@ class Game {
         throw PlayerChoiceException();
       }
       if (checkChoice(Choice.loseVP)) {
-        adjustVP(-1);
+        adjustVictoryPoints(-1);
       } else {
-        adjustCoin(-1);
+        adjustTreasury(-1);
       }
+      return;
     }
   }
 
